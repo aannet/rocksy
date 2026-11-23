@@ -4,19 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## State of the repo
 
-Pre-code planning stage. There is no source code, build system or test suite yet, so there are no build/lint/test commands. A git repo exists (`main`, initialised 2026-11-24, first commit the same day; do not commit unless Alec asks). `in/` holds the inputs (French-language documents). `out/` holds the deliverables, organised as follows (see `out/README.md`):
-- `out/PLAN.md`: handoff plan with the ordered next steps. **Start here.**
-- `out/docs/`: `intent.md` (why, general objective, success criteria, principles; draft), `perimetre-fonctionnel.md`, `m1-plugins-matrix.md`, `m2-cahier-des-charges-spikes.md`.
-- `out/tools/`: `gen-vault.py`, `measure-coldstart.ps1`, `vault-kpis.ps1`, `scan-plugin-api.ps1`.
-- `out/data/`: raw measurements of the real vault (`vault-kpis.json`, `plugin-api-usage.json`).
-- `out/runs/`: Obsidian baseline measurements. `out/spikes/<spike>/`: the M2 spikes (`a-tauri-cm6`, `b-rune`) with `README.md`, `src/`, `grille.md` (F1-F9) and `runs/`; the comparative summary goes in `out/spikes/m2-resultats.md`.
-- **Runs are dated and never overwritten:** each measurement session writes to `<runs>/YYYY-MM-DD_HHMM_<case>/` (`coldstart.csv`, `meta.json`, optional `notes.md`, `captures/`). `measure-coldstart.ps1` creates this folder itself; pass `-RunsRoot` for a spike. Note the Drive cache state (cold/warm) in `notes.md`.
+Code landed on 2026-11-23: the M2 spike A (Tauri 2 + CodeMirror 6) was built as the base of release 0.1; spike B (Rune) stopped at its entry gate. Stack decision validated by Alec on 2026-11-23 (Tauri 2 + CodeMirror 6): `out/spikes/m2-resultats.md`. A git repo exists (`main`; do not commit unless Alec asks). `in/` holds the inputs (French-language documents). `out/` holds the deliverables (see `out/README.md`):
+- `out/PLAN.md`: handoff plan (written before the code existed). `out/suivi/dashboard.html` + `etat.js`: progress dashboard, decision journal and final report of the 2026-11-23 session.
+- `out/docs/`: `intent.md`, `perimetre-fonctionnel.md`, `m1-plugins-matrix.md`, `m2-cahier-des-charges-spikes.md`.
+- `out/tools/`: `gen-vault.py` (v2), `vault-kpis.ps1`, `scan-plugin-api.ps1`, `measure-coldstart.ps1` (manual F8/F9 timing), `measure-auto.ps1` (automatic startup timing from the app's own milestones), `build-win.sh`, `cdp.py`.
+- `out/release/`: `README.md` (install and usage, French) and `install.ps1` (per-user install, no admin).
+- `out/data/`: raw measurements of the real vault. `out/runs/`: Obsidian baseline (still empty).
+- `out/spikes/<spike>/`: `README.md`, `src/`, `grille.md` (F1-F9), `runs/`.
+- **Runs are dated and never overwritten:** `<runs>/YYYY-MM-DD_HHMM_<case>/`. Note the Drive cache state (cold/warm) in `notes.md`.
 
-Update this file once code lands (workspace layout, build and test commands).
+### Code layout (`out/spikes/a-tauri-cm6/src/`)
+
+- `CONTRACT.md`: the interface contract (commands, events, JSON types) between core, shell and UI. Change it first, then the three sides.
+- `crates/rocksy-core/`: UI-independent Rust core (files with atomic save, vault registry, tree snapshot, tag index with fragments, session) plus the `rocksy-cli` measurement binary. Only `serde`, `serde_json`, `memchr`. Workspace root is `src/Cargo.toml`.
+- `src-tauri/`: Tauri 2 shell, thin command wrappers in `src/main.rs`, single-instance and dialog plugins. Deliberately outside the workspace (own `Cargo.lock`) so the core builds and tests on Linux without the Tauri tree.
+- `ui/`: Vite + TypeScript + CodeMirror 6, no framework. `src/backend.ts` has a Tauri backend and an in-memory mock backend (used in a plain browser and by the tests). UI strings in French.
+
+### Build, test, run
+
+There is no Rust/Node/MSVC toolchain on Windows and no sudo in WSL. Everything is built in WSL and cross-compiled to Windows; WSL interop runs the resulting `.exe`.
+- Toolchain (user space): rustup in `~/.cargo` (not on PATH: `export PATH=$HOME/.cargo/bin:$PATH`), target `x86_64-pc-windows-gnullvm`, llvm-mingw in `~/rocksy-toolchain/llvm-mingw`. Consequence of the gnullvm target: `WebView2Loader.dll` must ship next to `rocksy.exe`.
+- Full Windows build: `out/tools/build-win.sh [--skip-ui]` → `C:\Users\aleca\rocksy-test\bin\rocksy.exe`.
+- Core tests: `cd out/spikes/a-tauri-cm6/src && CARGO_TARGET_DIR=~/.cache/rocksy-target/core cargo test -p rocksy-core` (also `cargo clippy -p rocksy-core --all-targets`).
+- UI: `cd out/spikes/a-tauri-cm6/src/ui && npm run build && npx vitest run`; browser test bench in `ui/tools/` (headless Edge on Windows driven over CDP).
+- Driving the real app without screenshots of the desktop: launch with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223` and `ROCKSY_DATA_DIR=<isolated dir>`, then `out/tools/cdp.py` (run with the Windows Python; the port only listens on Windows localhost). Always kill the process afterwards: the app is single-instance.
+- Test data lives outside the repo: `C:\Users\aleca\rocksy-test\vaults\{x1,x20}` (synthetic, reference for measurements: never write into them) and `~/rocksy-vaults` in WSL. Writing thousands of files through `/mnt/c` is very slow: tar in WSL, extract with Windows `tar.exe`.
+- The RTK hook truncates command output; use `rtk proxy <cmd>` for raw output and never pipe `curl` into a shell.
+- The real vault (`G:`) is technically reachable through PowerShell interop. Do not touch it: measurements on it are Alec's to run.
 
 ## Project: "Rocksy"
 
-A fast Obsidian replacement (Rust core, web UI in Tauri 2). Personal project by Alec; whether it is ever distributed is unresolved. The goal is a cold start that makes the last note editable in ≤ 2 s and the file tree navigable in ≤ 3 s, with no vault conversion and compatibility with existing community plugins. The vault must stay openable in real Obsidian at all times, so the app never writes proprietary data into `.obsidian/`.
+A fast Obsidian replacement (Rust core, web UI in Tauri 2). Personal project by Alec, likely published on GitHub later. The goal is a cold start that makes the last note editable in ≤ 2 s and the file tree navigable in ≤ 3 s, with no vault conversion and compatibility with existing community plugins. The vault must stay openable in real Obsidian at all times, so the app never writes proprietary data into `.obsidian/`.
 
 Inputs (read these before designing anything):
 - `in/brief-obsidian-rapide.md`: project brief v0.1 (goals, stack, milestones M0–M5, open questions marked "⚠️ À préciser").

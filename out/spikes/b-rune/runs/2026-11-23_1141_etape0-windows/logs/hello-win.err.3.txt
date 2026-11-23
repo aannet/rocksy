@@ -1,0 +1,1 @@
+rune: GPU "Intel(R) UHD Graphics" (wgpu; Dx12, IntegratedGpu, 0000:00:02.0): the GPU driving the primary display

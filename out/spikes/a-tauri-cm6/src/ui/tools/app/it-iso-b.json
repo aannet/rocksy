@@ -1,0 +1,95 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-iso-b",
+  "args": [
+   "{IT}\\files\\hors-vault.md"
+  ]
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "JSON.stringify({autosave:rocksy.autosave, lsAutosave:localStorage.getItem('rocksy.autosave'), probe:localStorage.getItem('rocksy.isoProbe'), keys:Object.keys(localStorage)})",
+   "save": "B_freshDataDir_seesA?"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-iso-b",
+   "save": "B_dataDir"
+  },
+  {
+   "eval": "T.inv('open_external',{url:'file:///C:/x'}).then(()=>'accepted',e=>JSON.stringify(e))",
+   "save": "openExternal_file_refused"
+  },
+  {
+   "eval": "T.inv('open_external',{url:'javascript:alert(1)'}).then(()=>'accepted',e=>JSON.stringify(e))",
+   "save": "openExternal_js_refused"
+  },
+  {
+   "eval": "(()=>{window.__ext=[];rocksy.backend.openExternal=(u)=>{window.__ext.push(u);return Promise.resolve()};const v=T.view();v.dispatch({selection:{anchor:0}});return 1})()"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "click": "[data-href='https://example.org']"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify(window.__ext)",
+   "save": "linkClick_callsOpenExternalWith"
+  },
+  {
+   "eval": "T.open(T.it('files','longue20k.md')).then(JSON.stringify)",
+   "save": "R_line20k_open"
+  },
+  {
+   "sleep": 1200
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave();T.lineEnd(3,false);rocksy.latencyStart();return T.view().state.doc.line(3).length})()",
+   "save": "R_line20k_length"
+  },
+  {
+   "type": " quelques frappes en fin de longue ligne pour mesurer la latence ici",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "R_line20k_latency"
+  },
+  {
+   "key": "e",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "(()=>{T.lineEnd(3,false);rocksy.latencyStart();return document.querySelector('#statusbar').textContent.includes('Source')})()",
+   "save": "sourceMode"
+  },
+  {
+   "type": " encore quelques frappes en mode source pour comparer la latence",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "R_line20k_latency_sourceMode"
+  },
+  {
+   "key": "e",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "(()=>{if(!rocksy.autosave) rocksy.toggleAutosave();return 1})()"
+  }
+ ]
+}

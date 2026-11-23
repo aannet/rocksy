@@ -1,0 +1,13 @@
+{"steps":[
+ {"nav":"{DIST}?open=00__DEMO/Tableaux%20et%20code.md"},
+ {"wait":"window.rocksyReady && window.rocksy.tree","timeout":15000},
+ {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});const t=v.state.doc.toString();v.dispatch({effects:v.constructor.scrollIntoView(t.indexOf('```mermaid'),{y:'start',yMargin:120})});return 1})()"},
+ {"wait":"document.querySelector('.cm-lp-mermaid-body svg')","timeout":10000},
+ {"sleep":500},
+ {"shot":"mermaid.png"},
+ {"eval":"JSON.stringify({svgs:document.querySelectorAll('.cm-lp-mermaid-body svg').length, errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120)), requests: performance.getEntriesByType('resource').map(r=>r.name.replace(/.*\\//,'')).filter(n=>!/^(index|dist|sidebar|mock|extras|tagtree)-/.test(n))})","save":"mermaid"},
+ {"click":".cm-lp-mermaid-body svg"},
+ {"sleep":200},
+ {"eval":"(()=>{const s=rocksy.focused.view.state;return s.doc.lineAt(s.selection.main.head).text})()","save":"lineAfterClick"},
+ {"shot":"mermaid-source.png"}
+]}

@@ -18,3 +18,6 @@ vaults/
 # Captures volumineuses des runs : versionner seulement ce qui est cité dans un rapport
 out/**/runs/**/*.mp4
 out/**/runs/**/*.mkv
+
+# Captures du run d'integration (18 Mo de PNG sur donnees synthetiques) : conservees sur disque, non versionnees
+out/spikes/a-tauri-cm6/runs/*_integration/captures/

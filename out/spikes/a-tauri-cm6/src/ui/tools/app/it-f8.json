@@ -1,0 +1,292 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-f8",
+  "args": [
+   "{IT}\\files\\hors-vault.md"
+  ]
+ },
+ "before": [
+  {
+   "py": "listdir",
+   "path": "{IT}\\files",
+   "save": "filesDirBefore"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "JSON.stringify({metrics:rocksy.metrics, vault:rocksy.vaultRoot, dormant:rocksy.dormantVault, sidebarHidden:document.getElementById('sidebar').hidden, tabs:rocksy.docs().map(d=>[d.name,d.outside]), badge:T.count('.tab-badge')})",
+   "save": "F8_start"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\data-f8\\timings.jsonl",
+   "save": "timings"
+  },
+  {
+   "wait": "T.imgs().length>0 && T.imgs().every(i=>i.ok)",
+   "timeout": 6000
+  },
+  {
+   "eval": "(()=>{const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});return JSON.stringify({imgs:T.imgs(), code:[...document.querySelectorAll('.cm-lp-cb-label')].map(e=>e.textContent)})})()",
+   "save": "F8_relativeImage"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "shot": "it-f8-outside-file.png"
+  },
+  {
+   "eval": "JSON.stringify({line:T.cursor('gras',0,2), txt:[...document.querySelectorAll('.cm-line')][2].textContent})",
+   "save": "F1_cursorInBold_lineText"
+  },
+  {
+   "sleep": 200
+  },
+  {
+   "shot": "it-f1-cursor-in-bold.png"
+  },
+  {
+   "eval": "(()=>{const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});return [...document.querySelectorAll('.cm-line')][2].textContent})()",
+   "save": "F1_cursorAway_lineText"
+  },
+  {
+   "click": ".cm-lp-check"
+  },
+  {
+   "eval": "T.text().match(/- \\[.\\] tâche/)[0]",
+   "save": "checkboxClick"
+  },
+  {
+   "key": "z",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "JSON.stringify({text:T.text().match(/- \\[.\\] tâche/)[0], dirty:rocksy.activeDoc().dirty})",
+   "save": "checkboxUndo"
+  },
+  {
+   "launch": [
+    "{IT}\\files\\second.md"
+   ],
+   "until": "rocksy.activeDoc() && rocksy.activeDoc().name==='second' && rocksy.activeDoc().loaded",
+   "save": "F8_secondLaunchToActiveTabMs"
+  },
+  {
+   "eval": "JSON.stringify({tabs:rocksy.docs().map(d=>[d.name,d.outside]), active:rocksy.activeDoc().name})",
+   "save": "F8_afterSecondLaunch"
+  },
+  {
+   "shot": "it-f8-second-launch-tab.png"
+  },
+  {
+   "launch": [
+    "{IT}\\files\\fauxvault\\note isolée.md"
+   ],
+   "until": "rocksy.activeDoc() && rocksy.activeDoc().name==='note isolée' && rocksy.activeDoc().loaded",
+   "save": "F8_thirdLaunchMs"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify({vault:rocksy.vaultRoot, sidebarHidden:document.getElementById('sidebar').hidden, outside:rocksy.activeDoc().outside, tabs:rocksy.docs().length})",
+   "save": "F8_obsidianFolderIsolated"
+  },
+  {
+   "shot": "it-f8-obsidian-folder-isolated.png"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\files\\fauxvault",
+   "save": "fauxvaultAfter"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\files\\fauxvault\\.obsidian",
+   "save": "fauxvaultObsidianAfter"
+  },
+  {
+   "click": "#rb-tags"
+  },
+  {
+   "wait": "document.querySelector('.tag-row')",
+   "timeout": 6000
+  },
+  {
+   "eval": "JSON.stringify({rows:[...document.querySelectorAll('.tag-row')].map(r=>r.textContent)})",
+   "save": "outsideTags"
+  },
+  {
+   "click": "#rb-sidebar"
+  },
+  {
+   "eval": "T.open(T.it('files','latin1.md')).then(JSON.stringify)",
+   "save": "R_latin1"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "shot": "it-robust-not-utf8.png"
+  },
+  {
+   "eval": "JSON.stringify({empty:document.querySelector('.empty').textContent.slice(0,200)})",
+   "save": "R_latin1_message"
+  },
+  {
+   "eval": "T.open(T.it('files','vide.md')).then(JSON.stringify)",
+   "save": "R_empty"
+  },
+  {
+   "type": "abc"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty,4000)",
+   "save": "R_empty_saveMs"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\files\\vide.md",
+   "save": "videAfter",
+   "report": "R_empty_onDisk"
+  },
+  {
+   "eval": "T.open(T.it('files','été à la plage',\"note d'été & co.md\")).then(JSON.stringify)",
+   "save": "R_accents"
+  },
+  {
+   "eval": "JSON.stringify({h:T.count('.cm-lp-h1'), status:document.querySelector('.st-path').textContent})",
+   "save": "R_accents_state"
+  },
+  {
+   "eval": "T.open(T.it('files','longue.md')).then(JSON.stringify)",
+   "save": "R_longLine"
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "(()=>{T.lineEnd(3,false);rocksy.latencyStart();return T.view().state.doc.line(3).length})()",
+   "save": "R_longLine_length"
+  },
+  {
+   "type": " quelques frappes en fin de tres longue ligne",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "R_longLine_latency"
+  },
+  {
+   "shot": "it-robust-long-line.png"
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave();return T.open(T.it('files','a-supprimer.md')).then(JSON.stringify)})()",
+   "save": "R_delete_open"
+  },
+  {
+   "py": "delete",
+   "path": "{IT}\\files\\a-supprimer.md"
+  },
+  {
+   "sleep": 2600
+  },
+  {
+   "eval": "JSON.stringify({state:T.saveState(), toast:document.querySelector('.st-toast').textContent})",
+   "save": "R_delete_afterWatcher"
+  },
+  {
+   "type": "z"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "R_delete_saveState"
+  },
+  {
+   "shot": "it-robust-deleted-file.png"
+  },
+  {
+   "click": ".banner button[data-act='overwrite']"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "R_delete_afterOverwrite"
+  },
+  {
+   "py": "exists",
+   "path": "{IT}\\files\\a-supprimer.md",
+   "save": "R_delete_fileRecreated"
+  },
+  {
+   "eval": "T.open(T.it('files','hors-vault.md')).then(()=>{const v=T.view();v.dispatch({selection:{anchor:0}});v.scrollDOM.scrollTop=0;return 1})"
+  },
+  {
+   "py": "targets",
+   "save": "targetsBeforeLink"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "click": "[data-href='https://example.org']"
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "py": "targets",
+   "save": "targetsAfterLink"
+  },
+  {
+   "eval": "JSON.stringify({href:location.href, active:rocksy.activeDoc().name})",
+   "save": "afterLinkClick"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\files",
+   "save": "filesDirAfter"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\files\\img",
+   "save": "imgDirAfter"
+  },
+  {
+   "eval": "(()=>{if(!rocksy.autosave) rocksy.toggleAutosave();return rocksy.docs().length})()",
+   "save": "tabsBeforeCtrlW"
+  },
+  {
+   "key": "w",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify({tabs:rocksy.docs().length})",
+   "save": "tabsAfterCtrlW"
+  }
+ ]
+}

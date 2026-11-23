@@ -1,0 +1,9 @@
+{
+  "case": "etape0-linux-headless",
+  "date": "2026-11-23T11:29",
+  "rune_rev": "653ef67 (branche dev, 2026-11-23)",
+  "machine": "WSL2 Ubuntu sur i7-10750H, 6 coeurs visibles, rendu headless (pas de fenetre)",
+  "toolchain": "cargo/rustc stable 1.100 (le depot epingle 1.99.1)",
+  "profile": "release + feature rune/tooling",
+  "document": "synthetique, 319 Ko, ~4 900 lignes, 12 926 spans de decoration"
+}

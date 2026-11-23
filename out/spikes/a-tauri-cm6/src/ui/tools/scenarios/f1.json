@@ -1,0 +1,7 @@
+{"steps":[
+ {"nav":"{DIST}?open=00__DEMO/Live%20Preview.md"},
+ {"wait":"window.rocksyReady && window.rocksy.tree","timeout":15000},
+ {"sleep":900},
+ {"eval":"JSON.stringify({m: rocksy.metrics, t: rocksyMock.timings, calls: rocksyMock.calls})","save":"startup"},
+ {"shot":"f1-live-preview.png"}
+]}

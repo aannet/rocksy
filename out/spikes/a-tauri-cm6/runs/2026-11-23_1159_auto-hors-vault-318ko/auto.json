@@ -1,0 +1,68 @@
+﻿{
+    "case":  "auto-hors-vault-318ko",
+    "exe":  "C:\\Users\\aleca\\rocksy-test\\bin\\rocksy.exe",
+    "file":  "C:\\Users\\aleca\\rocksy-test\\work\\hv\\journal.md",
+    "runs":  [
+                 {
+                     "run":  1,
+                     "windowMs":  36,
+                     "editor-ready":  632,
+                     "editor-ready-since-navigation":  633,
+                     "editor-painted-since-navigation":  683,
+                     "rssMb":  26,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  373
+                 },
+                 {
+                     "run":  2,
+                     "windowMs":  29,
+                     "editor-ready":  654,
+                     "editor-ready-since-navigation":  654,
+                     "editor-painted-since-navigation":  703,
+                     "rssMb":  26,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  371
+                 },
+                 {
+                     "run":  3,
+                     "windowMs":  30,
+                     "editor-ready":  786,
+                     "editor-ready-since-navigation":  787,
+                     "editor-painted-since-navigation":  835,
+                     "rssMb":  26,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  371
+                 },
+                 {
+                     "run":  4,
+                     "windowMs":  29,
+                     "editor-ready":  1027,
+                     "editor-ready-since-navigation":  1028,
+                     "editor-painted-since-navigation":  1077,
+                     "rssMb":  26,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  369
+                 },
+                 {
+                     "run":  5,
+                     "windowMs":  30,
+                     "editor-ready":  708,
+                     "editor-ready-since-navigation":  709,
+                     "editor-painted-since-navigation":  759,
+                     "rssMb":  26,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  371
+                 }
+             ],
+    "median":  {
+                   "windowMs":  30,
+                   "editor-ready":  708,
+                   "editor-ready-since-navigation":  709,
+                   "editor-painted-since-navigation":  759,
+                   "rssMb":  26,
+                   "webviewProcs":  6,
+                   "webviewRssMb":  371
+               },
+    "date":  "2026-11-23T11:59:04",
+    "note":  "run 1 = premier lancement de la serie (cache le plus froid)"
+}

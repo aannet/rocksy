@@ -1,0 +1,79 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-canvas",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('v1'))",
+   "save": "treeEntries"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\v1\\01_WORK\\Canvas dense.canvas",
+   "save": "denseBefore"
+  },
+  {
+   "eval": "(async()=>{const t0=performance.now();await rocksy.openPath(T.vault('01_WORK','Canvas simple.canvas'));const w=await T.wait(()=>document.querySelector('.cv-node'),5000);return JSON.stringify({openToNodesMs:Math.round(performance.now()-t0), mountMs:rocksy.metrics.canvasMs, nodes:T.count('.cv-node,.cv-group'), edges:T.count('.canvas-world svg path')-1, scale:document.querySelector('.canvas-view').dataset.scale})})()",
+   "save": "F6_simple"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "shot": "it-f6-canvas-simple.png"
+  },
+  {
+   "eval": "(async()=>{const t0=performance.now();await rocksy.openPath(T.vault('01_WORK','Canvas dense.canvas'));await T.wait(()=>rocksy.activeDoc().name==='Canvas dense.canvas' && T.count('.cv-node')>20,5000);return JSON.stringify({openToNodesMs:Math.round(performance.now()-t0), mountMs:rocksy.metrics.canvasMs, nodes:T.count('.cv-node'), groups:T.count('.cv-group'), edges:T.count('.canvas-world svg path')-1, images:T.count('.cv-image'), files:T.count('.cv-file'), text:T.count('.cv-text'), scale:document.querySelector('.canvas-view').dataset.scale})})()",
+   "save": "F6_dense"
+  },
+  {
+   "sleep": 900
+  },
+  {
+   "eval": "JSON.stringify({imgsOk:[...document.querySelectorAll('.cv-image img')].filter(i=>i.naturalWidth>0).length, imgs:T.count('.cv-image img'), excerpts:[...document.querySelectorAll('.cv-excerpt')].filter(e=>e.textContent.length>0).length})",
+   "save": "F6_dense_content"
+  },
+  {
+   "shot": "it-f6-canvas-dense.png"
+  },
+  {
+   "eval": "(()=>{const h=document.querySelector('.canvas-view');const r=h.getBoundingClientRect();const before={scale:h.dataset.scale,tx:h.dataset.tx};for(let i=0;i<3;i++)h.dispatchEvent(new WheelEvent('wheel',{deltaY:-300,clientX:r.left+r.width/2,clientY:r.top+r.height/2,bubbles:true,cancelable:true}));const z={scale:h.dataset.scale,tx:h.dataset.tx};h.dispatchEvent(new MouseEvent('mousedown',{button:0,clientX:r.left+300,clientY:r.top+300,bubbles:true,cancelable:true}));window.dispatchEvent(new MouseEvent('mousemove',{clientX:r.left+120,clientY:r.top+200,bubbles:true}));window.dispatchEvent(new MouseEvent('mouseup',{clientX:r.left+120,clientY:r.top+200,bubbles:true}));return JSON.stringify({before, afterZoom:z, afterPan:{scale:h.dataset.scale,tx:h.dataset.tx}})})()",
+   "save": "F6_zoomPan"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "shot": "it-f6-canvas-dense-zoomed.png"
+  },
+  {
+   "eval": "(async()=>{const t=[];for(let i=0;i<5;i++){const h=document.querySelector('.canvas-view');const r=h.getBoundingClientRect();const t0=performance.now();h.dispatchEvent(new WheelEvent('wheel',{deltaY:(i%2?200:-200),clientX:r.left+400,clientY:r.top+300,bubbles:true,cancelable:true}));void h.offsetHeight;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));t.push(+(performance.now()-t0).toFixed(1))}return JSON.stringify(t)})()",
+   "save": "F6_zoomFrameMs"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({status:document.querySelector('.st-save').textContent, dirty:rocksy.activeDoc().dirty})",
+   "save": "F6_readOnlyState"
+  },
+  {
+   "py": "linediff",
+   "snap": "denseBefore",
+   "path": "{IT}\\v1\\01_WORK\\Canvas dense.canvas",
+   "save": "F6_denseBytesUnchanged"
+  }
+ ]
+}

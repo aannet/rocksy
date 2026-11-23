@@ -16,6 +16,28 @@ Principes
   * Aucune donnee personnelle : noms, textes et liens sont fabriques.
   * Dependances : Python 3.9+, bibliotheque standard uniquement.
 
+Contenu genere (version 2)
+  * Tags hierarchiques (2 a 3 niveaux, vocabulaire fabrique, distribution de Zipf + longue traine locale
+    a chaque bloc) places en paragraphe, element de liste avec enfants, titre, ligne de tableau,
+    citation/callout, et frontmatter (liste YAML). Pieges qui ne sont PAS des tags : #123, # dans une URL,
+    dans du code en ligne, dans un bloc de code, dans un wikilink [[note#titre]].
+  * Blocs Mermaid (flowchart, sequenceDiagram, classDiagram, stateDiagram-v2, erDiagram, gantt, pie,
+    mindmap, wardley-beta) dans ~5 % des notes, callouts (certains repliables), tableaux alignes, blocs de
+    code (js, python, rust, bash, json), taches, listes imbriquees, wikilinks avec alias et ancres
+    (ancre [[note#Résumé]] : beaucoup de notes ont un titre "Résumé").
+  * Pieces jointes .png : vrais PNG valides (32x32, remplis jusqu'a la taille voulue par un chunk prive).
+    Embeds ![[Pasted image ....png]] et ![alt](../_ASSETS/....png) relatifs.
+  * Bloc 0 uniquement : note pire cas 01_WORK/__DAILY NOTES SYNTH.md (~319 Ko, journal date), active dans
+    .obsidian/workspace.json ; deux canvas JSON Canvas : 01_WORK/Canvas simple.canvas (6 noeuds) et
+    01_WORK/Canvas dense.canvas (~150 noeuds, groupes, aretes etiquetees, couleurs).
+
+Historique
+  * v2 : le contenu de TOUS les fichiers .md change par rapport a la v1 (nouveaux elements, nouveau flux
+    aleatoire), la note 0 est renommee "__DAILY NOTES ACTIVE" -> "__DAILY NOTES SYNTH", les PNG sont valides,
+    les .canvas aleatoires sont des JSON Canvas valides. Les tailles restent calibrees (le budget d'octets de
+    chaque note inclut les elements ajoutes). A regenerer dans un dossier neuf (ou avec --force).
+  * v1 : version initiale.
+
 Exemples
   python3 out/tools/gen-vault.py --out /data/vaults/x1  --scale 1
   python3 out/tools/gen-vault.py --out /data/vaults/x20 --scale 20
@@ -24,6 +46,8 @@ Exemples
 """
 import argparse
 import base64
+import bisect
+import datetime
 import json
 import math
 import os
@@ -32,9 +56,11 @@ import re
 import statistics
 import sys
 import time
+import unicodedata
+import zlib
 from pathlib import Path
 
-VERSION = 1
+VERSION = 2
 BASE_NOTES = 488
 BASE_ATT = 465
 FOLDERS_PER_BLOCK = 94          # dossiers par bloc, racines comprises (base : 94, profondeur max 5)
@@ -71,7 +97,406 @@ def rng(*parts):
     return random.Random(":".join(str(p) for p in parts))
 
 
-class Gen:
+# ---- contenu riche (v2) -------------------------------------------------------------------------
+TAG_ROOTS = ["projet", "client", "domaine", "equipe", "statut", "theme", "outil", "lieu", "cycle", "source",
+             "priorite", "format"]
+TAG_LEAVES = ["alpha", "beta", "gamma", "revue", "cadrage", "bilan", "suivi", "audit", "atelier", "recette",
+              "pilote", "decision", "risque", "backlog", "jalon", "retro"]
+DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+CALLOUT_KINDS = ["note", "warning", "tip", "info", "example", "quote", "success", "question"]
+MERMAID_TYPES = ["flowchart", "sequenceDiagram", "classDiagram", "stateDiagram-v2", "erDiagram", "gantt",
+                 "pie", "mindmap", "wardley-beta"]
+CODE_LANGS = ["js", "python", "rust", "bash", "json"]
+DAILY_START = datetime.date(2024, 1, 1)
+
+
+def make_png(r, n):
+    """PNG 32x32 valide (bandes colorees), complete a ~n octets par un chunk prive ancillaire 'ruSt'."""
+    def chunk(t, d):
+        return len(d).to_bytes(4, "big") + t + d + (zlib.crc32(t + d) & 0xFFFFFFFF).to_bytes(4, "big")
+    c1 = [r.randrange(40, 230) for _ in range(3)]
+    c2 = [r.randrange(40, 230) for _ in range(3)]
+    k = r.randrange(2, 8)
+    raw = bytearray()
+    for y in range(32):
+        raw.append(0)
+        for x in range(32):
+            raw += bytes(c1 if ((x + y) // k) % 2 else c2)
+    ihdr = (32).to_bytes(4, "big") * 2 + bytes([8, 2, 0, 0, 0])
+    idat = chunk(b"IDAT", zlib.compress(bytes(raw), 9))
+    iend = chunk(b"IEND", b"")
+    head = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr)
+    pad = n - len(head) - len(idat) - len(iend) - 12
+    mid = chunk(b"ruSt", r.randbytes(pad)) if pad > 0 else b""
+    return head + mid + idat + iend
+
+
+class Content:
+    """Generation du contenu riche : tags, Mermaid, callouts, tableaux, code, canvas."""
+
+    def _taglib(self):
+        if getattr(self, "_tl", None) is None:
+            r = rng(self.seed, "taglib")
+            lib = []
+            for root in TAG_ROOTS:
+                for _ in range(r.randint(6, 14)):
+                    child = r.choice(self.vocab)
+                    if len(child) < 3:
+                        child += "ko"
+                    lib.append(f"{root}/{child}")
+                    if r.random() < 0.55:
+                        for leaf in r.sample(TAG_LEAVES, r.randint(2, 5)):
+                            lib.append(f"{root}/{child}/{leaf}")
+            r.shuffle(lib)
+            cum, acc = [], 0.0
+            for k in range(len(lib)):
+                acc += 1.0 / (k + 1) ** 1.05
+                cum.append(acc)
+            self._tl = (lib, cum)
+        return self._tl
+
+    def pick_tag(self, r, block, flat_ok=True):
+        """Tag hierarchique (zipf sur la bibliotheque globale, longue traine locale au bloc) ou, parfois, plat."""
+        lib, cum = self._taglib()
+        if flat_ok and r.random() < 0.12:
+            return r.choice(GLOBAL_TAGS)
+        t = lib[min(len(lib) - 1, bisect.bisect_left(cum, r.random() * cum[-1]))]
+        if r.random() < 0.10:
+            t = "/".join(t.split("/")[:2]) + f"/b{block:03d}x{r.randrange(25)}"
+        return t
+
+    # -- petits blocs -----------------------------------------------------------------------------
+    def _wiki(self, r, i, block):
+        stem = self.note_stem(self.pick_note(r, i, block))
+        k = r.random()
+        if k < 0.35:
+            return f"[[{stem}|{r.choice(WORDS)}]]"
+        if k < 0.7:
+            return f"[[{stem}#Résumé]]"
+        if k < 0.85:
+            return f"[[{stem}#Résumé|{r.choice(WORDS)}]]"
+        return f"[[{stem}]]"
+
+    def _sentence(self, r, i, block, ntags=0, nlinks=0):
+        bits = [self.words(r, r.randint(4, 9))]
+        for _ in range(ntags):
+            bits.append("#" + self.pick_tag(r, block))
+            bits.append(self.words(r, r.randint(2, 6)))
+        for _ in range(nlinks):
+            bits.append(self._wiki(r, i, block))
+            bits.append(self.words(r, r.randint(1, 4)))
+        return " ".join(bits)
+
+    def f_tag_para(self, r, i, block, fp):
+        return self._sentence(r, i, block, r.randint(1, 3), int(r.random() < 0.25)) + "\n"
+
+    def f_tag_list(self, r, i, block, fp):
+        out = [f"- {self._sentence(r, i, block, 1)}"]
+        for _ in range(r.randint(1, 3)):
+            out.append(f"  - {self.words(r, r.randint(3, 7))}")
+            if r.random() < 0.3:
+                out.append(f"    - {self.words(r, r.randint(2, 5))} #{self.pick_tag(r, block)}")
+        out.append("- " + self.words(r, 4))
+        return "\n".join(out) + "\n"
+
+    def f_tag_heading(self, r, i, block, fp):
+        return f"{'#' * r.randint(2, 4)} {r.choice(WORDS).capitalize()} {self.words(r, 2)} #{self.pick_tag(r, block)}\n"
+
+    def f_table(self, r, i, block, fp, tag=False):
+        al = [r.choice([":---", "---:", ":---:", "---"]) for _ in range(3)]
+        rows = ["| Élément | État | Valeur |", "| " + " | ".join(al) + " |"]
+        for _ in range(r.randint(2, 6)):
+            c3 = f"#{self.pick_tag(r, block)}" if tag and r.random() < 0.5 else str(r.randint(1, 999))
+            rows.append(f"| {r.choice(self.vocab)} | {r.choice(['ok', 'à faire', 'bloqué'])} | {c3} |")
+        if tag:
+            rows[-1] = rows[-1][:-1] + f"#{self.pick_tag(r, block)} |"
+        return "\n".join(rows) + "\n"
+
+    def f_table_tag(self, r, i, block, fp):
+        return self.f_table(r, i, block, fp, tag=True)
+
+    def f_callout(self, r, i, block, fp, tag=False):
+        kind = r.choice(CALLOUT_KINDS)
+        fold = r.choice(["", "", "-", "+"]) if r.random() < 0.5 else ""
+        if kind == "info" and r.random() < 0.5:
+            fold = "-"
+        out = [f"> [!{kind}]{fold} {r.choice(WORDS).capitalize()} {self.words(r, 2)}"]
+        for k in range(r.randint(1, 3)):
+            t = " #" + self.pick_tag(r, block) if tag and k == 0 else ""
+            out.append(f"> {self.words(r, r.randint(5, 12))}{t}")
+        return "\n".join(out) + "\n"
+
+    def f_callout_tag(self, r, i, block, fp):
+        if r.random() < 0.4:
+            return f"> {self._sentence(r, i, block, 1)}\n"
+        return self.f_callout(r, i, block, fp, tag=True)
+
+    def f_code(self, r, i, block, fp):
+        lang = r.choice(CODE_LANGS)
+        v, w = r.choice(self.vocab), r.choice(self.vocab)
+        n = r.randint(1, 99)
+        body = {
+            "js": f"// {w}\nconst {v} = items.filter((x) => x.size > {n});\nconsole.log({v}.length);",
+            "python": f"# {w}\ndef {v}(values):\n    return sum(v for v in values if v > {n})\n\nprint({v}([1, {n}, 200]))",
+            "rust": f"// {w}\nfn {v}(xs: &[u32]) -> u32 {{\n    xs.iter().filter(|&&x| x > {n}).sum()\n}}",
+            "bash": f"# {w}\nfor f in *.md; do\n  echo \"$f\"\ndone | sort > {v}.txt",
+            "json": json.dumps({"name": v, "count": n, "tags": [w], "enabled": r.random() < 0.5}, indent=2),
+        }[lang]
+        return f"```{lang}\n{body}\n```\n"
+
+    def f_tasks(self, r, i, block, fp):
+        out = []
+        for _ in range(r.randint(2, 5)):
+            out.append(f"- [{'x' if r.random() < 0.4 else ' '}] {self.words(r, r.randint(3, 6))}")
+            if r.random() < 0.4:
+                out.append(f"    - [{'x' if r.random() < 0.4 else ' '}] {self.words(r, 3)}")
+        return "\n".join(out) + "\n"
+
+    def f_nested(self, r, i, block, fp):
+        out = []
+        for _ in range(r.randint(2, 4)):
+            out.append(f"- {self.words(r, r.randint(2, 5))}")
+            for _ in range(r.randint(0, 2)):
+                out.append(f"\t- {self.words(r, r.randint(2, 4))}")
+                if r.random() < 0.3:
+                    out.append(f"\t\t- {self.words(r, 2)}")
+        out.append(f"1. {self.words(r, 3)}\n2. {self.words(r, 3)}")
+        return "\n".join(out) + "\n"
+
+    def f_links(self, r, i, block, fp):
+        return self._sentence(r, i, block, 0, r.randint(1, 3)) + "\n"
+
+    def f_resume(self, r, i, block, fp):
+        return f"## Résumé\n\n{self.words(r, r.randint(8, 20))}\n"
+
+    def f_traps(self, r, i, block, fp):
+        stem = self.note_stem(self.pick_note(r, i, block))
+        k = r.randint(0, 3)
+        if k == 0:
+            return f"Voir le ticket #{r.randint(100, 999)} et https://example.com/guide#section pour le détail.\n"
+        if k == 1:
+            return "Le préprocesseur utilise `#define VALEUR` et `#include` en ligne.\n"
+        if k == 2:
+            return f"Voir [[{stem}#Résumé]] ou [[{stem}#Titre de section|{r.choice(WORDS)}]] (étape #{r.randint(1, 20)}).\n"
+        return "```bash\n#!/bin/bash\n# commentaire #pas-un-tag\necho \"#pas-un-tag\"\n```\n"
+
+    def f_img_md(self, r, i, block, fp):
+        j = self.pick_png_index(r, block)
+        if j is None:
+            return None
+        name, ext = self.att_name(j)
+        sub = self.att_folder(j, ext)
+        rel = "../" * len(fp) + "/".join(sub + (name,))
+        return f"![{r.choice(WORDS)}]({rel.replace(' ', '%20')})\n"
+
+    def f_mermaid(self, r, i, block, fp):
+        kind = MERMAID_TYPES[(i // 14) % len(MERMAID_TYPES)]      # types equilibres, independants du --scale
+        return "```mermaid\n" + self.mermaid(r, kind) + "\n```\n"
+
+    def mermaid(self, r, kind):
+        w = lambda: unicodedata.normalize("NFKD", r.choice(self.vocab)).encode("ascii", "ignore").decode().capitalize()
+        n = r.randint(3, 5)
+        if kind == "flowchart":
+            out = [f"flowchart {r.choice(['LR', 'TD'])}", f"  A[{w()}] --> B{{{w()} ?}}"]
+            out += [f"  B -->|oui| C[{w()}]", f"  B -->|non| D([{w()}])", "  D --> A"]
+            return "\n".join(out)
+        if kind == "sequenceDiagram":
+            a, b = w(), w()
+            return (f"sequenceDiagram\n  participant A as {a}\n  participant B as {b}\n  A->>B: {w()}\n"
+                    f"  B-->>A: {w()}\n  Note over A,B: {w()}\n  loop {w()}\n    A->>B: ping\n  end")
+        if kind == "classDiagram":
+            a, b, c = w(), w(), w()
+            return (f"classDiagram\n  class {a} {{\n    +String nom\n    +int total\n    +lancer() void\n  }}\n"
+                    f"  class {b} {{\n    +calculer() int\n  }}\n  {a} <|-- {b}\n  {a} \"1\" --> \"*\" {c} : contient")
+        if kind == "stateDiagram-v2":
+            a, b = w(), w()
+            return (f"stateDiagram-v2\n  [*] --> {a}\n  {a} --> {b} : {r.choice(WORDS)}\n"
+                    f"  {b} --> {a} : retour\n  {b} --> [*]")
+        if kind == "erDiagram":
+            a, b = w().upper(), w().upper()
+            return (f"erDiagram\n  {a} ||--o{{ {b} : contient\n  {a} {{\n    int id PK\n    string nom\n  }}\n"
+                    f"  {b} {{\n    int id PK\n    int {a.lower()}_id FK\n  }}")
+        if kind == "gantt":
+            return (f"gantt\n  title {w()} {w()}\n  dateFormat YYYY-MM-DD\n  section {w()}\n"
+                    f"  Etape un :a1, 2026-01-05, {r.randint(5, 15)}d\n  Etape deux :a2, after a1, {r.randint(3, 10)}d\n"
+                    f"  section {w()}\n  Etape trois :a3, after a2, {r.randint(3, 10)}d")
+        if kind == "pie":
+            return f"pie title {w()}\n" + "\n".join(f'  "{w()}" : {r.randint(5, 60)}' for _ in range(n))
+        if kind == "mindmap":
+            out = ["mindmap", f"  root(({w()}))"]
+            for _ in range(n - 1):
+                out.append(f"    {w()}")
+                for _ in range(r.randint(1, 2)):
+                    out.append(f"      {r.choice(self.vocab)}")
+            return "\n".join(out)
+        # wardley-beta
+        names = [w() for _ in range(4)]
+        out = ["wardley-beta", f"title {w()}", f"anchor {names[0]} [0.95, 0.65]"]
+        for k, nm in enumerate(names[1:], 1):
+            out.append(f"component {nm} [{0.9 - k * 0.2:.2f}, {r.uniform(0.2, 0.9):.2f}]")
+        out += [f"{names[0]} -> {names[1]}", f"{names[1]} -> {names[2]}", f"{names[2]} -> {names[3]}",
+                f"evolve {names[3]} 0.90"]
+        return "\n".join(out)
+
+    FEATURES = [("f_tag_para", 0.55), ("f_tag_list", 0.30), ("f_tag_heading", 0.25), ("f_table_tag", 0.20),
+                ("f_callout_tag", 0.20), ("f_traps", 0.25), ("f_callout", 0.35), ("f_table", 0.25),
+                ("f_code", 0.25), ("f_tasks", 0.30), ("f_nested", 0.30), ("f_links", 0.15),
+                ("f_resume", 0.40), ("f_img_md", 0.12)]
+
+    def rich_blocks(self, r, i, block, fp, target):
+        """Liste de blocs (chaines) a inserer ; leur taille totale reste sous ~65 % du budget de la note."""
+        if target < 600:
+            return []
+        scale = min(2.2, (target / 2500) ** 0.4)
+        budget = target * 0.65
+        out, used = [], 0
+        feats = list(self.FEATURES)
+        r.shuffle(feats)
+        if target >= 1200 and i % 14 == 5:          # ~5 % des notes (celles d'au moins 1200 o)
+            feats.append(("f_mermaid", 1.0))
+        for name, p in feats:
+            if r.random() < min(0.95, p * scale):
+                b = getattr(self, name)(r, i, block, fp)
+                if b is None:
+                    continue
+                sz = len(b.encode())
+                if used + sz > budget:
+                    continue
+                out.append(b)
+                used += sz
+        return out
+
+    # -- note pire cas ---------------------------------------------------------------------------
+    def daily_entry(self, r, i, block, day):
+        fp = ("01_WORK",)
+        out = [f"## {day.isoformat()} ({DAYS_FR[day.weekday()]})\n"]
+        out.append(f"- {self._sentence(r, i, block, r.randint(0, 2), 1)}\n")
+        out.append(self.f_tag_list(r, i, block, fp))
+        out.append(self.f_tasks(r, i, block, fp))
+        out.append(self.words(r, r.randint(40, 120)) + "\n")
+        n = day.toordinal()
+        if n % 11 == 0:
+            out.append(self.f_table(r, i, block, fp, tag=r.random() < 0.5))
+        if n % 9 == 0:
+            out.append(self.f_code(r, i, block, fp))
+        if n % 17 == 0:
+            out.append(self.f_callout(r, i, block, fp, tag=True))
+        if n % 5 == 0:
+            out.append(self.f_links(r, i, block, fp))
+        if n % 23 == 0:
+            out.append(self.f_traps(r, i, block, fp))
+        return "\n".join(out)
+
+    def render_daily(self, r, i, block, head_len):
+        target = DAILY_BYTES - head_len
+        out, size, day = ["## Résumé\n\nJournal synthétique, note pire cas.\n"], 0, DAILY_START
+        while True:
+            e = self.daily_entry(r, i, block, day)
+            sz = len(e.encode()) + 1
+            if size + sz > target:
+                break
+            out.append(e)
+            size += sz
+            day += datetime.timedelta(days=1)
+        return "\n".join(out)
+
+    # -- canvas (bloc 0) -------------------------------------------------------------------------
+    def _canvas_targets(self, r, k_notes, k_png):
+        notes = []
+        for t in range(1, min(self.N, BASE_NOTES)):
+            if not self.is_excal(t):
+                notes.append("/".join(self.note_folder(t) + (self.note_stem(t) + ".md",)))
+            if len(notes) >= k_notes:
+                break
+        notes.insert(0, "/".join(self.note_folder(0) + (self.note_stem(0) + ".md",)))
+        pngs = []
+        for j in range(min(self.A, BASE_ATT)):
+            name, ext = self.att_name(j)
+            if ext == ".png":
+                pngs.append("/".join(self.att_folder(j, ext) + (name,)))
+            if len(pngs) >= k_png:
+                break
+        return notes, pngs
+
+    def canvas_simple(self):
+        r = rng(self.seed, "canvas", "simple")
+        notes, pngs = self._canvas_targets(r, 2, 1)
+        nodes = [
+            {"id": "s1", "type": "text", "text": f"# Idée centrale\n\n{self.words(r, 8)} #projet/alpha/revue",
+             "x": 0, "y": 0, "width": 300, "height": 140, "color": "4"},
+            {"id": "s2", "type": "text", "text": f"- {self.words(r, 4)}\n- {self.words(r, 4)}",
+             "x": 400, "y": -100, "width": 260, "height": 120},
+            {"id": "s3", "type": "file", "file": notes[0], "x": 400, "y": 80, "width": 400, "height": 300},
+            {"id": "s4", "type": "file", "file": notes[1] if len(notes) > 1 else notes[0],
+             "x": -420, "y": 40, "width": 300, "height": 200},
+            {"id": "s5", "type": "text", "text": self.words(r, 10), "x": 0, "y": 260, "width": 300, "height": 100,
+             "color": "1"},
+        ]
+        if pngs:
+            nodes.append({"id": "s6", "type": "file", "file": pngs[0], "x": -420, "y": -260, "width": 256,
+                          "height": 256})
+        else:
+            nodes.append({"id": "s6", "type": "text", "text": self.words(r, 5), "x": -420, "y": -260,
+                          "width": 256, "height": 100})
+        edges = [
+            {"id": "e1", "fromNode": "s1", "fromSide": "right", "toNode": "s2", "toSide": "left"},
+            {"id": "e2", "fromNode": "s1", "fromSide": "right", "toNode": "s3", "toSide": "left", "label": "détail"},
+            {"id": "e3", "fromNode": "s4", "fromSide": "right", "toNode": "s1", "toSide": "left"},
+            {"id": "e4", "fromNode": "s1", "fromSide": "bottom", "toNode": "s5", "toSide": "top", "toEnd": "none"},
+            {"id": "e5", "fromNode": "s6", "fromSide": "bottom", "toNode": "s4", "toSide": "top"},
+        ]
+        return json.dumps({"nodes": nodes, "edges": edges}, indent="\t", ensure_ascii=False).encode()
+
+    def canvas_dense(self, n_nodes=150):
+        r = rng(self.seed, "canvas", "dense")
+        notes, pngs = self._canvas_targets(r, 40, 15)
+        groups, nodes, edges = [], [], []
+        ng = 6
+        per = n_nodes // ng
+        cols = 5
+        cw, ch, gap = 280, 160, 40
+        gw = cols * (cw + gap) + gap
+        gh = math.ceil(per / cols) * (ch + gap) + gap + 60
+        ids = []
+        for g in range(ng):
+            gx, gy = (g % 3) * (gw + 120), (g // 3) * (gh + 120)
+            groups.append({"id": f"g{g}", "type": "group", "label": f"Groupe {g + 1} {r.choice(WORDS)}",
+                           "x": gx, "y": gy, "width": gw, "height": gh, "color": str(g % 6 + 1)})
+            for k in range(per):
+                nid = f"n{g}_{k}"
+                ids.append(nid)
+                x = gx + gap + (k % cols) * (cw + gap)
+                y = gy + 60 + gap + (k // cols) * (ch + gap)
+                kind = r.random()
+                nd = {"id": nid, "x": x, "y": y, "width": cw, "height": ch}
+                if kind < 0.55:
+                    tag = f" #{self.pick_tag(r, 0)}" if r.random() < 0.4 else ""
+                    nd.update(type="text", text=f"**{self.words(r, 2)}**\n\n{self.words(r, r.randint(5, 18))}{tag}")
+                elif kind < 0.8 and notes:
+                    nd.update(type="file", file=r.choice(notes))
+                elif kind < 0.92 and pngs:
+                    nd.update(type="file", file=r.choice(pngs))
+                else:
+                    nd.update(type="link", url=f"https://example.com/{r.choice(self.vocab)}/{r.randint(1, 99)}")
+                if r.random() < 0.35:
+                    nd["color"] = str(r.randint(1, 6)) if r.random() < 0.7 else f"#{r.randrange(0x1000000):06x}"
+                nodes.append(nd)
+        sides = ["top", "right", "bottom", "left"]
+        for e in range(200):
+            a, b = r.sample(ids, 2)
+            ed = {"id": f"e{e}", "fromNode": a, "fromSide": r.choice(sides), "toNode": b,
+                  "toSide": r.choice(sides)}
+            if r.random() < 0.55:
+                ed["label"] = r.choice(WORDS)
+            if r.random() < 0.3:
+                ed["color"] = str(r.randint(1, 6))
+            if r.random() < 0.1:
+                ed["toEnd"] = "none"
+            edges.append(ed)
+        return json.dumps({"nodes": groups + nodes, "edges": edges}, indent="\t", ensure_ascii=False).encode()
+
+
+class Gen(Content):
     def __init__(self, a):
         self.seed = a.seed
         self.N = a.notes if a.notes is not None else round(BASE_NOTES * a.scale)
@@ -113,7 +538,7 @@ class Gen:
 
     def note_stem(self, i):
         if i == 0:
-            return "__DAILY NOTES ACTIVE"
+            return "__DAILY NOTES SYNTH"
         r = rng(self.seed, "name", i)
         pre = "__" if r.random() < 0.03 else ""
         stem = f"{pre}{r.choice(WORDS).capitalize()} {r.choice(WORDS)} {i:05d}"
@@ -160,16 +585,19 @@ class Gen:
         avg = ATT_REAL_AVG[ext] * self.attach_factor
         return max(64, int(avg * math.exp(r.gauss(-0.4, 0.9))))
 
-    def pick_png(self, r, block):
+    def pick_png_index(self, r, block):
         lo, hi = block * BASE_ATT, min((block + 1) * BASE_ATT, self.A)
         if hi <= lo:
             return None
         for _ in range(25):
             j = r.randrange(lo, hi)
-            name, ext = self.att_name(j)
-            if ext == ".png":
-                return name
+            if self.att_ext(j) == ".png":
+                return j
         return None
+
+    def pick_png(self, r, block):
+        j = self.pick_png_index(r, block)
+        return None if j is None else self.att_name(j)[0]
 
     # ---- contenu ------------------------------------------------------------------------------
     def words(self, r, n):
@@ -215,11 +643,13 @@ class Gen:
         else:
             t = block * BASE_NOTES + r.randrange(BASE_NOTES)
         t = min(t, self.N - 1)
-        return t if t != i else (t + 1) % self.N
+        return t if t != i else (t + 1 if (t + 1) % BASE_NOTES else t - 1)
 
     def render_note(self, i):
         r = rng(self.seed, "note", i)
+        r2 = rng(self.seed, "rich", i)
         block = i // BASE_NOTES
+        fp = self.note_folder(i)
         target = self.note_bytes(i)
         if self.is_excal(i):
             size = int(r.uniform(3_000, 45_000))
@@ -236,7 +666,11 @@ class Gen:
             fm = ["---"]
             for k in keys:
                 if k == "tags":
-                    fm.append("tags: [" + ", ".join(r.sample(GLOBAL_TAGS, r.randint(1, 3))) + "]")
+                    tl = [self.pick_tag(r2, block) for _ in range(r2.randint(1, 4))]
+                    if r2.random() < 0.5:
+                        fm.append("tags: [" + ", ".join(tl) + "]")
+                    else:
+                        fm.append("tags:\n" + "\n".join(f"  - {t}" for t in tl))
                 elif k in ("created", "modified", "due"):
                     fm.append(f"{k}: 20{r.randint(24, 26)}-{r.randint(1, 12):02d}-{r.randint(1, 28):02d}")
                 elif k == "aliases":
@@ -250,6 +684,8 @@ class Gen:
         heads = [f"{'#' * r.randint(1, 4)} {r.choice(WORDS).capitalize()} {self.words(r, 2)}\n"
                  for _ in range(n_head)]
         extras = list(self.links_for(r, i, block))
+        if i != 0:
+            extras += self.rich_blocks(r2, i, block, fp, target)
         if r.random() < 0.30:
             for _ in range(1 + int(r.expovariate(1 / 5.0))):
                 extras.append(f"- [{'x' if r.random() > 0.86 else ' '}] {self.words(r, 6)}")
@@ -257,7 +693,11 @@ class Gen:
         if n_tags:
             extras.append(" ".join("#" + (r.choice(GLOBAL_TAGS) if r.random() < 0.6 else f"b{block}-t{r.randrange(60)}")
                                    for _ in range(n_tags)))
-        overhead = sum(len(p) for p in parts) + sum(len(h) for h in heads) + sum(len(x) + 1 for x in extras)
+        if i == 0:
+            head = "".join(parts) + "## Liens\n\n" + "\n".join(extras) + "\n\n"
+            return (head + self.render_daily(r2, i, block, len(head.encode()))).encode("utf-8")
+        overhead = sum(len(p.encode()) for p in parts) + sum(len(h.encode()) for h in heads) + \
+            sum(len(x.encode()) + 1 for x in extras)
         words_total = max(3, int((target - overhead) / self.avg_word))
         sections = max(1, n_head)
         per = max(1, words_total // sections)
@@ -271,7 +711,7 @@ class Gen:
         r = rng(self.seed, "att", j)
         n = self.att_size(ext, r)
         if ext == ".png":
-            return b"\x89PNG\r\n\x1a\n" + r.randbytes(n)
+            return make_png(r, n)
         if ext == ".jpg":
             return b"\xff\xd8\xff\xe0" + r.randbytes(n)
         if ext == ".pdf":
@@ -282,9 +722,11 @@ class Gen:
             return json.dumps({"url": "https://docs.google.com/document/d/synthetic",
                                "doc_id": "synthetic", "email": "user@example.com"}).encode()
         if ext == ".canvas":
-            nodes = [{"id": f"n{k}", "type": "text", "text": self.words(r, 5), "x": k * 40, "y": 0,
-                      "width": 200, "height": 60} for k in range(max(1, n // 200))]
-            return json.dumps({"nodes": nodes, "edges": []}).encode()
+            m = max(1, n // 200)
+            nodes = [{"id": f"n{k}", "type": "text", "text": self.words(r, 5), "x": (k % 8) * 260,
+                      "y": (k // 8) * 120, "width": 240, "height": 100} for k in range(m)]
+            edges = [{"id": f"e{k}", "fromNode": f"n{k}", "toNode": f"n{k + 1}"} for k in range(m - 1)]
+            return json.dumps({"nodes": nodes, "edges": edges}).encode()
         # .excalidraw / .excalidrawlib
         return json.dumps({"type": "excalidraw", "version": 2, "elements": [],
                            "blob": base64.b64encode(r.randbytes(int(n * 0.75))).decode()}).encode()
@@ -372,6 +814,9 @@ def generate(a):
         w.put(g.att_folder(j, ext) + (name,), lambda j=j, e=ext: g.render_att(j, e))
         if (j + 1) % 2000 == 0:
             print(f"  pieces jointes {j + 1}/{g.A}", flush=True)
+    if g.N > 0:
+        w.put(("01_WORK", "Canvas simple.canvas"), g.canvas_simple)
+        w.put(("01_WORK", "Canvas dense.canvas"), g.canvas_dense)
     if a.dot_noise > 0:
         write_dot_noise(w, g, a.dot_noise)
     dt = time.time() - t0
@@ -434,6 +879,162 @@ def stats(root):
     print(f"frontmatter {fm}, wikilinks {wiki}, embeds {emb}, non resolus {unres}, notes sans lien sortant {nolinks}")
     print("(reference 1x : 953 fichiers, 488 md, 94 dossiers, md 2,94 Mo, mediane 2536 o, p95 20999 o, "
           "378172 mots, 468 frontmatter, 362 wiki, 381 embeds, 65 non resolus, 330 sans lien)")
+    print_rich_stats(mds)
+    big = max(mds, key=lambda f: f.stat().st_size) if mds else None
+    if big is not None:
+        print(f"note pire cas : {big.relative_to(root)} ({big.stat().st_size} o, hors total median ci-dessus)")
+    canv = sorted(f for f in files if f.suffix == ".canvas")
+    nc = []
+    for f in canv:
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+            nc.append((f.name, len(d["nodes"]), len(d["edges"])))
+        except Exception as e:  # noqa
+            nc.append((f.name, "INVALIDE", str(e)))
+    named = [x for x in nc if x[0].startswith("Canvas ")]
+    print(f".canvas : {len(canv)} fichiers ; nommes : {named}")
+    pngs = [f for f in files if f.suffix == ".png"]
+    ok = sum(1 for f in pngs if f.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n" and f.read_bytes()[-12:-8] == b"\x00\x00\x00\x00"
+             and f.read_bytes()[-8:-4] == b"IEND")
+    print(f"png : {len(pngs)} fichiers, {ok} avec signature + IEND corrects")
+
+# ---- statistiques enrichies (v2) ---------------------------------------------------------------
+RE_TAG = re.compile(r"(?<![\w/&#])#([^\W\d][\w\-]*(?:/[\w\-]+)*)")
+RE_STRIP = re.compile(r"`[^`\n]*`|https?://\S+|\[\[[^\]\n]*\]\]|\]\([^)\n]*\)")
+RE_LIST = re.compile(r"^(\s*)(?:[-*+]|\d+\.)\s")
+RE_CALLOUT = re.compile(r"^> \[!(\w+)\]([+-]?)")
+RE_TABSEP = re.compile(r"^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$")
+RE_IMG_WIKI = re.compile(r"!\[\[([^\]|#]+\.(?:png|jpg))")
+RE_IMG_MD = re.compile(r"!\[[^\]]*\]\(([^)]+\.(?:png|jpg))\)")
+MM_KINDS = ["flowchart", "sequenceDiagram", "classDiagram", "stateDiagram-v2", "erDiagram", "gantt", "pie",
+            "mindmap", "wardley-beta"]
+
+
+def frontmatter_tags(text):
+    if not text.startswith("---\n"):
+        return [], 0
+    end = text.find("\n---", 4)
+    if end < 0:
+        return [], 0
+    fm = text[4:end].split("\n")
+    tags = []
+    for k, ln in enumerate(fm):
+        if ln.startswith("tags:"):
+            rest = ln[5:].strip()
+            if rest.startswith("["):
+                tags += [t.strip() for t in rest.strip("[]").split(",") if t.strip()]
+            else:
+                for l2 in fm[k + 1:]:
+                    if l2.startswith("  - "):
+                        tags.append(l2[4:].strip())
+                    else:
+                        break
+    return tags, end
+
+
+def scan_note(text, acc):
+    """Alimente acc (compteurs) pour une note : tags par emplacement, Mermaid, callouts, tableaux..."""
+    ftags, _ = frontmatter_tags(text)
+    for t in ftags:
+        acc["tags"].append((t.lower(), "frontmatter"))
+    body = text
+    if text.startswith("---\n"):
+        e = text.find("\n---", 4)
+        body = text[e + 4:] if e >= 0 else text
+    lines = body.split("\n")
+    fence = None
+    prev_table = False
+    for k, ln in enumerate(lines):
+        st = ln.lstrip()
+        if fence is None and st.startswith("```"):
+            fence = st[3:].strip()
+            if fence == "mermaid":
+                nxt = lines[k + 1].strip().split(" ")[0] if k + 1 < len(lines) else ""
+                acc["mermaid"][nxt] = acc["mermaid"].get(nxt, 0) + 1
+            elif fence:
+                acc["code"][fence] = acc["code"].get(fence, 0) + 1
+            continue
+        if fence is not None:
+            if st.startswith("```"):
+                fence = None
+            continue
+        m = RE_CALLOUT.match(ln)
+        if m:
+            acc["callouts"][m.group(1)] = acc["callouts"].get(m.group(1), 0) + 1
+            acc["callouts_fold"] += bool(m.group(2))
+        if RE_TABSEP.match(ln.strip()) and k > 0 and lines[k - 1].lstrip().startswith("|"):
+            acc["tables"] += 1
+        for mm in RE_LIST.finditer(ln):
+            mt = re.match(r"^\s*(?:[-*+]|\d+\.)\s\[([ xX])\]", ln)
+            if mt:
+                acc["tasks_done" if mt.group(1) != " " else "tasks_open"] += 1
+            if len(mm.group(1)) > 0:
+                acc["nested_items"] += 1
+        acc["img_wiki"] += len(RE_IMG_WIKI.findall(ln))
+        acc["img_md"] += len(RE_IMG_MD.findall(ln))
+        acc["anchors"] += len(re.findall(r"\[\[[^\]|]+#[^\]|]+(?:\|[^\]]*)?\]\]", ln))
+        acc["aliases"] += len(re.findall(r"\[\[[^\]|#]+(?:#[^\]|]+)?\|[^\]]+\]\]", ln))
+        clean = RE_STRIP.sub(" ", ln)
+        acc["numeric_hash"] += len(re.findall(r"(?<![\w/&#])#\d+\b", clean))
+        found = RE_TAG.findall(clean)
+        if not found:
+            continue
+        if st.startswith("|"):
+            loc = "tableau"
+        elif st.startswith(">"):
+            loc = "citation/callout"
+        elif re.match(r"^#{1,6}\s", st):
+            loc = "titre"
+        elif RE_LIST.match(ln):
+            ind = len(RE_LIST.match(ln).group(1))
+            nxt = next((l for l in lines[k + 1:] if l.strip()), "")
+            nm = RE_LIST.match(nxt)
+            loc = "liste avec enfants" if nm and len(nm.group(1)) > ind else "liste sans enfant"
+        else:
+            loc = "paragraphe"
+        for t in found:
+            acc["tags"].append((t.lower(), loc))
+
+
+def print_rich_stats(files_md):
+    acc = {"tags": [], "mermaid": {}, "code": {}, "callouts": {}, "callouts_fold": 0, "tables": 0,
+           "tasks_done": 0, "tasks_open": 0, "nested_items": 0, "img_wiki": 0, "img_md": 0,
+           "anchors": 0, "aliases": 0, "numeric_hash": 0}
+    notes_mm = 0
+    for f in files_md:
+        t = f.read_text(encoding="utf-8", errors="replace")
+        before = sum(acc["mermaid"].values())
+        scan_note(t, acc)
+        notes_mm += sum(acc["mermaid"].values()) > before
+    tags = acc["tags"]
+    distinct = {t for t, _ in tags}
+    hier = [t for t, _ in tags if "/" in t]
+    by_loc = {}
+    for t, loc in tags:
+        by_loc[loc] = by_loc.get(loc, 0) + 1
+    freq = {}
+    for t, _ in tags:
+        freq[t] = freq.get(t, 0) + 1
+    top = sorted(freq.items(), key=lambda kv: -kv[1])[:5]
+    depth = {}
+    for t in distinct:
+        depth[t.count("/") + 1] = depth.get(t.count("/") + 1, 0) + 1
+    print("--- Elements enrichis ---")
+    print(f"tags : {len(tags)} occurrences, {len(distinct)} distincts, plats {len(tags) - len(hier)}, "
+          f"hierarchiques {len(hier)} ; distincts par profondeur {dict(sorted(depth.items()))}")
+    print("tags par emplacement : " + ", ".join(f"{k} {v}" for k, v in sorted(by_loc.items(), key=lambda kv: -kv[1])))
+    print("tags les plus frequents : " + ", ".join(f"{t} ({n})" for t, n in top)
+          + f" ; singletons {sum(1 for n in freq.values() if n == 1)}")
+    print(f"pieges '#123' (hors tags) : {acc['numeric_hash']}")
+    mm = acc["mermaid"]
+    print(f"mermaid : {sum(mm.values())} blocs dans {notes_mm} notes ({100 * notes_mm / max(1, len(files_md)):.1f} % des md) ; "
+          + ", ".join(f"{k} {mm.get(k, 0)}" for k in MM_KINDS))
+    print(f"callouts : {sum(acc['callouts'].values())} ({acc['callouts_fold']} repliables) : "
+          + ", ".join(f"{k} {v}" for k, v in sorted(acc["callouts"].items())))
+    print(f"tableaux : {acc['tables']} ; blocs de code : {sum(acc['code'].values())} ("
+          + ", ".join(f"{k} {v}" for k, v in sorted(acc["code"].items())) + ")")
+    print(f"taches : {acc['tasks_open']} ouvertes, {acc['tasks_done']} faites ; elements de liste imbriques {acc['nested_items']}")
+    print(f"embeds images : {acc['img_wiki']} wikilink + {acc['img_md']} markdown ; ancres [[n#t]] {acc['anchors']} ; wikilinks avec alias {acc['aliases']}")
 
 
 def main():

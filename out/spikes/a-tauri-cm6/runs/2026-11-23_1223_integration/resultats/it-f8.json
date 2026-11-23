@@ -1,0 +1,91 @@
+{
+  "scenario": "it-f8",
+  "saved": {
+    "filesDirBefore": [
+      "a-supprimer.md",
+      "fauxvault",
+      "hors-vault.md",
+      "img",
+      "latin1.md",
+      "longue.md",
+      "second.md",
+      "vide.md",
+      "été à la plage"
+    ],
+    "attachMs": 599,
+    "F8_start": "{\"metrics\":{\"editorReadyMs\":291,\"editorPaintedMs\":377},\"vault\":null,\"dormant\":null,\"sidebarHidden\":true,\"tabs\":[[\"hors-vault\",true]],\"badge\":1}",
+    "timings": "{\"ms\":850.0,\"name\":\"editor-ready\",\"processStartMs\":1795432342335,\"sinceProcessStartMs\":855}\n{\"ms\":291.0,\"name\":\"editor-ready-since-navigation\",\"processStartMs\":1795432342335,\"sinceProcessStartMs\":857}\n{\"ms\":377.0,\"name\":\"editor-painted-since-navigation\",\"processStartMs\":1795432342335,\"sinceProcessStartMs\":940}\n",
+    "F8_relativeImage": "{\"imgs\":[{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit%5Cfiles\"}],\"code\":[\"Python\"]}",
+    "F1_cursorInBold_lineText": "{\"line\":3,\"txt\":\"Du **gras**, de l'italique, du barré, du surligné et du code.\"}",
+    "F1_cursorAway_lineText": "Du gras, de l'italique, du barré, du surligné et du code.",
+    "checkboxClick": "- [x] tâche",
+    "checkboxUndo": "{\"text\":\"- [ ] tâche\",\"dirty\":true}",
+    "F8_secondLaunchToActiveTabMs": 42,
+    "F8_secondLaunchToActiveTabMs_exited": true,
+    "F8_afterSecondLaunch": "{\"tabs\":[[\"hors-vault\",true],[\"second\",true]],\"active\":\"second\"}",
+    "F8_thirdLaunchMs": 37,
+    "F8_thirdLaunchMs_exited": true,
+    "F8_obsidianFolderIsolated": "{\"vault\":null,\"sidebarHidden\":true,\"outside\":true,\"tabs\":3}",
+    "fauxvaultAfter": [
+      ".obsidian",
+      "note isolée.md"
+    ],
+    "fauxvaultObsidianAfter": [
+      "app.json"
+    ],
+    "outsideTags": "{\"rows\":[\"#isole1\"]}",
+    "R_latin1": "{\"loaded\":false,\"error\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it\\\\files\\\\latin1.md is not valid UTF-8 (first invalid byte at offset 5)\",\"ms\":15,\"name\":\"latin1\"}",
+    "R_latin1_message": "{\"empty\":\"Impossible d'ouvrir ce fichierC:\\\\Users\\\\aleca\\\\rocksy-test\\\\it\\\\files\\\\latin1.md is not valid UTF-8 (first invalid byte at offset 5)C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it\\\\files\\\\latin1.md\"}",
+    "R_empty": "{\"loaded\":true,\"error\":null,\"ms\":6,\"name\":\"vide\"}",
+    "R_empty_saveMs": 17,
+    "R_empty_onDisk": {
+      "size": 3,
+      "sha1": "a9993e364706816aba3e25717850c26c9cd0d89d",
+      "bom": false,
+      "crlf": 0,
+      "lf": 0,
+      "endsWithNewline": false,
+      "tailHex": "616263"
+    },
+    "R_accents": "{\"loaded\":true,\"error\":null,\"ms\":7,\"name\":\"note d'été & co\"}",
+    "R_accents_state": "{\"h\":1,\"status\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it\\\\files\\\\été à la plage\\\\note d'été & co.md\"}",
+    "R_longLine": "{\"loaded\":true,\"error\":null,\"ms\":185,\"name\":\"longue\"}",
+    "R_longLine_length": 216000,
+    "R_longLine_latency": "{\"n\":45,\"update\":{\"median\":391.2,\"p95\":414.5,\"max\":490.2},\"withLayout\":{\"median\":391.3,\"p95\":414.7,\"max\":490.5}}",
+    "R_delete_open": "{\"loaded\":true,\"error\":null,\"ms\":18,\"name\":\"a-supprimer\"}",
+    "R_delete_afterWatcher": "{\"state\":{\"name\":\"a-supprimer\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"mtime\":1795431874813,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null},\"toast\":\"\"}",
+    "R_delete_saveState": "{\"name\":\"a-supprimer\",\"dirty\":true,\"saving\":false,\"conflict\":\"save\",\"error\":null,\"mtime\":1795431874813,\"eol\":\"lf\",\"bom\":false,\"status\":\"Conflit\",\"banner\":\"Enregistrement refusé : ce fichier a changé sur le disque depuis son ouverture.Recharger depuis le disqueÉcraser avec ma\"}",
+    "R_delete_afterOverwrite": "{\"name\":\"a-supprimer\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"mtime\":1795432370775,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+    "R_delete_fileRecreated": true,
+    "targetsBeforeLink": [
+      {
+        "type": "page",
+        "url": "http://tauri.localhost/"
+      }
+    ],
+    "targetsAfterLink": [
+      {
+        "type": "page",
+        "url": "http://tauri.localhost/"
+      }
+    ],
+    "afterLinkClick": "{\"href\":\"http://tauri.localhost/\",\"active\":\"hors-vault\"}",
+    "filesDirAfter": [
+      "a-supprimer.md",
+      "fauxvault",
+      "hors-vault.md",
+      "img",
+      "latin1.md",
+      "longue.md",
+      "second.md",
+      "vide.md",
+      "été à la plage"
+    ],
+    "imgDirAfter": [
+      "local.png"
+    ],
+    "tabsBeforeCtrlW": 8,
+    "tabsAfterCtrlW": "{\"tabs\":7}"
+  },
+  "errors": []
+}

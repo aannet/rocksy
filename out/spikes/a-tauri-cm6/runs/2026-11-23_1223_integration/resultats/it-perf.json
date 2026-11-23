@@ -1,0 +1,20 @@
+{
+  "scenario": "it-perf",
+  "saved": {
+    "attachMs": 592,
+    "info": "{\"autosave\":false,\"metrics\":{\"editorReadyMs\":263,\"editorPaintedMs\":351},\"bytes\":309938,\"lines\":4372,\"dpr\":2,\"win\":[1280,820],\"ua\":\"Edg/157.0.0.0\"}",
+    "timings": "{\"ms\":794.0,\"name\":\"editor-ready\",\"processStartMs\":1795432906420,\"sinceProcessStartMs\":796}\n{\"ms\":263.0,\"name\":\"editor-ready-since-navigation\",\"processStartMs\":1795432906420,\"sinceProcessStartMs\":797}\n{\"ms\":351.0,\"name\":\"editor-painted-since-navigation\",\"processStartMs\":1795432906420,\"sinceProcessStartMs\":885}\n",
+    "posStart": "- [[Note risque 00167]]",
+    "latencyStart": "{\"n\":216,\"update\":{\"median\":2.4,\"p95\":3.9,\"max\":9.5},\"withLayout\":{\"median\":2.5,\"p95\":4.1,\"max\":10.1}}",
+    "posMiddle": "Ionsol. Riel conrécordé pevini. Oukoconpe [[Client plan 0023",
+    "latencyMiddle": "{\"n\":216,\"update\":{\"median\":2.9,\"p95\":5,\"max\":7},\"withLayout\":{\"median\":3.1,\"p95\":5.3,\"max\":7.3}}",
+    "posEnd": "Cordan pepeeux proiondanvi euxkodan luko koviré riré markoré",
+    "latencyEnd": "{\"n\":216,\"update\":{\"median\":2.5,\"p95\":4.2,\"max\":6.6},\"withLayout\":{\"median\":2.5,\"p95\":4.4,\"max\":7.1}}",
+    "posTask": "    - [ ] Promartaldé tenpepe baairementeux",
+    "latencyInTaskWithMarkup": "{\"n\":215,\"update\":{\"median\":2.2,\"p95\":3.8,\"max\":17},\"withLayout\":{\"median\":2.3,\"p95\":4,\"max\":17}}",
+    "scroll120pxPerFrame": "{\"frames\":299,\"px\":36000,\"median\":16.7,\"p95\":16.8,\"max\":33.8,\"over20ms\":1,\"over34ms\":0}",
+    "scroll600pxPerFrame": "{\"frames\":149,\"px\":90000,\"median\":16.7,\"p95\":16.8,\"max\":16.8,\"over20ms\":0,\"over34ms\":0}",
+    "end": "{\"dirty\":true,\"scrollTop\":90000,\"scrollHeight\":149254}"
+  },
+  "errors": []
+}

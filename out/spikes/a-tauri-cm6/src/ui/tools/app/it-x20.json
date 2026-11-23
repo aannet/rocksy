@@ -1,0 +1,236 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-x20",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave();return rocksy.autosave})()",
+   "save": "autosave(off pour ne rien écrire dans x20)"
+  },
+  {
+   "py": "snap",
+   "path": "{VAULTS}\\x20\\01_WORK\\__DAILY NOTES SYNTH.md",
+   "save": "bigBefore"
+  },
+  {
+   "eval": "(async()=>{const t0=performance.now();const n=await T.addVault(T.ref('x20'));return JSON.stringify({entries:n, addAndOpenMs:Math.round(performance.now()-t0), metrics:rocksy.metrics})})()",
+   "save": "x20_openVault"
+  },
+  {
+   "wait": "rocksy.tagsInfo",
+   "timeout": 120000,
+   "save": "x20_tagsReadyWaitMs"
+  },
+  {
+   "eval": "JSON.stringify({tags:rocksy.tagsInfo, fromSnapshot:rocksy.tree.fromSnapshot, rowsInDom:T.count('.tree-row')})",
+   "save": "x20_tags"
+  },
+  {
+   "eval": "(()=>{const sb=rocksy.sidebar;for(const e of rocksy.tree.entries) if(e.isDir) sb.expanded.add(e.path);const t0=performance.now();sb.flatten();const flat=performance.now()-t0;const ms=[];const max=sb.rows.length*26;for(let i=0;i<60;i++){sb.treeEl.scrollTop=Math.floor(max*i/60);sb.renderedFrom=-1;const t=performance.now();sb.renderRows();void sb.sizer.offsetHeight;ms.push(performance.now()-t)}ms.sort((a,b)=>a-b);sb.treeEl.scrollTop=Math.floor(max*0.5);sb.renderedFrom=-1;sb.renderRows();return JSON.stringify({rows:sb.rows.length, flattenMs:+flat.toFixed(2), renderMedianMs:+ms[30].toFixed(2), renderP95Ms:+ms[57].toFixed(2), rowsInDom:sb.sizer.children.length})})()",
+   "save": "x20_treeAllExpanded"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "shot": "it-x20-tree.png"
+  },
+  {
+   "eval": "(()=>{const sb=rocksy.sidebar;sb.expanded.clear();sb.flatten();sb.treeEl.scrollTop=0;sb.renderedFrom=-1;sb.renderRows();try{localStorage.removeItem('rocksy.tree.'+rocksy.vaultRoot)}catch{};return 1})()"
+  },
+  {
+   "eval": "T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md')).then(JSON.stringify)",
+   "save": "x20_openBig"
+  },
+  {
+   "eval": "JSON.stringify(rocksy.benchQuickOpen(['a','plan','budget 0012','revue sprint','xyzq','daily notes','p','réunion','01 work plan','canvas dense']))",
+   "save": "x20_quickOpenBench"
+  },
+  {
+   "key": "o",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "document.querySelector('.picker input')",
+   "timeout": 4000
+  },
+  {
+   "type": "budget 0012"
+  },
+  {
+   "sleep": 150
+  },
+  {
+   "eval": "JSON.stringify({filter:rocksy.metrics.quickOpenFilterMs, render:rocksy.metrics.quickOpenRenderMs, items:rocksy.metrics.quickOpenItems, first:document.querySelector('.picker-item .pi-main').textContent})",
+   "save": "x20_quickOpenTyped"
+  },
+  {
+   "shot": "it-x20-quickopen.png"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify({active:rocksy.activeDoc().name, loaded:rocksy.activeDoc().loaded})",
+   "save": "x20_quickOpenEnter"
+  },
+  {
+   "key": "p",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "document.querySelector('.picker input')",
+   "timeout": 4000
+  },
+  {
+   "type": "tags"
+  },
+  {
+   "sleep": 150
+  },
+  {
+   "shot": "it-palette.png"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "wait": "rocksy.sidebar.tab==='tags' && document.querySelector('.tag-row')",
+   "timeout": 8000
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify({rows:T.count('.tag-row'), listMs:rocksy.metrics.tagsListMs, count:rocksy.metrics.tagsListCount, label:document.querySelector('.tags-progress-label').textContent})",
+   "save": "F9_panelUnfiltered"
+  },
+  {
+   "shot": "it-f9-tags-panel.png"
+  },
+  {
+   "eval": "(async()=>{const sb=rocksy.sidebar;const out=[];for(const q of ['p','pr','pro','proj','proje','projet','projet/','','e','eq','equipe','theme','a','xyz']){sb.tagInput.value=q;const t=performance.now();await sb.refreshTags();void sb.tagList.offsetHeight;out.push([q,+(performance.now()-t).toFixed(1),rocksy.metrics.tagsListCount,T.count('.tag-row')])}sb.tagInput.value='';await sb.refreshTags();return JSON.stringify(out)})()",
+   "save": "F9_filterMs(query,ms,tags,rows)"
+  },
+  {
+   "click": ".tags-search input"
+  },
+  {
+   "type": "projet",
+   "delay": 40
+  },
+  {
+   "sleep": 200
+  },
+  {
+   "eval": "JSON.stringify({listMsLastKey:rocksy.metrics.tagsListMs, count:rocksy.metrics.tagsListCount, rows:T.count('.tag-row')})",
+   "save": "F9_typedFilter"
+  },
+  {
+   "click": ".tag-row .tn"
+  },
+  {
+   "wait": "document.querySelector('.frag')",
+   "timeout": 8000
+  },
+  {
+   "eval": "JSON.stringify({tag:rocksy.sidebar.selectedTag, fragMs:rocksy.metrics.tagFragmentsMs, frags:rocksy.metrics.tagFragmentsCount, head:document.querySelector('.frag-head').textContent})",
+   "save": "F9_fragments"
+  },
+  {
+   "shot": "it-f9-fragments.png"
+  },
+  {
+   "click": ".frag:nth-child(4)"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 8000,
+   "save": "F9_fragmentClickToFlashMs"
+  },
+  {
+   "shot": "it-f9-fragment-open-flash.png",
+   "settle": 250
+  },
+  {
+   "eval": "(()=>{const f=rocksy.sidebar.fragments[3];const s=T.view().state;const l=s.doc.lineAt(s.selection.main.head);const lines=[];for(let i=f.startLine;i<=f.endLine;i++)lines.push(s.doc.line(i+1).text.slice(0,90));return JSON.stringify({fragment:{start:f.startLine,end:f.endLine,tagLine:f.tagLine,tag:f.tag,source:f.source}, cursorLine0:l.number-1, blockLines:lines.slice(0,6), flashed:T.count('.cm-lp-flash'), doc:rocksy.activeDoc().name, samePath:rocksy.activeDoc().path===f.path})})()",
+   "save": "F9_fragmentOpen"
+  },
+  {
+   "eval": "(async()=>{const tags=await T.inv('tags_list',{query:''});const kinds={};const out=[];let seed=7;const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff};const cache={};let tries=0;while(out.length<8&&tries<400){tries++;const t=tags[Math.floor(rnd()*tags.length)];const fr=await T.inv('tag_fragments',{tag:t.tag,limit:20});if(!fr.length)continue;const f=fr[Math.floor(rnd()*fr.length)];if(f.source!=='inline')continue;const text=cache[f.path]||(cache[f.path]=(await T.inv('read_file',{path:f.path})).text);const L=text.split(/\\r\\n|\\n/);const first=L[f.startLine]||'';const kind=/^\\s*#{1,6}\\s/.test(first)?'titre':/^\\s*\\|/.test(first)?'tableau':/^\\s*>/.test(first)?'citation':/^\\s*([-*+]|\\d+[.)])\\s/.test(first)?'liste':'paragraphe';if((kinds[kind]||0)>=2)continue;kinds[kind]=(kinds[kind]||0)+1;out.push({kind,tag:f.tag,file:f.path.split('\\\\').pop(),start:f.startLine,end:f.endLine,tagLine:f.tagLine,tagCol:f.tagCol,atCol:(L[f.tagLine]||'').substr(f.tagCol,f.tag.length+1),before:(L[f.startLine-1]??'<debut>').slice(0,70),block:L.slice(f.startLine,f.endLine+1).map(x=>x.slice(0,90)).slice(0,7),blockLen:f.endLine-f.startLine+1,after:(L[f.endLine+1]??'<fin>').slice(0,70)})}return JSON.stringify({tags:tags.length,kinds,samples:out})})()",
+   "save": "F9_randomFragments"
+  },
+  {
+   "eval": "T.open(T.it('files','second.md')).then(()=>{T.lineEnd(T.view().state.doc.lines,false);return 1})"
+  },
+  {
+   "type": "\n[[budg"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "(()=>{const t0=performance.now();const r=rocksy.completeFiles('budg');const ms=performance.now()-t0;return JSON.stringify({popup:T.count('.cm-tooltip-autocomplete li'), first:(document.querySelector('.cm-tooltip-autocomplete li')||{}).textContent, completeFilesMs:+ms.toFixed(2), n:r.length})})()",
+   "save": "F4_completion"
+  },
+  {
+   "shot": "it-f4-wikilink-completion.png"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "eval": "JSON.stringify({line:T.curLine(), dirty:rocksy.activeDoc().dirty})",
+   "save": "F4_inserted"
+  },
+  {
+   "eval": "(async()=>{const d=rocksy.findDoc(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));await rocksy.activate(d);const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.scrollDOM.scrollTop=0;await new Promise(r=>setTimeout(r,400));const el=[...document.querySelectorAll('.cm-lp-wikilink.cm-lp-rendered:not(.cm-lp-unresolved)')][0];return el?el.dataset.wikilink:null})()",
+   "save": "F4_linkToClick"
+  },
+  {
+   "click": ".cm-lp-wikilink.cm-lp-rendered:not(.cm-lp-unresolved)"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify({active:rocksy.activeDoc().name, loaded:rocksy.activeDoc().loaded, path:rocksy.activeDoc().path.slice(-60)})",
+   "save": "F4_linkOpened"
+  },
+  {
+   "key": "\\",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify(rocksy.panes.map(p=>p.tabs.map(d=>d.name)))",
+   "save": "F5_split"
+  },
+  {
+   "shot": "it-f5-split.png"
+  },
+  {
+   "eval": "(async()=>{const d=rocksy.findDoc(T.it('files','second.md'));if(d){d.dirty=false;await rocksy.closeDoc(d)}return JSON.stringify(rocksy.docs().map(d=>[d.name,d.dirty]))})()",
+   "save": "docsAtEnd"
+  },
+  {
+   "py": "linediff",
+   "snap": "bigBefore",
+   "path": "{VAULTS}\\x20\\01_WORK\\__DAILY NOTES SYNTH.md",
+   "save": "x20_bigNoteUntouched"
+  }
+ ]
+}

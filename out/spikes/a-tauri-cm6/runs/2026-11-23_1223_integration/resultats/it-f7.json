@@ -1,0 +1,40 @@
+{
+  "scenario": "it-f7",
+  "saved": {
+    "attachMs": 604,
+    "treeEntries": 1049,
+    "opened": "[[\"__DAILY NOTES SYNTH.md\",true,110],[\"Décision plan 00434.md\",true,20],[\"Format bilan 00103.md\",true,10],[\"Architecture plan 00341.md\",true,9],[\"Qualité scénario 00145.md\",true,9],[\"Canvas simple.canvas\",true,5],[\"Canvas dense.canvas\",true,6]]",
+    "sessionA": "{\"tabs\":[[\"__DAILY NOTES SYNTH\",false],[\"Décision plan 00434\",false],[\"Format bilan 00103\",false],[\"Architecture plan 00341\",false],[\"Qualité scénario 00145\",false],[\"Canvas simple.canvas\",false],[\"Canvas dense.canvas\",false]],\"tags\":{\"files\":488,\"tags\":614,\"occurrences\":2897,\"ms\":23}}",
+    "hashAfterReadOnlySession": {
+      "files": 4658
+    },
+    "F7_diff_readOnlySession": {
+      "added": [],
+      "removed": [],
+      "changed": [],
+      "files": 4658
+    },
+    "relaunchAttachMs": 554,
+    "F5_sessionRestored": "{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it\\\\v7\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Décision plan 00434\",\"Format bilan 00103\",\"Architecture plan 00341\",\"Qualité scénario 00145\",\"Canvas simple.canvas\",\"Canvas dense.canvas\"],\"active\":\"Canvas dense.canvas\",\"loaded\":[\"Canvas dense.canvas\"],\"metrics\":{\"editorReadyMs\":156,\"canvasMs\":128.3,\"editorPaintedMs\":382,\"openVaultMs\":234,\"treeBuildMs\":55.7,\"treeEntries\":1049,\"treeReadyMs\":491,\"treeRowsInDom\":22}}",
+    "autosaveOn": true,
+    "autosaveDelayMs": 2018,
+    "hashAfterOneSave": {
+      "files": 4658
+    },
+    "F7_diff_afterOneSave": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "00_INBOX\\Format bilan 00103.md"
+      ],
+      "files": 4658
+    },
+    "dataDirListing": [
+      "session.json",
+      "timings.jsonl",
+      "trees",
+      "vaults.json"
+    ]
+  },
+  "errors": []
+}

@@ -1,0 +1,1 @@
+{"steps":[{"nav":"{DIST}"},{"wait":"document.querySelector('#a')"},{"click":"#i"},{"type":"abc é"},{"eval":"document.querySelector('#i').value","save":"v"},{"shot":"smoke.png"}]}

@@ -1,0 +1,10 @@
+{
+  "scenario": "smoke",
+  "saved": {
+    "attachMs": 593,
+    "readyWaitMs": 451,
+    "info": "{\"metrics\":{\"editorReadyMs\":257,\"editorPaintedMs\":345},\"kind\":\"tauri\",\"url\":\"http://tauri.localhost/\",\"doc\":\"__DAILY NOTES SYNTH\",\"bytes\":309938,\"vault\":null,\"w\":1280,\"h\":820,\"dpr\":2}",
+    "timings": "{\"ms\":821.0,\"name\":\"editor-ready\",\"processStartMs\":1795432789037,\"sinceProcessStartMs\":824}\n{\"ms\":257.0,\"name\":\"editor-ready-since-navigation\",\"processStartMs\":1795432789037,\"sinceProcessStartMs\":825}\n{\"ms\":345.0,\"name\":\"editor-painted-since-navigation\",\"processStartMs\":1795432789037,\"sinceProcessStartMs\":911}\n"
+  },
+  "errors": []
+}

@@ -1,0 +1,91 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-final",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave();return 1})()"
+  },
+  {
+   "eval": "T.open(T.it('files','longue20k.md')).then(JSON.stringify)",
+   "save": "line20k_open"
+  },
+  {
+   "sleep": 1000
+  },
+  {
+   "eval": "(()=>{T.lineEnd(3,false);rocksy.latencyStart();return 1})()"
+  },
+  {
+   "type": " quelques frappes en fin de longue ligne pour mesurer la latence ici",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "line20k_latency_afterFix"
+  },
+  {
+   "shot": "it-robust-line20k.png"
+  },
+  {
+   "eval": "T.open(T.it('files','longue.md')).then(JSON.stringify)",
+   "save": "line216k_open"
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "(()=>{T.lineEnd(3,false);rocksy.latencyStart();return 1})()"
+  },
+  {
+   "type": " quelques frappes en fin de tres longue ligne",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "line216k_latency_afterFix"
+  },
+  {
+   "eval": "T.addVault(T.it('v1'))",
+   "save": "entries"
+  },
+  {
+   "wait": "rocksy.tagsInfo",
+   "timeout": 30000
+  },
+  {
+   "eval": "(async()=>{const out={};for(const name of ['Test CRLF.md','Test BOM.md','Test BOM CRLF sans fin.md','Décision plan 00434.md']){const path=T.vault('00_INBOX',name);const fc=await T.inv('read_file',{path});const fr=await T.inv('file_tags',{path,text:fc.text});const L=fc.text.split(/\\r\\n|\\n/);out[name]={bom:fc.text.charCodeAt(0)===0xfeff,crlf:fc.text.includes('\\r\\n'),n:fr.length,samples:fr.filter(f=>f.source==='inline').slice(0,40).filter((f,i)=>i%9===0).map(f=>({tag:f.tag,start:f.startLine,end:f.endLine,tagLine:f.tagLine,col:f.tagCol,atCol:(L[f.tagLine]||'').substr(f.tagCol,f.tag.length+1),first:(L[f.startLine]||'').slice(0,50),before:(L[f.startLine-1]??'').slice(0,30),after:(L[f.endLine+1]??'').slice(0,30)}))}}return JSON.stringify(out)})()",
+   "save": "F9_fileTags_LF_CRLF_BOM"
+  },
+  {
+   "eval": "(async()=>{const path=T.vault('00_INBOX','Test CRLF.md');const all=await T.inv('tags_list',{query:''});let hit=null;for(const t of all){const fr=await T.inv('tag_fragments',{tag:t.tag,limit:500});const f=fr.find(f=>f.path===path&&f.source==='inline'&&f.endLine>f.startLine);if(f){hit=f;break}}if(!hit)return 'none';await rocksy.openFragment(hit);await T.wait(()=>T.count('.cm-lp-flash')>0,4000);const s=T.view().state;const fl=[...document.querySelectorAll('.cm-lp-flash')].map(e=>e.textContent.slice(0,60));return JSON.stringify({frag:{tag:hit.tag,start:hit.startLine,end:hit.endLine},cursorLine0:s.doc.lineAt(s.selection.main.head).number-1,flashedLines:fl,eol:rocksy.activeDoc().eol==='\\r\\n'?'crlf':'lf'})})()",
+   "save": "F9_openFragment_inCRLF_file"
+  },
+  {
+   "shot": "it-f9-fragment-crlf.png",
+   "settle": 200
+  },
+  {
+   "key": "Tab",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify({active:rocksy.activeDoc().name, tabs:rocksy.docs().map(d=>d.name)})",
+   "save": "ctrlTab"
+  },
+  {
+   "eval": "(()=>{if(!rocksy.autosave) rocksy.toggleAutosave();return 1})()"
+  }
+ ]
+}

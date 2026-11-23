@@ -1,0 +1,89 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-mermaid",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('v1'))",
+   "save": "treeEntries"
+  },
+  {
+   "eval": "(async()=>{const files=rocksy.tree.entries.filter(e=>!e.isDir&&/\\.md$/i.test(e.path));const blocks=[];for(const e of files){const f=await T.inv('read_file',{path:T.vault(...e.path.split('/'))});const re=/^```mermaid[^\\n]*\\r?\\n([\\s\\S]*?)\\r?\\n```/gm;let m;while((m=re.exec(f.text)))blocks.push({path:e.path,src:m[1]})}const by={};for(const b of blocks){const type=b.src.trim().split(/\\s+/)[0];const r1=await rocksy.renderMermaid(b.src);const r2=await rocksy.renderMermaid(b.src);const o=by[type]||(by[type]={blocks:0,ok:0,firstMs:[],warmMs:[],errors:[],files:[]});o.blocks++;if(r2.ok)o.ok++;else o.errors.push(r2.error);o.firstMs.push(r1.ms);o.warmMs.push(r2.ms);o.files.push(b.path)}window.__mm=by;const out={};for(const k in by){const o=by[k];out[k]={blocks:o.blocks,ok:o.ok,firstMs:o.firstMs,warmMs:o.warmMs,errors:o.errors.slice(0,2)}}return JSON.stringify({files:files.length,blocks:blocks.length,byType:out})})()",
+   "save": "mermaidByType"
+  },
+  {
+   "eval": "(async()=>{await T.open(T.vault(...window.__mm['flowchart'].files[0].split('/')));const n=T.show('```mermaid');await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:T.count('.cm-lp-mermaid-body.is-error'),file:window.__mm['flowchart'].files[0]})})()",
+   "save": "inAppFlowchart"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "shot": "it-mermaid-flowchart.png"
+  },
+  {
+   "eval": "(async()=>{const fs=window.__mm['sequenceDiagram'].files;await T.open(T.vault(...fs[0].split('/')));const want=\"sequenceDiagram\";const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+60).includes(want))break}const n=T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,400));return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120))})})()",
+   "save": "inApp_sequenceDiagram"
+  },
+  {
+   "shot": "it-mermaid-sequencediagram.png"
+  },
+  {
+   "eval": "(async()=>{const fs=window.__mm['classDiagram'].files;await T.open(T.vault(...fs[0].split('/')));const want=\"classDiagram\";const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+60).includes(want))break}const n=T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,400));return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120))})})()",
+   "save": "inApp_classDiagram"
+  },
+  {
+   "shot": "it-mermaid-classdiagram.png"
+  },
+  {
+   "eval": "(async()=>{const fs=window.__mm['stateDiagram-v2'].files;await T.open(T.vault(...fs[0].split('/')));const want=\"stateDiagram-v2\";const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+60).includes(want))break}const n=T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,400));return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120))})})()",
+   "save": "inApp_stateDiagram-v2"
+  },
+  {
+   "shot": "it-mermaid-statediagram.png"
+  },
+  {
+   "eval": "(async()=>{const fs=window.__mm['erDiagram'].files;await T.open(T.vault(...fs[0].split('/')));const want=\"erDiagram\";const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+60).includes(want))break}const n=T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,400));return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120))})})()",
+   "save": "inApp_erDiagram"
+  },
+  {
+   "shot": "it-mermaid-erdiagram.png"
+  },
+  {
+   "eval": "(async()=>{const fs=window.__mm['gantt'].files;await T.open(T.vault(...fs[0].split('/')));const want=\"gantt\";const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+60).includes(want))break}const n=T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,400));return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120))})})()",
+   "save": "inApp_gantt"
+  },
+  {
+   "shot": "it-mermaid-gantt.png"
+  },
+  {
+   "eval": "(async()=>{const fs=window.__mm['pie'].files;await T.open(T.vault(...fs[0].split('/')));const want=\"pie\";const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+60).includes(want))break}const n=T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,400));return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120))})})()",
+   "save": "inApp_pie"
+  },
+  {
+   "shot": "it-mermaid-pie.png"
+  },
+  {
+   "eval": "(async()=>{const fs=window.__mm['mindmap'].files;await T.open(T.vault(...fs[0].split('/')));const want=\"mindmap\";const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+60).includes(want))break}const n=T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,400));return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120))})})()",
+   "save": "inApp_mindmap"
+  },
+  {
+   "shot": "it-mermaid-mindmap.png"
+  },
+  {
+   "eval": "(async()=>{const fs=window.__mm['wardley-beta'].files;await T.open(T.vault(...fs[0].split('/')));const want=\"wardley-beta\";const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+60).includes(want))break}const n=T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,400));return JSON.stringify({line:n,svgs:T.count('.cm-lp-mermaid-body svg'),errors:[...document.querySelectorAll('.cm-lp-mermaid-body.is-error')].map(e=>e.textContent.slice(0,120))})})()",
+   "save": "inApp_wardley-beta"
+  },
+  {
+   "shot": "it-mermaid-wardley.png"
+  }
+ ]
+}

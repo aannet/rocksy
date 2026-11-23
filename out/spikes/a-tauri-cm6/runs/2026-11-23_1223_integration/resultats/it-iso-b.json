@@ -1,0 +1,20 @@
+{
+  "scenario": "it-iso-b",
+  "saved": {
+    "attachMs": 695,
+    "B_freshDataDir_seesA?": "{\"autosave\":true,\"lsAutosave\":null,\"probe\":null,\"keys\":[]}",
+    "B_dataDir": [
+      "timings.jsonl",
+      "webview"
+    ],
+    "openExternal_file_refused": "{\"kind\":\"invalid\",\"message\":\"unsupported link scheme: file:///C:/x\"}",
+    "openExternal_js_refused": "{\"kind\":\"invalid\",\"message\":\"unsupported link scheme: javascript:alert(1)\"}",
+    "linkClick_callsOpenExternalWith": "[\"https://example.org\"]",
+    "R_line20k_open": "{\"loaded\":true,\"error\":null,\"ms\":135,\"name\":\"longue20k\"}",
+    "R_line20k_length": 20016,
+    "R_line20k_latency": "{\"n\":68,\"update\":{\"median\":310.1,\"p95\":365.5,\"max\":666.8},\"withLayout\":{\"median\":310.2,\"p95\":365.6,\"max\":667.5}}",
+    "sourceMode": true,
+    "R_line20k_latency_sourceMode": "{\"n\":64,\"update\":{\"median\":23.2,\"p95\":27.3,\"max\":30.6},\"withLayout\":{\"median\":23.4,\"p95\":27.4,\"max\":30.7}}"
+  },
+  "errors": []
+}

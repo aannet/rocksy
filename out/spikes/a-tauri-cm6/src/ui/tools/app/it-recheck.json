@@ -1,0 +1,75 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-recheck",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave();return 1})()"
+  },
+  {
+   "eval": "T.addVault(T.ref('x20'))",
+   "save": "entries"
+  },
+  {
+   "wait": "rocksy.tagsInfo",
+   "timeout": 120000
+  },
+  {
+   "click": "#rb-tags"
+  },
+  {
+   "wait": "rocksy.sidebar.tab==='tags' && document.querySelector('.tag-row')",
+   "timeout": 8000
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "(async()=>{const sb=rocksy.sidebar;const out=[];for(const q of ['','p','pr','pro','proj','projet','e','eq','equipe','a','theme','xyz','']){sb.tagInput.value=q;const t=performance.now();await sb.refreshTags();void sb.tagList.offsetHeight;const total=performance.now()-t;const t1=performance.now();await T.inv('tags_list',{query:q});const ipc=performance.now()-t1;out.push([q,+total.toFixed(1),+ipc.toFixed(1),rocksy.metrics.tagsListCount,T.count('.tag-row')])}return JSON.stringify(out)})()",
+   "save": "F9_filter(query,totalMs,ipcOnlyMs,tags,rows)"
+  },
+  {
+   "click": ".tags-search input"
+  },
+  {
+   "type": "projet",
+   "delay": 40
+  },
+  {
+   "sleep": 200
+  },
+  {
+   "click": ".tag-row .tn"
+  },
+  {
+   "wait": "document.querySelector('.frag')",
+   "timeout": 8000
+  },
+  {
+   "eval": "(async()=>{const out=[];for(const tag of ['projet','theme01','equipe','cycle']){const t=performance.now();await rocksy.sidebar.selectTag(tag);await T.wait(()=>rocksy.sidebar.selectedTag===tag&&T.count('.frag')>0,3000);void rocksy.sidebar.fragList.offsetHeight;out.push([tag,+(performance.now()-t).toFixed(1),rocksy.metrics.tagFragmentsMs,rocksy.metrics.tagFragmentsCount,document.querySelector('.frag-head').textContent])}return JSON.stringify(out)})()",
+   "save": "F9_fragments(tag,totalMs,fragMs,n,head)"
+  },
+  {
+   "shot": "it-f9-tags-x20.png"
+  },
+  {
+   "eval": "T.addVault(T.it('v1'))",
+   "save": "v1entries"
+  },
+  {
+   "eval": "(async()=>{await rocksy.openPath(T.vault('01_WORK','Canvas dense.canvas'));await T.wait(()=>T.count('.cv-node')>20,5000);await new Promise(r=>setTimeout(r,800));const t=[];for(let i=0;i<8;i++){const h=document.querySelector('.canvas-view');const r=h.getBoundingClientRect();const t0=performance.now();h.dispatchEvent(new WheelEvent('wheel',{deltaY:(i%2?200:-200),clientX:r.left+400,clientY:r.top+300,bubbles:true,cancelable:true}));void h.offsetHeight;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));t.push(+(performance.now()-t0).toFixed(1))}return JSON.stringify(t)})()",
+   "save": "F6_zoomStepMs_afterFix"
+  },
+  {
+   "eval": "(()=>{if(!rocksy.autosave) rocksy.toggleAutosave();return 1})()"
+  }
+ ]
+}

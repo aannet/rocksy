@@ -1,0 +1,17 @@
+{
+  "case": "integration",
+  "date": "2026-11-23",
+  "app": "rocksy.exe 0.1.0 (Tauri 2, compilation croisée depuis WSL par out/tools/build-win.sh), UI de out/spikes/a-tauri-cm6/src/ui",
+  "os": "Windows 11 (10.0.26200)",
+  "webview": "WebView2, Edg/157.0.0.0",
+  "window": { "cssWidth": 1280, "cssHeight": 820, "devicePixelRatio": 2 },
+  "data": {
+    "x1": "C:\\Users\\aleca\\rocksy-test\\vaults\\x1 (synthétique, 4 658 fichiers, 488 notes)",
+    "x20": "C:\\Users\\aleca\\rocksy-test\\vaults\\x20 (synthétique, 20 747 entrées d'arbre, 9 760 notes, 4 199 tags)",
+    "copies": "C:\\Users\\aleca\\rocksy-test\\it\\v1 et v7 (copies de x1 pour les tests qui écrivent), it\\files (fichiers hors vault)"
+  },
+  "disk": "C: local (NVMe), cache chaud",
+  "driver": "src/ui/tools/drive.py : protocole DevTools sur le port 9223 de WebView2, frappes et clics réels, captures de page",
+  "profile": "ROCKSY_DATA_DIR sous rocksy-test\\it\\data-<scénario> pour chaque lancement",
+  "gitHead": "966446f (arbre de travail non commité)"
+}

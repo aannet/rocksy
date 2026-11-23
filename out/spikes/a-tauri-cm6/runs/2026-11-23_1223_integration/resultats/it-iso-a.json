@@ -1,0 +1,11 @@
+{
+  "scenario": "it-iso-a",
+  "saved": {
+    "attachMs": 879,
+    "A_set": "{\"autosave\":false,\"ls\":\"0\"}",
+    "A_dataDir": [
+      "webview"
+    ]
+  },
+  "errors": []
+}

@@ -1,0 +1,1 @@
+ROCKSY_AGENT({id:"gen", maj:"11:26", pct:100, etape:"Terminé : vaults x1 et x20 générés et extraits côté Windows (tar)", notes:["x1 4658 fichiers, x20 22765 fichiers (dont .opencode et .obsidian)","noms accentués intacts, déterminisme et préfixe vérifiés"]});

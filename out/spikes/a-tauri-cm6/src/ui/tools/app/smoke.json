@@ -1,0 +1,7 @@
+{"app":{"dataDir":"{IT}\\data-smoke","args":["{VAULTS}\\x1\\01_WORK\\__DAILY NOTES SYNTH.md"]},
+ "steps":[
+ {"wait":"window.rocksyReady","timeout":20000,"save":"readyWaitMs"},
+ {"eval":"JSON.stringify({metrics:rocksy.metrics, kind:rocksy.backend.kind, url:location.href, doc:rocksy.activeDoc().name, bytes:rocksy.focused.view.state.doc.length, vault:rocksy.vaultRoot, w:innerWidth, h:innerHeight, dpr:devicePixelRatio})","save":"info"},
+ {"shot":"smoke.png"},
+ {"py":"readtext","path":"{IT}\\data-smoke\\timings.jsonl","save":"timings"}
+]}

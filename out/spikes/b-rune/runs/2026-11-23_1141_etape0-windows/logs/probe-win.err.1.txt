@@ -1,0 +1,3 @@
+probe: view built in 6.88 ms (12926 spans)
+rune: commit took 371.6 ms, over RUNE_COMMIT_BUDGET_MS=8: view 13.0, layout 357.8 (text 346.2), apply 0.1 ms; most in text (93%); committed for dirty, relayout
+rune: GPU "Intel(R) UHD Graphics" (wgpu; Dx12, IntegratedGpu, 0000:00:02.0): the GPU driving the primary display

@@ -10,10 +10,14 @@
   Mesure : fichiers/tailles, distribution des .md (mediane, p95, max), mots/caracteres,
   wikilinks/embeds/liens non resolus, degres du graphe, tags, frontmatter, headings,
   taches, .excalidraw.md, chemins longs, rythme de creation, taille du cache IndexedDB d'Obsidian.
+  Mesures ajoutees (meme passe de lecture) : blocs Mermaid par type, callouts par type, tableaux,
+  tags en ligne / frontmatter / hierarchiques (compteurs et profondeur, jamais les noms), embeds par
+  extension, images Markdown, blocs de code par langage (top 10), taches.
 
 .EXAMPLE
   .\vault-kpis.ps1
-  .\vault-kpis.ps1 -Vault "G:\Mon Drive\MonVault" -OutJson .\vault-kpis.json
+  .\vault-kpis.ps1 -Vault "G:\Mon Drive\MonVault"
+  .\vault-kpis.ps1 -Vault "G:\Mon Drive\MonVault" -OutFile .\mes-kpis.json
 
 .NOTES
   Sur Google Drive a froid, la lecture des .md peut etre lente : lance-le apres un premier
@@ -21,12 +25,31 @@
 #>
 param(
   [string]$Vault = "G:\Mon Drive\MonVault",
-  [string]$OutJson = "$PSScriptRoot\..\data\vault-kpis.json"
+  [Alias('OutJson')]
+  [string]$OutFile = ("$PSScriptRoot\..\data\vault-kpis-{0}.json" -f (Get-Date -Format 'yyyy-MM-dd'))
 )
 
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path $Vault)) { throw "Vault introuvable : $Vault" }
 $root = (Resolve-Path $Vault).Path.TrimEnd('\')
+
+# Ne jamais ecraser la mesure de reference
+$outDir = Split-Path -Parent $OutFile
+if ($outDir -and -not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
+if ((Split-Path -Leaf $OutFile) -ieq 'vault-kpis.json') { throw "Refus d'ecraser vault-kpis.json : choisis un autre -OutFile." }
+
+# Incremente un compteur dans une table de hachage
+function Inc($h, $k) { $h[$k] = 1 + [int]$h[$k] }
+# Distribution triee par compte decroissant (top N, le reste regroupe dans '(autres)')
+function Dist($h, [int]$top = 0) {
+  $o = [ordered]@{}; $i = 0; $rest = 0
+  foreach ($e in ($h.GetEnumerator() | Sort-Object @{Expression='Value';Descending=$true}, @{Expression='Key'})) {
+    if ($top -gt 0 -and $i -ge $top) { $rest += $e.Value } else { $o[[string]$e.Key] = $e.Value }
+    $i++
+  }
+  if ($rest -gt 0) { $o['(autres)'] = $rest }
+  $o
+}
 
 function Percentile($sorted, [double]$p) {
   if ($sorted.Count -eq 0) { return $null }
@@ -87,6 +110,26 @@ $reHeading  = [regex]'(?m)^#{1,6}\s+\S'
 $reTask     = [regex]'(?m)^\s*[-*+]\s\[(?<s>[ xX])\]'
 $reFmKey    = [regex]'(?m)^([A-Za-z0-9_\-]+)\s*:'
 $reWord     = [regex]'\S+'
+# --- nouvelles mesures (tolerantes au CRLF) ---
+$reFenceN   = [regex]'(?ms)^[ \t]{0,3}(?<f>`{3,}|~{3,})(?<info>[^\r\n]*)\r?\n(?<code>.*?)^[ \t]{0,3}\k<f>[ \t]*\r?$'
+$reCallout  = [regex]'(?m)^[ \t]*(?:>[ \t]*)+\[!(?<t>[^\]\r\n\s]+)\]'
+$reTable    = [regex]'(?m)^[^\r\n]*\|[^\r\n]*\r?\n(?=[^\r\n]*\|)[ \t]*\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*\r?$'
+$reTagN     = [regex]'(?m)(?<=^|\s)#(?<t>[\p{L}\p{N}_\-/]+)'
+$reEmbed    = [regex]'!\[\[(?<t>[^\]\|#\^\r\n]+)(?:[#\^][^\]\|\r\n]*)?(?:\|[^\]\r\n]*)?\]\]'
+$reMdImg    = [regex]'!\[[^\]\r\n]*\]\((?<u>[^)\r\n]+)\)'
+$reFmTagKey = [regex]'(?m)^tags?[ \t]*:(?<v>[^\r\n]*)$'
+$reTaskN    = [regex]'(?m)^[ \t]*[-*+][ \t]\[(?<s>[ xX])\]'
+$otherExt   = @{}
+foreach ($e in 'gif','svg','webp','bmp','avif','mp3','wav','ogg','m4a','flac','mp4','webm','mov','mkv','canvas','excalidraw','docx','xlsx','pptx','txt','json','csv','zip','base') { $otherExt[$e] = $true }
+
+$mmCount = 0; $mmNotes = 0; $mmMax = 0; $mmByType = @{}
+$coCount = 0; $coNotes = 0; $coByType = @{}
+$tbCount = 0; $tbNotes = 0
+$tgInline = 0; $tgFm = 0; $tgSet = @{}; $tgSetInline = @{}; $tgSetFm = @{}; $tgNotesInline = 0; $tgNotesFm = 0
+$tgOccHier = 0; $tgDepth = @{}
+$emByExt = @{}; $emTotal = 0; $mdImgLocal = 0; $mdImgRemote = 0
+$cbTotal = 0; $cbLang = @{}
+$tkOpen = 0; $tkDone = 0
 
 $mdBytes = @(); $words = @(); $chars = @(); $heads = @()
 $outLinks = @(); $wikiTotal = 0; $embedTotal = 0
@@ -109,11 +152,12 @@ foreach ($f in $md) {
   $words += $reWord.Matches($text).Count
 
   # frontmatter
-  $body = $text; $fmTags = 0
+  $body = $text; $fmTags = 0; $fmText = $null
   if ($text.StartsWith("---")) {
     $m = [regex]::Match($text, '(?s)\A---[ \t]*\r?\n(?<fm>.*?)\r?\n---[ \t]*(\r?\n|\z)')
     if ($m.Success) {
       $fmNotes++
+      $fmText = $m.Groups['fm'].Value
       $keys = $reFmKey.Matches($m.Groups['fm'].Value)
       $fmKeyCount += $keys.Count
       foreach ($k in $keys) { $fmKeySet[$k.Groups[1].Value.ToLowerInvariant()] = $true }
@@ -124,6 +168,98 @@ foreach ($f in $md) {
 
   # on retire les blocs de code pour liens, tags et headings
   $clean = $reInline.Replace($reFence.Replace($body, ''), '')
+
+  # ---- nouvelles mesures : blocs de code et Mermaid (sur le corps, avant retrait du code) ----
+  $mmHere = 0
+  foreach ($fm in $reFenceN.Matches($body)) {
+    $cbTotal++
+    $lang = ($fm.Groups['info'].Value.Trim() -split '[\s{]')[0].TrimStart('.').ToLowerInvariant()
+    if (-not $lang) { $lang = '(aucun)' }
+    Inc $cbLang $lang
+    if ($lang -eq 'mermaid') {
+      $mmHere++
+      $kind = ""; $inFm = $false
+      foreach ($ln in ($fm.Groups['code'].Value -split '\r?\n')) {
+        $l2 = $ln.Trim()
+        if ($l2 -eq '') { continue }
+        if ($l2 -eq '---') { $inFm = -not $inFm; continue }
+        if ($inFm -or $l2.StartsWith('%%')) { continue }
+        $kind = ($l2 -split '[\s;{]')[0].ToLowerInvariant(); break
+      }
+      $mt = switch -Regex ($kind) {
+        '^(flowchart|graph)'   { 'flowchart/graph'; break }
+        '^sequencediagram$'    { 'sequenceDiagram'; break }
+        '^classdiagram'        { 'classDiagram'; break }
+        '^statediagram'        { 'stateDiagram'; break }
+        '^erdiagram$'          { 'erDiagram'; break }
+        '^gantt$'              { 'gantt'; break }
+        '^pie$'                { 'pie'; break }
+        '^mindmap$'            { 'mindmap'; break }
+        '^wardley-beta$'       { 'wardley-beta'; break }
+        default                { 'autre' }
+      }
+      Inc $mmByType $mt
+    }
+  }
+  if ($mmHere -gt 0) { $mmNotes++; $mmCount += $mmHere; if ($mmHere -gt $mmMax) { $mmMax = $mmHere } }
+
+  # corps sans code (bloc ou en ligne), tolerant au CRLF : base des autres nouveaux compteurs
+  $cn = $reInline.Replace($reFenceN.Replace($body, ''), '')
+
+  $c = $reCallout.Matches($cn)
+  if ($c.Count -gt 0) { $coNotes++; $coCount += $c.Count; foreach ($x in $c) { Inc $coByType $x.Groups['t'].Value.ToLowerInvariant() } }
+
+  $tb = $reTable.Matches($cn).Count
+  if ($tb -gt 0) { $tbNotes++; $tbCount += $tb }
+
+  foreach ($x in $reTaskN.Matches($cn)) { if ($x.Groups['s'].Value -eq ' ') { $tkOpen++ } else { $tkDone++ } }
+
+  # tags en ligne (regles Obsidian : # apres debut de ligne ou espace, pas purement numerique)
+  $inlineHere = 0
+  foreach ($x in $reTagN.Matches($cn)) {
+    $tn = $x.Groups['t'].Value.Trim('/').ToLowerInvariant()
+    if ($tn -notmatch '\D') { continue }
+    $inlineHere++; $tgSet[$tn] = $true; $tgSetInline[$tn] = $true
+    $dp = ($tn -split '/').Count; Inc $tgDepth ([string]$dp)
+    if ($dp -gt 1) { $tgOccHier++ }
+  }
+  $tgInline += $inlineHere
+  if ($inlineHere -gt 0) { $tgNotesInline++ }
+
+  # tags du frontmatter (tags:/tag: en ligne, [a, b] ou liste YAML)
+  $fmHere = 0
+  if ($fmText) {
+    foreach ($km in $reFmTagKey.Matches($fmText)) {
+      $items = New-Object System.Collections.Generic.List[string]
+      foreach ($p in ($km.Groups['v'].Value -split '[,\s]+')) { $items.Add($p) }
+      $after = $fmText.Substring($km.Index + $km.Length) -split '\r?\n'
+      foreach ($ln in $after) {
+        if ($ln -match '^\s*-\s*(?<i>.+?)\s*$') { $items.Add($Matches['i']) }
+        elseif ($ln.Trim() -eq '') { continue }
+        else { break }
+      }
+      foreach ($p in $items) {
+        $tn = $p.Trim().Trim('[', ']', '"', "'", '#', '/').ToLowerInvariant()
+        if ($tn -eq '' -or $tn -notmatch '\D') { continue }
+        $fmHere++; $tgSet[$tn] = $true; $tgSetFm[$tn] = $true
+        $dp = ($tn -split '/').Count; Inc $tgDepth ([string]$dp)
+        if ($dp -gt 1) { $tgOccHier++ }
+      }
+    }
+  }
+  $tgFm += $fmHere
+  if ($fmHere -gt 0) { $tgNotesFm++ }
+
+  # embeds ![[...]] par extension de cible, images Markdown
+  foreach ($x in $reEmbed.Matches($cn)) {
+    $emTotal++
+    $tg = $x.Groups['t'].Value.Trim().ToLowerInvariant()
+    $ex = [IO.Path]::GetExtension($tg).TrimStart('.')
+    $cat = if ($ex -eq 'png') { 'png' } elseif ($ex -eq 'jpg' -or $ex -eq 'jpeg') { 'jpg' } elseif ($ex -eq 'pdf') { 'pdf' }
+           elseif ($ex -eq '' -or $ex -eq 'md' -or -not $otherExt.ContainsKey($ex)) { 'md/sans extension' } else { 'autre' }
+    Inc $emByExt $cat
+  }
+  foreach ($x in $reMdImg.Matches($cn)) { if ($x.Groups['u'].Value.Trim() -match '^[a-zA-Z][a-zA-Z0-9+.\-]*://') { $mdImgRemote++ } else { $mdImgLocal++ } }
 
   $heads += $reHeading.Matches($clean).Count
   foreach ($t in $reTask.Matches($clean)) { if ($t.Groups['s'].Value -eq ' ') { $tasksOpen++ } else { $tasksDone++ } }
@@ -215,11 +351,38 @@ $result = [ordered]@{
     mdCreatedByMonth = ByMonth $md 'CreationTime'
     mdModifiedByMonth = ByMonth $md 'LastWriteTime'
   }
+  mermaid = [ordered]@{
+    blocks = $mmCount; notesWithMermaid = $mmNotes; maxBlocksInOneNote = $mmMax
+    byType = Dist $mmByType
+  }
+  callouts = [ordered]@{
+    total = $coCount; notesWithCallouts = $coNotes; distinctTypes = $coByType.Count
+    byType = Dist $coByType 20
+  }
+  tables = [ordered]@{ count = $tbCount; notesWithTables = $tbNotes }
+  tagsDetail = [ordered]@{
+    caveat = 'Noms de tags jamais ecrits. Occurrences en ligne hors code, frontmatter tags:/tag:, hierarchique = contient /.'
+    inlineOccurrences = $tgInline; frontmatterOccurrences = $tgFm
+    notesWithInlineTags = $tgNotesInline; notesWithFrontmatterTags = $tgNotesFm
+    distinctTags = $tgSet.Count; distinctInline = $tgSetInline.Count; distinctFrontmatter = $tgSetFm.Count
+    distinctHierarchical = @($tgSet.Keys | Where-Object { $_.Contains('/') }).Count
+    hierarchicalOccurrences = $tgOccHier
+    maxDepth = if ($tgDepth.Count) { ($tgDepth.Keys | ForEach-Object { [int]$_ } | Measure-Object -Maximum).Maximum } else { 0 }
+    occurrencesByDepth = Dist $tgDepth
+  }
+  embedsDetail = [ordered]@{
+    wikiEmbeds = $emTotal; byTarget = Dist $emByExt
+    markdownImagesLocal = $mdImgLocal; markdownImagesRemote = $mdImgRemote
+  }
+  codeBlocks = [ordered]@{
+    total = $cbTotal; distinctLanguages = $cbLang.Count; topLanguages = Dist $cbLang 10
+  }
+  tasks = [ordered]@{ open = $tkOpen; done = $tkDone; total = $tkOpen + $tkDone }
   obsidianCache = [ordered]@{ indexedDbBytes = $idbBytes; path = $idb }
   timingsMs = [ordered]@{ walk = $swWalk.ElapsedMilliseconds; readMd = $swRead.ElapsedMilliseconds }
 }
 
-$result | ConvertTo-Json -Depth 8 | Out-File $OutJson -Encoding utf8
-Write-Host "KPIs ecrits dans $OutJson" -ForegroundColor Green
+$result | ConvertTo-Json -Depth 8 | Out-File $OutFile -Encoding utf8
+Write-Host "KPIs ecrits dans $OutFile" -ForegroundColor Green
 Write-Host ("{0} fichiers ({1} .md), {2} mots, {3} wikilinks ({4} non resolus), parcours {5} ms, lecture {6} ms" -f `
   $files.Count, $md.Count, ($words | Measure-Object -Sum).Sum, $wikiTotal, $unresolvedTotal, $swWalk.ElapsedMilliseconds, $swRead.ElapsedMilliseconds)

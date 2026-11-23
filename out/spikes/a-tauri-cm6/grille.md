@@ -1,13 +1,17 @@
 # Spike A — Tauri 2 + CodeMirror 6 — grille des cas
 
-| # | Cas | Résultat | Preuve (capture, run, remarque) |
+Vu dans l'app réelle (`rocksy.exe`, WebView2 + cœur Rust) le 23/11/2026, sur les vaults synthétiques x1 et x20 (disque local, cache chaud). Preuves : `runs/2026-11-23_1223_integration/` (`captures/`, `resultats/`, `notes.md`). Rien n'a été vu sur le vault réel.
+
+| # | Cas | Résultat | Preuve (capture, valeur, remarque) |
 |---|---|---|---|
-| F1 | Live Preview : éléments courants, marqueurs au curseur | | |
-| F2 | Live Preview : frontmatter, code, tableau | | |
-| F3 | Image embarquée | | |
-| F4 | Autocomplétion de wikilinks | | |
-| F5 | Onglets, splits, restauration du workspace | | |
-| F6 | Canvas en lecture seule | | |
-| F7 | Aucune écriture indésirable (hash avant/après) | | |
-| F8 | Fichier hors vault, instance unique | | |
-| F9 | Tags : fragments, recherche instantanée | | |
+| F1 | Live Preview : éléments courants, marqueurs au curseur | ✅ | Note de 318 Ko : `it-f1-big-note-top.png`, `it-f3-embeds-big-note.png` (titres, listes, tâches, wikilinks, liens cassés estompés). Marqueurs : la ligne affiche `Du **gras**, …` curseur dedans, `Du gras, …` curseur ailleurs (`it-f1-cursor-in-bold.png`, `it-f8-outside-file.png`). Case à cocher cliquée (`[ ]` → `[x]`), Ctrl+Z la rétablit. Frappe p95 3,8 à 5,0 ms |
+| F2 | Live Preview : frontmatter, code, tableau | ✅ | `it-f2-frontmatter-note.png`, `it-f2-frontmatter-folded.png` (repli au clic), `it-f2-table.png` et `it-f2-table-source.png` (source au curseur), `it-f2-code-big-note.png` (Shell coloré), `it-f2-callouts.png`. Limite : tableau ou callout repliable imbriqué dans une liste non rendu en bloc |
+| F3 | Image embarquée | ✅ | `![[Pasted image ….png]]` affichées via `asset.localhost`, `naturalWidth` 32 sur les 6 relevées (`it-f3-embeds-big-note.png`). Image relative hors vault : 32 × 32 (`it-f8-outside-file.png`) |
+| F4 | Autocomplétion de wikilinks | ✅ | x20 : `[[budg` → 30 propositions en 3,3 ms, Entrée insère `[[Budget note 07166]]` (`it-f4-wikilink-completion.png`). Clic sur `[[Audit processus 00402]]` → note ouverte |
+| F5 | Onglets, splits, restauration du workspace | ⚠️ | Onglets, Ctrl+W, Ctrl+Tab, deux volets (`it-f5-split.png`) : vus. Relance : vault et 7 onglets rouverts, onglet actif restauré, seul l'actif est lu (`it-f5-session-restored.png`). Partiel : la session vient du dossier de données de Rocksy, pas de `workspace.json` d'Obsidian, et la disposition en volets n'est pas restaurée |
+| F6 | Canvas en lecture seule | ⚠️ | Simple : 6 nœuds, 106 ms (`it-f6-canvas-simple.png`). Dense : 156 nœuds, 200 liens, 17 images, 83 ms (`it-f6-canvas-dense.png`, `…-zoomed.png`). Zoom et déplacement vus, `.canvas` identique octet pour octet. Partiel : les cartes de notes montrent un extrait brut, pas le Markdown rendu ; deux pas de zoom sur huit à plus de 200 ms |
+| F7 | Aucune écriture indésirable (hash avant/après) | ✅ | 4 658 fichiers (`.obsidian/` et dossiers à point compris) : 0 ajouté, 0 supprimé, 0 modifié après une session en lecture. Après enregistrement d'une note : 1 seul fichier diffère, aucun temporaire (`resultats/it-f7.json`) |
+| F8 | Fichier hors vault, instance unique | ✅ | En argument : pas d'arbre, rien créé à côté, image relative rendue. Second lancement → onglet actif en 42 ms (`it-f8-second-launch-tab.png`). Dossier avec `.obsidian/` non référencé : ouvert isolé (`it-f8-obsidian-folder-isolated.png`). Glisser-déposer : non vérifié |
+| F9 | Tags : fragments, recherche instantanée | ✅ | x20, 4 199 tags : filtre par frappe 15 à 43 ms (cible 50), fragments 56 à 91 ms (cible 100), clic → note ouverte et surlignée en 38 ms (`it-f9-tags-panel.png`, `it-f9-fragments.png`, `it-f9-fragment-open-flash.png`). 9 fragments comparés au texte : liste avec enfants, paragraphe, titre, ligne de tableau, callout, tous exacts ; idem dans un fichier CRLF (`it-f9-fragment-crlf.png`). Arbre avec compteurs, « 500 premiers sur 3 769 » |
+
+Autres points vus : enregistrement LF / CRLF / BOM sans autre octet modifié, enregistrement automatique à 2,0 s, conflits et rechargement, Mermaid (9 types, 21 blocs sur 21), Ctrl+O sur 18 544 fichiers (1 à 5,5 ms), écran d'accueil sur profil vide, `open_external` (refus et appel au clic). Détail dans `notes.md`.

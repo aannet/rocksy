@@ -1,0 +1,331 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-save",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('v1'))",
+   "save": "treeEntries"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\v1\\00_INBOX\\Décision plan 00434.md",
+   "save": "snap_lf",
+   "report": "before_lf"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Décision plan 00434.md')).then(JSON.stringify)",
+   "save": "open_lf"
+  },
+  {
+   "eval": "(()=>{const t=T.text();const i=t.indexOf('### ');const l=T.view().state.doc.lineAt(i);T.lineEnd(l.number,true);return JSON.stringify({line:l.number,text:l.text.slice(0,50),state:T.saveState()})})()",
+   "save": "pos_lf"
+  },
+  {
+   "type": " MODIF-LF"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000,
+   "save": "ctrlS_waitMs_lf"
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "state_lf"
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_lf",
+   "path": "{IT}\\v1\\00_INBOX\\Décision plan 00434.md",
+   "save": "diff_lf"
+  },
+  {
+   "shot": "it-save-lf.png"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\v1\\00_INBOX\\Test CRLF.md",
+   "save": "snap_crlf",
+   "report": "before_crlf"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Test CRLF.md')).then(JSON.stringify)",
+   "save": "open_crlf"
+  },
+  {
+   "eval": "(()=>{const t=T.text();const i=t.indexOf('### ');const l=T.view().state.doc.lineAt(i);T.lineEnd(l.number,true);return JSON.stringify({line:l.number,text:l.text.slice(0,50),state:T.saveState()})})()",
+   "save": "pos_crlf"
+  },
+  {
+   "type": " MODIF-CRLF"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000,
+   "save": "ctrlS_waitMs_crlf"
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "state_crlf"
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_crlf",
+   "path": "{IT}\\v1\\00_INBOX\\Test CRLF.md",
+   "save": "diff_crlf"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\v1\\00_INBOX\\Test BOM.md",
+   "save": "snap_bom",
+   "report": "before_bom"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Test BOM.md')).then(JSON.stringify)",
+   "save": "open_bom"
+  },
+  {
+   "eval": "(()=>{const t=T.text();const i=t.indexOf('### ');const l=T.view().state.doc.lineAt(i);T.lineEnd(l.number,true);return JSON.stringify({line:l.number,text:l.text.slice(0,50),state:T.saveState()})})()",
+   "save": "pos_bom"
+  },
+  {
+   "type": " MODIF-BOM"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000,
+   "save": "ctrlS_waitMs_bom"
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "state_bom"
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_bom",
+   "path": "{IT}\\v1\\00_INBOX\\Test BOM.md",
+   "save": "diff_bom"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\v1\\00_INBOX\\Test BOM CRLF sans fin.md",
+   "save": "snap_bomcrlf",
+   "report": "before_bomcrlf"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Test BOM CRLF sans fin.md')).then(JSON.stringify)",
+   "save": "open_bomcrlf"
+  },
+  {
+   "eval": "(()=>{const t=T.text();const i=t.indexOf('### ');const l=T.view().state.doc.lineAt(i);T.lineEnd(l.number,true);return JSON.stringify({line:l.number,text:l.text.slice(0,50),state:T.saveState()})})()",
+   "save": "pos_bomcrlf"
+  },
+  {
+   "type": " MODIF-BOMCRLF"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000,
+   "save": "ctrlS_waitMs_bomcrlf"
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "state_bomcrlf"
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_bomcrlf",
+   "path": "{IT}\\v1\\00_INBOX\\Test BOM CRLF sans fin.md",
+   "save": "diff_bomcrlf"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Décision plan 00434.md')).then(()=>{T.lineEnd(T.view().state.doc.lineAt(T.idx('### ')).number,false);return rocksy.autosave})",
+   "save": "autosaveOn"
+  },
+  {
+   "type": " AUTO"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving, 6000)",
+   "save": "autosaveDelayMs"
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_lf",
+   "path": "{IT}\\v1\\00_INBOX\\Décision plan 00434.md",
+   "save": "diff_autosave"
+  },
+  {
+   "eval": "(()=>{window.__before=T.text();return window.__before.length})()",
+   "save": "undo_lenBefore"
+  },
+  {
+   "type": " annuler-moi"
+  },
+  {
+   "eval": "JSON.stringify({len:T.text().length, same:T.text()===window.__before})",
+   "save": "undo_afterType"
+  },
+  {
+   "key": "z",
+   "mods": "ctrl"
+  },
+  {
+   "key": "z",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "JSON.stringify({len:T.text().length, endsAuto:T.text().includes('AUTO\\n'), hasTyped:T.text().includes('annuler-moi')})",
+   "save": "undo_afterCtrlZx2"
+  },
+  {
+   "key": "y",
+   "mods": "ctrl"
+  },
+  {
+   "key": "y",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "JSON.stringify({len:T.text().length, hasTyped:T.text().includes('annuler-moi')})",
+   "save": "redo_afterCtrlYx2"
+  },
+  {
+   "key": "z",
+   "mods": "ctrl",
+   "times": 6
+  },
+  {
+   "eval": "JSON.stringify({len:T.text().length, hasTyped:T.text().includes('annuler-moi'), hasAuto:T.text().includes(' AUTO'), hasModif:T.text().includes('MODIF-LF')})",
+   "save": "undo_afterCtrlZx6more"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave(); return JSON.stringify(T.saveState())})()",
+   "save": "beforeExternal"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\v1\\00_INBOX\\Décision plan 00434.md",
+   "append": true,
+   "text": "\nLIGNE EXTERNE 1\n"
+  },
+  {
+   "eval": "T.wait(()=>T.text().includes('LIGNE EXTERNE 1'), 8000)",
+   "save": "externalReloadDelayMs"
+  },
+  {
+   "eval": "JSON.stringify({state:T.saveState(), toast:document.querySelector('.st-toast').textContent})",
+   "save": "afterExternalClean"
+  },
+  {
+   "eval": "T.lineEnd(3,false)"
+  },
+  {
+   "type": "x"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\v1\\00_INBOX\\Décision plan 00434.md",
+   "append": true,
+   "text": "LIGNE EXTERNE 2\n"
+  },
+  {
+   "eval": "T.wait(()=>rocksy.activeDoc().conflict, 8000)",
+   "save": "conflictBannerDelayMs"
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "conflictState"
+  },
+  {
+   "shot": "it-conflict-banner.png"
+  },
+  {
+   "click": ".banner button[data-act='reload']"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify({state:T.saveState(), has2:T.text().includes('LIGNE EXTERNE 2')})",
+   "save": "afterReloadClick"
+  },
+  {
+   "eval": "T.lineEnd(3,false)"
+  },
+  {
+   "type": "y"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\v1\\00_INBOX\\Décision plan 00434.md",
+   "append": true,
+   "text": "LIGNE EXTERNE 3\n"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "T.wait(()=>rocksy.activeDoc().conflict, 4000)",
+   "save": "saveConflictDelayMs"
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "saveConflictState"
+  },
+  {
+   "click": ".banner button[data-act='overwrite']"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty && !rocksy.activeDoc().conflict, 4000)",
+   "save": "overwriteDelayMs"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\v1\\00_INBOX\\Décision plan 00434.md",
+   "max": 100000,
+   "save": "__disk"
+  },
+  {
+   "eval": "JSON.stringify(T.saveState())",
+   "save": "afterOverwrite"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\v1\\00_INBOX",
+   "save": "inboxListing"
+  }
+ ]
+}

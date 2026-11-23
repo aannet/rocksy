@@ -1,0 +1,18 @@
+{
+  "scenario": "it-mermaid",
+  "saved": {
+    "attachMs": 636,
+    "treeEntries": 1052,
+    "mermaidByType": "{\"files\":491,\"blocks\":21,\"byType\":{\"flowchart\":{\"blocks\":3,\"ok\":3,\"firstMs\":[31.9,2.4,0.9],\"warmMs\":[1.7,0.7,0.5],\"errors\":[]},\"mindmap\":{\"blocks\":3,\"ok\":3,\"firstMs\":[7.2,0.4,0.3],\"warmMs\":[0.3,0.1,0.1],\"errors\":[]},\"stateDiagram-v2\":{\"blocks\":2,\"ok\":2,\"firstMs\":[8.9,0.6],\"warmMs\":[0.8,0.3],\"errors\":[]},\"erDiagram\":{\"blocks\":3,\"ok\":3,\"firstMs\":[11,0.7,0.7],\"warmMs\":[0.6,0.4,0.2],\"errors\":[]},\"wardley-beta\":{\"blocks\":2,\"ok\":2,\"firstMs\":[20,1.2],\"warmMs\":[0.7,0.3],\"errors\":[]},\"classDiagram\":{\"blocks\":1,\"ok\":1,\"firstMs\":[10.4],\"warmMs\":[1.3],\"errors\":[]},\"gantt\":{\"blocks\":2,\"ok\":2,\"firstMs\":[10.4,0.9],\"warmMs\":[0.5,0.5],\"errors\":[]},\"pie\":{\"blocks\":3,\"ok\":3,\"firstMs\":[4.9,1.4,0.7],\"warmMs\":[0.2,0.2,0.1],\"errors\":[]},\"sequenceDiagram\":{\"blocks\":2,\"ok\":2,\"firstMs\":[12.7,0.8],\"warmMs\":[0.5,0.1],\"errors\":[]}}}",
+    "inAppFlowchart": "{\"line\":80,\"svgs\":1,\"errors\":0,\"file\":\"00_INBOX/équipe 000-00/Projet stratégie 00257.md\"}",
+    "inApp_sequenceDiagram": "{\"line\":11,\"svgs\":1,\"errors\":[]}",
+    "inApp_classDiagram": "{\"line\":127,\"svgs\":1,\"errors\":[]}",
+    "inApp_stateDiagram-v2": "{\"line\":438,\"svgs\":1,\"errors\":[]}",
+    "inApp_erDiagram": "{\"line\":19,\"svgs\":1,\"errors\":[]}",
+    "inApp_gantt": "{\"line\":59,\"svgs\":1,\"errors\":[]}",
+    "inApp_pie": "{\"line\":102,\"svgs\":1,\"errors\":[]}",
+    "inApp_mindmap": "{\"line\":17,\"svgs\":1,\"errors\":[]}",
+    "inApp_wardley-beta": "{\"line\":52,\"svgs\":1,\"errors\":[]}"
+  },
+  "errors": []
+}

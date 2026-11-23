@@ -1,0 +1,23 @@
+{"steps":[
+ {"nav":"{DIST}?open=00__DEMO/Tableaux%20et%20code.md"},
+ {"wait":"window.rocksyReady && window.rocksy.tree","timeout":15000},
+ {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.scrollDOM.scrollTop=0;return 1})()"},
+ {"sleep":700},
+ {"shot":"f2-blocks.png"},
+ {"eval":"(()=>{const v=rocksy.focused.view;const t=v.state.doc.toString();v.dispatch({selection:{anchor:t.indexOf('Prototype')+2}});return 1})()"},
+ {"sleep":150},
+ {"shot":"f2-table-source.png"},
+ {"eval":"(()=>{const v=rocksy.focused.view;const t=v.state.doc.toString();v.dispatch({selection:{anchor:t.indexOf('const q')+2}});return 1})()"},
+ {"shot":"f2-code-active.png"},
+ {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.scrollDOM.scrollTop=9999;return 1})()"},
+ {"sleep":400},
+ {"shot":"f3-images.png"},
+ {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.scrollDOM.scrollTop=0;return 1})()"},
+ {"sleep":250},
+ {"click":".cm-lp-fm-head"},
+ {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});return 1})()"},
+ {"sleep":200},
+ {"shot":"f2-frontmatter-folded.png"},
+ {"click":".cm-lp-table td:nth-child(2)"},
+ {"eval":"(()=>{const s=rocksy.focused.view.state;return s.doc.lineAt(s.selection.main.head).text})()","save":"lineAfterTableClick"}
+]}

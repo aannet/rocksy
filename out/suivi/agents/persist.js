@@ -1,0 +1,1 @@
+ROCKSY_AGENT({id:"persist", maj:"12:49", pct:5, etape:"Conception de la persistance de l index des tags", notes:["Mission reçue : fichier data_dir/tags/<hash>.tags, load_persisted, reconcile, save"]});

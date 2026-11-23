@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rocksy — suivi</title>
+<style>
+  :root {
+    --bg: #14181f; --panel: #1b212b; --panel2: #222a36; --line: #2e3847;
+    --txt: #dbe2ec; --mut: #8a97a8; --acc: #5aa9e6;
+    --ok: #57c98a; --run: #5aa9e6; --wait: #6b7788; --bad: #e8736b; --warn: #e6b450;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--txt); font: 15px/1.5 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 24px 80px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 20px; margin-bottom: 6px; }
+  h1 { font-size: 24px; margin: 0; letter-spacing: .2px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mut); margin: 34px 0 12px; font-weight: 600; }
+  .maj { color: var(--mut); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .resume { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--acc); border-radius: 8px; padding: 12px 16px; margin: 14px 0 0; white-space: pre-wrap; }
+  .global { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+  .bar { flex: 1; height: 10px; background: var(--panel2); border-radius: 6px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--acc); border-radius: 6px; }
+  .pct { font-variant-numeric: tabular-nums; color: var(--mut); min-width: 44px; text-align: right; }
+  .phases { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .card h3 { margin: 0 0 8px; font-size: 15px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .card .bar { height: 6px; margin-bottom: 10px; }
+  .pill { font-size: 11px; padding: 2px 9px; border-radius: 20px; white-space: nowrap; font-weight: 600; border: 1px solid currentColor; }
+  .s-fait { color: var(--ok); } .s-en_cours { color: var(--run); } .s-todo { color: var(--wait); }
+  .s-bloque { color: var(--bad); } .s-abandonne { color: var(--warn); } .s-partiel { color: var(--warn); }
+  ul.t { list-style: none; margin: 0; padding: 0; }
+  ul.t li { display: grid; grid-template-columns: 18px 1fr; gap: 6px; padding: 2px 0; font-size: 14px; }
+  ul.t li small { display: block; color: var(--mut); font-size: 12.5px; }
+  .dot { font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
+  th { color: var(--mut); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .8px; background: var(--panel2); }
+  tr:last-child td { border-bottom: 0; }
+  td.h { white-space: nowrap; color: var(--mut); font-variant-numeric: tabular-nums; width: 1%; }
+  td small { color: var(--mut); display: block; }
+  .tag { font-size: 11px; padding: 1px 7px; border-radius: 4px; background: var(--panel2); color: var(--mut); white-space: nowrap; }
+  .tag.décision { color: var(--acc); } .tag.problème { color: var(--bad); } .tag.mesure { color: var(--ok); }
+  .alec li { border-left: 3px solid var(--warn); background: var(--panel); margin: 6px 0; padding: 8px 12px; border-radius: 6px; list-style: none; }
+  .alec li.fait { border-left-color: var(--ok); opacity: .6; }
+  .alec { padding: 0; margin: 0; }
+  .rapport h3 { margin: 18px 0 6px; font-size: 15px; }
+  .rapport ul { margin: 0; padding-left: 20px; }
+  .vide { color: var(--mut); font-style: italic; }
+  code { background: var(--panel2); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Rocksy — suivi d'avancement</h1><span class="maj" id="maj"></span></header>
+  <div class="global"><div class="bar"><i id="gbar"></i></div><span class="pct" id="gpct"></span></div>
+  <div class="resume" id="resume"></div>
+
+  <h2>À faire par Alec</h2><ul class="alec" id="alec"></ul>
+  <h2>Phases</h2><div class="phases" id="phases"></div>
+  <h2>Sous-agents</h2><div id="agents"></div>
+  <h2>Journal des décisions prises en autonomie</h2><div id="journal"></div>
+  <h2>Rapport final</h2><div class="rapport card" id="rapport"></div>
+</main>
+<script>
+  // Les fichiers de donnees sont charges avec un parametre anti-cache : F5 suffit.
+  var AG = {};
+  function ROCKSY_AGENT(o) { AG[o.id] = o; }
+  var LIB = { fait: "fait", en_cours: "en cours", todo: "à faire", bloque: "bloqué", abandonne: "abandonné", partiel: "partiel" };
+  var DOT = { fait: "✓", en_cours: "▸", todo: "·", bloque: "✕", abandonne: "–", partiel: "◐" };
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function load(src) { return new Promise(function (ok) { var s = document.createElement("script"); s.src = src + "?t=" + Date.now(); s.onload = s.onerror = ok; document.head.appendChild(s); }); }
+  function bar(p) { var b = el("div", "bar"); var i = el("i"); i.style.width = (p || 0) + "%"; b.appendChild(i); return b; }
+
+  function render(E) {
+    document.getElementById("maj").textContent = "Mis à jour : " + E.maj + " — F5 pour rafraîchir";
+    document.getElementById("resume").textContent = E.resume || "";
+    var tot = 0, w = 0;
+    E.phases.forEach(function (p) { var k = p.poids || 1; tot += (p.pct || 0) * k; w += k; });
+    var g = Math.round(tot / (w || 1));
+    document.getElementById("gbar").style.width = g + "%";
+    document.getElementById("gpct").textContent = g + " %";
+
+    var al = document.getElementById("alec");
+    if (!E.actionsAlec.length) al.appendChild(el("li", "vide", "Rien pour l'instant."));
+    E.actionsAlec.forEach(function (a) {
+      var li = el("li", a.fait ? "fait" : ""); li.appendChild(el("div", null, (a.fait ? "✓ " : "") + a.texte));
+      if (a.detail) li.appendChild(el("small", null, a.detail)); al.appendChild(li);
+    });
+
+    var ph = document.getElementById("phases");
+    E.phases.forEach(function (p) {
+      var c = el("div", "card"); var h = el("h3"); h.appendChild(el("span", null, p.titre));
+      h.appendChild(el("span", "pill s-" + p.statut, LIB[p.statut] + " · " + (p.pct || 0) + " %")); c.appendChild(h); c.appendChild(bar(p.pct));
+      var ul = el("ul", "t");
+      (p.taches || []).forEach(function (t) {
+        var li = el("li"); li.appendChild(el("span", "dot s-" + t.s, DOT[t.s])); var d = el("div", null, t.t);
+        if (t.note) d.appendChild(el("small", null, t.note)); li.appendChild(d); ul.appendChild(li);
+      });
+      c.appendChild(ul); ph.appendChild(c);
+    });
+
+    var ag = document.getElementById("agents");
+    if (!E.agents.length) ag.appendChild(el("div", "vide", "Aucun sous-agent lancé."));
+    else {
+      var t = el("table"); var tr = el("tr");
+      ["Agent", "Modèle", "État", "Progression", "Dernière étape (écrite par l'agent)"].forEach(function (x) { tr.appendChild(el("th", null, x)); }); t.appendChild(tr);
+      E.agents.forEach(function (a) {
+        var live = AG[a.id] || {}; var r = el("tr");
+        var td = el("td", null, a.titre); if (a.perimetre) td.appendChild(el("small", null, a.perimetre)); r.appendChild(td);
+        r.appendChild(el("td", null, a.modele || ""));
+        var s = el("td"); s.appendChild(el("span", "pill s-" + a.statut, LIB[a.statut])); r.appendChild(s);
+        var pr = el("td"); pr.style.minWidth = "130px"; var pc = a.statut === "fait" ? 100 : (live.pct || 0); pr.appendChild(bar(pc)); pr.appendChild(el("small", null, pc + " %")); r.appendChild(pr);
+        var e = el("td", null, live.etape || a.bilan || "—"); if (live.maj) e.appendChild(el("small", null, "à " + live.maj));
+        (live.notes || []).slice(-3).forEach(function (n) { e.appendChild(el("small", null, "• " + n)); });
+        if (a.bilan && live.etape) e.appendChild(el("small", null, "Bilan : " + a.bilan));
+        r.appendChild(e); t.appendChild(r);
+      });
+      ag.appendChild(t);
+    }
+
+    var jo = document.getElementById("journal");
+    if (!E.journal.length) jo.appendChild(el("div", "vide", "Aucune entrée."));
+    else {
+      var jt = el("table"); var jh = el("tr"); ["Heure", "Type", "Décision / fait", "Pourquoi, conséquence"].forEach(function (x) { jh.appendChild(el("th", null, x)); }); jt.appendChild(jh);
+      E.journal.slice().reverse().forEach(function (j) {
+        var r = el("tr"); r.appendChild(el("td", "h", j.h)); var ty = el("td"); ty.appendChild(el("span", "tag " + j.type, j.type)); r.appendChild(ty);
+        r.appendChild(el("td", null, j.texte)); r.appendChild(el("td", null, j.pourquoi || "")); jt.appendChild(r);
+      });
+      jo.appendChild(jt);
+    }
+
+    var ra = document.getElementById("rapport");
+    if (!E.rapport) ra.appendChild(el("div", "vide", "Le rapport sera écrit ici en fin de session (ce qui a été fait, testé, non testé, limites, suite)."));
+    else {
+      if (E.rapport.synthese) ra.appendChild(el("p", null, E.rapport.synthese));
+      (E.rapport.sections || []).forEach(function (s) {
+        ra.appendChild(el("h3", null, s.titre)); var ul = el("ul"); s.points.forEach(function (x) { ul.appendChild(el("li", null, x)); }); ra.appendChild(ul);
+      });
+    }
+  }
+
+  load("etat.js").then(function () {
+    var E = window.ROCKSY_ETAT;
+    if (!E) { document.getElementById("resume").textContent = "etat.js introuvable ou invalide."; return; }
+    return Promise.all((E.agents || []).map(function (a) { return load("agents/" + a.id + ".js"); })).then(function () { render(E); });
+  });
+</script>
+</body>
+</html>

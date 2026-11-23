@@ -1,0 +1,15 @@
+{
+  "scenario": "it-final",
+  "saved": {
+    "attachMs": 830,
+    "line20k_open": "{\"loaded\":true,\"error\":null,\"ms\":158,\"name\":\"longue20k\"}",
+    "line20k_latency_afterFix": "{\"n\":68,\"update\":{\"median\":19.6,\"p95\":27,\"max\":43.5},\"withLayout\":{\"median\":20,\"p95\":27.1,\"max\":43.9}}",
+    "line216k_open": "{\"loaded\":true,\"error\":null,\"ms\":91,\"name\":\"longue\"}",
+    "line216k_latency_afterFix": "{\"n\":45,\"update\":{\"median\":65.2,\"p95\":81.3,\"max\":88},\"withLayout\":{\"median\":65.3,\"p95\":81.4,\"max\":88.1}}",
+    "entries": 1052,
+    "F9_fileTags_LF_CRLF_BOM": "{\"Test CRLF.md\":{\"bom\":false,\"crlf\":true,\"n\":7,\"samples\":[{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24,\"tagLine\":23,\"col\":76,\"atCol\":\"#projet/corsol\",\"first\":\"- Oumentdancon rédépro cor ionionkoré tenprodé sol\",\"before\":\"\",\"after\":\"- Ritaleuxba actalviri acba pr\"}]},\"Test BOM.md\":{\"bom\":true,\"crlf\":false,\"n\":7,\"samples\":[{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24,\"tagLine\":23,\"col\":76,\"atCol\":\"#projet/corsol\",\"first\":\"- Oumentdancon rédépro cor ionionkoré tenprodé sol\",\"before\":\"\",\"after\":\"- Ritaleuxba actalviri acba pr\"}]},\"Test BOM CRLF sans fin.md\":{\"bom\":true,\"crlf\":true,\"n\":7,\"samples\":[{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24,\"tagLine\":23,\"col\":76,\"atCol\":\"#projet/corsol\",\"first\":\"- Oumentdancon rédépro cor ionionkoré tenprodé sol\",\"before\":\"\",\"after\":\"- Ritaleuxba actalviri acba pr\"}]},\"Décision plan 00434.md\":{\"bom\":false,\"crlf\":false,\"n\":7,\"samples\":[{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24,\"tagLine\":23,\"col\":76,\"atCol\":\"#projet/corsol\",\"first\":\"- Oumentdancon rédépro cor ionionkoré tenprodé sol\",\"before\":\"\",\"after\":\"- Ritaleuxba actalviri acba pr\"}]}}",
+    "F9_openFragment_inCRLF_file": "{\"frag\":{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24},\"cursorLine0\":23,\"flashedLines\":[\"- Oumentdancon rédépro cor ionionkoré tenprodé solré nielcon\",\"  • Acsolel elvi talmentlu martalkoré\"],\"eol\":\"crlf\"}",
+    "ctrlTab": "{\"active\":\"longue20k\",\"tabs\":[\"longue20k\",\"longue\",\"Test CRLF\"]}"
+  },
+  "errors": []
+}

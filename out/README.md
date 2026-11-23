@@ -1,6 +1,8 @@
 # out/ — livrables de Rocksy
 
-Point d'entrée : [`PLAN.md`](PLAN.md) (plan de reprise, étapes ordonnées).
+Point d'entrée : [`suivi/dashboard.html`](suivi/dashboard.html) (état, journal des décisions et rapport de la session du 23/11/2026), puis [`spikes/m2-resultats.md`](spikes/m2-resultats.md) et [`release/README.md`](release/README.md). [`PLAN.md`](PLAN.md) est le plan écrit avant le code.
+
+Ajouts du 23/11 : `release/` (README d'installation, `install.ps1`), `suivi/` (dashboard), `tools/build-win.sh`, `tools/measure-auto.ps1`, `tools/cdp.py`, et le code dans `spikes/a-tauri-cm6/src/` (voir `CLAUDE.md`).
 
 ```
 out/

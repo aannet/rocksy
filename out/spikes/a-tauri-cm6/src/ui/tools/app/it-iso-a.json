@@ -1,0 +1,24 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-iso-a",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave(); localStorage.setItem('rocksy.isoProbe','A'); return JSON.stringify({autosave:rocksy.autosave, ls:localStorage.getItem('rocksy.autosave')})})()",
+   "save": "A_set"
+  },
+  {
+   "sleep": 3500
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-iso-a",
+   "save": "A_dataDir"
+  }
+ ]
+}

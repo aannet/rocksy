@@ -1,0 +1,74 @@
+﻿{
+    "case":  "auto-vault-x20",
+    "exe":  "C:\\Users\\aleca\\rocksy-test\\bin\\rocksy.exe",
+    "file":  "",
+    "runs":  [
+                 {
+                     "run":  1,
+                     "windowMs":  32,
+                     "editor-ready":  617,
+                     "editor-ready-since-navigation":  618,
+                     "editor-painted-since-navigation":  730,
+                     "tree-ready":  871,
+                     "rssMb":  47,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  403
+                 },
+                 {
+                     "run":  2,
+                     "windowMs":  30,
+                     "editor-ready":  680,
+                     "editor-ready-since-navigation":  680,
+                     "editor-painted-since-navigation":  757,
+                     "tree-ready":  939,
+                     "rssMb":  45,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  396
+                 },
+                 {
+                     "run":  3,
+                     "windowMs":  29,
+                     "editor-ready":  975,
+                     "editor-ready-since-navigation":  976,
+                     "editor-painted-since-navigation":  1052,
+                     "tree-ready":  1222,
+                     "rssMb":  45,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  396
+                 },
+                 {
+                     "run":  4,
+                     "windowMs":  30,
+                     "editor-ready":  671,
+                     "editor-ready-since-navigation":  672,
+                     "editor-painted-since-navigation":  781,
+                     "tree-ready":  874,
+                     "rssMb":  46,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  401
+                 },
+                 {
+                     "run":  5,
+                     "windowMs":  29,
+                     "editor-ready":  762,
+                     "editor-ready-since-navigation":  763,
+                     "editor-painted-since-navigation":  828,
+                     "tree-ready":  972,
+                     "rssMb":  45,
+                     "webviewProcs":  6,
+                     "webviewRssMb":  398
+                 }
+             ],
+    "median":  {
+                   "windowMs":  30,
+                   "editor-ready":  680,
+                   "editor-ready-since-navigation":  680,
+                   "editor-painted-since-navigation":  781,
+                   "tree-ready":  939,
+                   "rssMb":  45,
+                   "webviewProcs":  6,
+                   "webviewRssMb":  398
+               },
+    "date":  "2026-11-23T11:59:53",
+    "note":  "run 1 = premier lancement de la serie (cache le plus froid)"
+}

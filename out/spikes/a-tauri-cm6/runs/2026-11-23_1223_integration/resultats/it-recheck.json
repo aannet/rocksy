@@ -1,0 +1,12 @@
+{
+  "scenario": "it-recheck",
+  "saved": {
+    "attachMs": 596,
+    "entries": 20747,
+    "F9_filter(query,totalMs,ipcOnlyMs,tags,rows)": "[[\"\",34.8,11,4199,400],[\"p\",31,7.8,1107,400],[\"pr\",31.7,8.9,643,400],[\"pro\",34.2,8.5,505,400],[\"proj\",34.9,7.5,335,335],[\"projet\",24.6,10.1,335,335],[\"e\",33.1,7.3,2805,400],[\"eq\",20.3,7.2,244,244],[\"equipe\",18.9,5.1,244,244],[\"a\",43.1,7.5,1826,400],[\"theme\",15,9.9,180,180],[\"xyz\",4.6,2.4,0,0],[\"\",33.2,10.8,4199,400]]",
+    "F9_fragments(tag,totalMs,fragMs,n,head)": "[[\"projet\",34.1,77.1,500,\"#projet500 premiers sur 3 769\"],[\"theme01\",81.5,67.8,500,\"#projet500 premiers sur 3 769\"],[\"equipe\",68.3,55.6,233,\"#theme01233 fragments\"],[\"cycle\",109,90.5,500,\"#equipe500 premiers sur 2 043\"]]",
+    "v1entries": 1052,
+    "F6_zoomStepMs_afterFix": "[12,31.5,266.7,208.6,24.8,33.5,33.1,33.3]"
+  },
+  "errors": []
+}
