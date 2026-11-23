@@ -1,6 +1,6 @@
 [package]
 name = "rocksy"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Rocksy - fast Markdown notes app"
 license = "UNLICENSED"

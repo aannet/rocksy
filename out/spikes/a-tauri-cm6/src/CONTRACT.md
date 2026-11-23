@@ -32,7 +32,7 @@ src/
 | `add_vault` | `path` | `VaultRef[]` |
 | `remove_vault` | `path` | `VaultRef[]` (ne touche à aucun fichier du vault) |
 | `open_vault` | `path` | `Tree` : depuis le snapshot s'il existe (`fromSnapshot: true`), sinon par listing. Lance ensuite la réconciliation en arrière-plan → événement `tree-updated` |
-| `build_tags` | `vaultPath` | `void` ; indexation en arrière-plan → événements `tags-progress`, `tags-ready` |
+| `build_tags` | `vaultPath` | `void` ; rend les tags du vault disponibles en arrière-plan : (1) si un index persisté existe (`data_dir/tags/`), il est chargé sans lire aucune note → `tags-ready` avec `fromCache: true` ; (2) réconciliation par taille + mtime qui ne relit que les notes nouvelles ou modifiées → `tags-progress` (`total` = notes à relire) puis `tags-ready` avec `fromCache: false`. L'index est persisté après la réconciliation, quelques secondes après un enregistrement, et à la fermeture |
 | `tags_list` | `query` (peut être vide) | `TagCount[]` triés ; un parent `a` agrège `a/b` |
 | `tag_fragments` | `tag`, `limit?` | `Fragment[]` (le tag et ses descendants) |
 | `file_tags` | `path`, `text` | `Fragment[]` pour un texte en mémoire (fichier hors vault ou non enregistré) |
@@ -48,7 +48,7 @@ src/
 | `open-files` | `{ paths: string[] }` : second lancement (instance unique) ou association de fichiers |
 | `tree-updated` | `Tree` |
 | `tags-progress` | `{ done, total }` |
-| `tags-ready` | `{ files, tags, occurrences, ms }` |
+| `tags-ready` | `{ files, tags, occurrences, ms, fromCache, reread?, removed?, persisted? }` ; peut être émis deux fois par `build_tags` (index persisté, puis réconcilié) |
 | `file-changed` | `{ path, mtimeMs }` : changement externe d'un fichier ouvert |
 
 ## Types

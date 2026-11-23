@@ -139,3 +139,40 @@ fn a_file_outside_any_vault_gets_nothing_created_next_to_it() {
     assert_eq!(inner.text, "{\"promptDelete\":false}");
     assert_eq!(fingerprint(&folder), before);
 }
+
+#[test]
+fn persisting_and_reconciling_tags_do_not_touch_the_vault() {
+    let dir = TempDir::new("f7-persist");
+    let vault = make_vault(&dir, "vault");
+    let data = dir.path().join("appdata");
+    let before = fingerprint(&vault);
+
+    // First session: full build through reconcile, in-memory edits, save.
+    let index = TagIndex::new();
+    let report = index.reconcile(&data, &vault, BuildOptions::default(), &CancelToken::new(), |_| {}).unwrap().unwrap();
+    assert_eq!((report.files, report.reread, report.persisted), (6, 6, true));
+    index.update_file(&vault.join("Accueil.md"), "#modifie en memoire\n");
+    index.update_file_with_meta(&vault.join("02 Perso/vide.md"), "#autre\n", 7, 1);
+    index.remove_file(&vault.join("02 Perso/Recettes.md"));
+    assert!(index.save(&data).unwrap());
+
+    // Second session: load, reconcile (re-reads what the edits made stale), save.
+    let session = TagIndex::new();
+    assert!(session.load_persisted(&data, &vault).is_some());
+    let report = session.reconcile(&data, &vault, BuildOptions::default(), &CancelToken::new(), |_| {}).unwrap().unwrap();
+    assert_eq!((report.files, report.reread, report.removed), (6, 3, 0));
+    assert!(!session.save(&data).unwrap());
+    // Cancelled reconcile and clear.
+    let cancel = CancelToken::new();
+    cancel.cancel();
+    assert!(session.reconcile(&data, &vault, BuildOptions::default(), &cancel, |_| {}).unwrap().is_none());
+    session.clear();
+
+    assert_eq!(fingerprint(&vault), before, "vault untouched, nothing created in it");
+
+    // The persisted index (which holds excerpts of notes) is in the data directory only.
+    let data_files = fingerprint(&data);
+    let names: Vec<&str> = data_files.keys().map(String::as_str).collect();
+    assert_eq!(names.len(), 2, "{names:?}");
+    assert!(names.contains(&"tags/") && names.iter().any(|n| n.starts_with("tags/") && n.ends_with(".tags")));
+}

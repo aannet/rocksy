@@ -23,6 +23,8 @@ struct AppState {
     tags: Arc<TagIndex>,
     /// Vault currently indexed for tags, with the token cancelling its build.
     tags_job: Mutex<Option<(String, CancelToken)>>,
+    /// Background thread reconciling the tag index, joined at exit so its work is persisted.
+    tags_thread: Mutex<Option<std::thread::JoinHandle<()>>>,
     /// Open files and their last known mtime, watched for external changes.
     watched: Mutex<HashMap<String, u64>>,
     /// Serialises appends to the timings log (commands run concurrently).
@@ -111,7 +113,8 @@ fn save_file(
     let indexed = lock(&state.tags_job).as_ref().map(|(root, _)| root.clone());
     if let Some(root) = indexed {
         if Path::new(&path).starts_with(&root) {
-            state.tags.update_file(Path::new(&path), &text);
+            // With size and mtime recorded, the next reconciliation will not reread this file.
+            state.tags.update_file_with_meta(Path::new(&path), &text, saved.size, saved.mtime_ms);
         }
     }
     Ok(saved)
@@ -147,6 +150,17 @@ fn open_vault(app: AppHandle, state: State<'_, AppState>, path: String) -> ApiRe
     Ok(tree)
 }
 
+/// Payload of `tags-ready`: the contract fields plus where the content comes from.
+fn tags_ready_payload(files: usize, tags: usize, occurrences: usize, ms: u64, extra: serde_json::Value) -> serde_json::Value {
+    let mut payload = serde_json::json!({ "files": files, "tags": tags, "occurrences": occurrences, "ms": ms });
+    if let (Some(dst), Some(src)) = (payload.as_object_mut(), extra.as_object()) {
+        dst.extend(src.clone());
+    }
+    payload
+}
+
+/// Makes the tags of a vault available: first from the persisted index (no note
+/// is read), then a background reconciliation rereads only the changed notes.
 #[tauri::command(async)]
 fn build_tags(app: AppHandle, state: State<'_, AppState>, vault_path: String) {
     let cancel = CancelToken::new();
@@ -154,10 +168,23 @@ fn build_tags(app: AppHandle, state: State<'_, AppState>, vault_path: String) {
         previous.cancel();
     }
     let index = state.tags.clone();
-    std::thread::spawn(move || {
+    let data_dir = state.data_dir.clone();
+    let handle = std::thread::spawn(move || {
+        let vault = Path::new(&vault_path);
+        // Another vault's content must not be served (nor saved) under this one.
+        if index.root().is_some_and(|root| !Path::new(&root).eq(vault)) {
+            let _ = index.save(&data_dir);
+            index.clear();
+        }
+        if let Some(ready) = index.load_persisted(&data_dir, vault) {
+            let _ = app.emit(
+                "tags-ready",
+                tags_ready_payload(ready.files, ready.tags, ready.occurrences, ready.ms, serde_json::json!({ "fromCache": true })),
+            );
+        }
         let progress_app = app.clone();
         let last_emit = std::sync::atomic::AtomicU64::new(0);
-        let result = index.build(Path::new(&vault_path), BuildOptions::default(), &cancel, move |p| {
+        let result = index.reconcile(&data_dir, vault, BuildOptions::default(), &cancel, move |p| {
             // Throttled by time (workers report concurrently): the UI only needs a coarse progress bar.
             let now = now_ms();
             let last = last_emit.load(std::sync::atomic::Ordering::Relaxed);
@@ -166,10 +193,19 @@ fn build_tags(app: AppHandle, state: State<'_, AppState>, vault_path: String) {
                 let _ = progress_app.emit("tags-progress", p);
             }
         });
-        if let Ok(Some(ready)) = result {
-            let _ = app.emit("tags-ready", ready);
+        match result {
+            Ok(Some(r)) => {
+                let extra = serde_json::json!({ "fromCache": false, "reread": r.reread, "removed": r.removed, "persisted": r.persisted });
+                let _ = app.emit("tags-ready", tags_ready_payload(r.files, r.tags, r.occurrences, r.ms, extra));
+            }
+            // Cancelled (vault switch or exit): keep what was already reread for next time.
+            Ok(None) => {
+                let _ = index.save(&data_dir);
+            }
+            Err(_) => {}
         }
     });
+    *lock(&state.tags_thread) = Some(handle);
 }
 
 #[tauri::command(async)]
@@ -260,6 +296,29 @@ fn emit_open_files(app: &AppHandle, paths: Vec<String>) {
     }
 }
 
+/// Persists the tag index a few seconds after it changed (a note was saved).
+fn spawn_tags_saver(app: AppHandle) {
+    std::thread::spawn(move || loop {
+        std::thread::sleep(Duration::from_millis(5000));
+        let state = app.state::<AppState>();
+        if state.tags.is_dirty() {
+            let _ = state.tags.save(&state.data_dir);
+        }
+    });
+}
+
+/// Stops the background reconciliation and persists the tag index before the process exits.
+fn flush_tags(app: &AppHandle) {
+    let state = app.state::<AppState>();
+    if let Some((_, cancel)) = lock(&state.tags_job).as_ref() {
+        cancel.cancel();
+    }
+    if let Some(handle) = lock(&state.tags_thread).take() {
+        let _ = handle.join();
+    }
+    let _ = state.tags.save(&state.data_dir);
+}
+
 /// Polls the mtime of open files; cheap (a handful of `stat` calls) and good
 /// enough until the core gets a real watcher.
 fn spawn_file_watcher(app: AppHandle) {
@@ -321,10 +380,12 @@ fn main() {
                 process_start_ms,
                 tags: Arc::new(TagIndex::new()),
                 tags_job: Mutex::new(None),
+                tags_thread: Mutex::new(None),
                 watched: Mutex::new(HashMap::new()),
                 timing_log: Mutex::new(()),
             });
             spawn_file_watcher(app.handle().clone());
+            spawn_tags_saver(app.handle().clone());
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -355,6 +416,11 @@ fn main() {
             log_timing,
             open_external
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running Rocksy");
+        .build(tauri::generate_context!())
+        .expect("error while running Rocksy")
+        .run(|app, event| {
+            if let tauri::RunEvent::Exit = event {
+                flush_tags(app);
+            }
+        });
 }

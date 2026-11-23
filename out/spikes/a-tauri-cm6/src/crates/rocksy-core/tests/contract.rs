@@ -93,7 +93,10 @@ fn background_flow_as_the_tauri_glue_will_run_it() {
 }
 
 fn cli(args: &[&str]) -> (bool, Value, String) {
-    let out = Command::new(env!("CARGO_BIN_EXE_rocksy-cli")).args(args).output().unwrap();
+    // ROCKSY_CLI_EXE: location of the binary when the tests are cross-compiled
+    // and run on another machine (the path baked in by cargo is the build host's).
+    let exe = std::env::var("ROCKSY_CLI_EXE").unwrap_or_else(|_| env!("CARGO_BIN_EXE_rocksy-cli").to_string());
+    let out = Command::new(exe).args(args).output().unwrap();
     let stdout = String::from_utf8(out.stdout).unwrap();
     let value = serde_json::from_str(&stdout).unwrap_or(Value::Null);
     (out.status.success(), value, String::from_utf8_lossy(&out.stderr).into_owned())
@@ -121,6 +124,22 @@ fn cli_commands_print_json() {
     assert_eq!(tags["build"]["skipped"], 1);
     assert!(tags["tagsList"].as_array().unwrap().len() >= 3);
     assert!(!tags["tagFragments"].as_array().unwrap().is_empty());
+
+    let work = dir.path().join("cli-work");
+    let (ok, persist, stderr) = cli(&[
+        "tags-persist", vault.to_str().unwrap(), "--data-dir", data.to_str().unwrap(),
+        "--work-dir", work.to_str().unwrap(), "--modify", "2",
+    ]);
+    assert!(ok, "{stderr}");
+    assert_eq!(persist["fullBuild"]["report"]["reread"], 6);
+    assert_eq!(persist["roundTripOk"], true);
+    assert_eq!(persist["loadMs"]["files"], 6);
+    assert_eq!(persist["reconcileNoChangeMs"]["report"]["reread"], 0);
+    assert_eq!(persist["reconcileNoChangeMs"]["report"]["persisted"], false);
+    assert_eq!(persist["reconcileAfterChanges"]["rounds"][0]["report"]["reread"], 2);
+    assert_eq!(persist["reconcileAfterChanges"]["oneAddedOneRemoved"]["report"]["removed"], 1);
+    assert!(persist["persistedBytes"].as_u64().unwrap() > 0);
+    assert!(std::fs::read_dir(&work).map(|mut d| d.next().is_none()).unwrap_or(true), "work copy removed");
 
     let note = vault.join("01 Travail/Reunions/Point.md");
     let (ok, fragments, stderr) = cli(&["fragments", note.to_str().unwrap()]);

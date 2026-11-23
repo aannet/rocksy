@@ -1,26 +1,26 @@
 // Etat du suivi Rocksy. Ecrit par la session principale uniquement.
 window.ROCKSY_ETAT = {
-  "maj": "23/11/2026 12:48",
-  "resume": "Suite de la 0.1 : persistance de l'index des tags (demandée par Alec, qui a validé la pile et trouvé le chargement rapide). But : à l'ouverture d'un vault déjà indexé, les tags sont disponibles en quelques millisecondes sans relire les notes, puis seuls les fichiers modifiés sont relus en arrière-plan. Le cœur Rust est en cours chez un sous-agent ; je brancherai ensuite l'app et mesurerai. La 0.1 actuelle reste utilisable dans C:\\Users\\aleca\\rocksy-test\\release-0.1.0 ; des fenêtres de test se rouvriront quand je testerai l'app.",
+  "maj": "23/11/2026 13:10",
+  "resume": "Rocksy 0.1.1 est prêt : C:\\Users\\aleca\\rocksy-test\\release-0.1.1\\rocksy.exe. Nouveauté : l'index des tags est persisté. Vérifié dans l'app réelle sur vaults synthétiques : après une première indexation, les tags sont disponibles 9 à 38 ms après l'ouverture du vault sans lire aucune note, et seules les notes modifiées sont relues. Pas encore vérifié sur le vrai vault ni sur Google Drive. Le code de la 0.1.0 est commité (branche release-0.1) ; la persistance ne l'est pas encore. Mes tests sont terminés : plus aucune fenêtre ne s'ouvrira toute seule.",
   "actionsAlec": [
     {
-      "texte": "1. Essayer l'app.",
-      "detail": "C:\\Users\\aleca\\rocksy-test\\release-0.1.0\\rocksy.exe \"chemin\\vers\\une note.md\". Pour l'installer (menu Démarrer, « Ouvrir avec », commande rocksy) : voir README.md dans ce dossier. Ton vrai vault : Ctrl+P > Ajouter un vault > G:\\Mon Drive\\MonVault. C'est le premier contact de Rocksy avec le vrai vault et avec Google Drive : je ne l'ai pas testé. La première indexation des tags peut prendre de l'ordre de la minute (en arrière-plan)."
+      "texte": "1. Remplacer ton exe par la 0.1.1 et rouvrir ton vault.",
+      "detail": "Ferme Rocksy, puis lance C:\\Users\\aleca\\rocksy-test\\release-0.1.1\\rocksy.exe (ou relance install.ps1 depuis ce dossier). La première ouverture du vault indexe toutes les notes (long sur Drive à froid) ; à partir de la deuxième, le panneau des tags doit afficher « index enregistré, vérification en cours… » puis « à jour ». Dis-moi le temps affiché et si des notes sont relues à tort."
     },
     {
-      "texte": "2. Trois points que je n'ai pas pu tester : glisser-déposer d'un .md sur la fenêtre, dialogues « Ajouter un vault » et « Ouvrir un fichier », clic sur un lien web.",
+      "texte": "2. Dire si je commite la persistance (0.1.1).",
+      "detail": "Ta demande de commit portait sur le code d'alors ; la persistance est faite depuis et n'est pas commitée."
+    },
+    {
+      "texte": "3. Trois points que je n'ai pas pu tester : glisser-déposer d'un .md sur la fenêtre, dialogues « Ajouter un vault » et « Ouvrir un fichier », clic sur un lien web.",
       "detail": "Ils demandent une action à l'écran. Dis-moi si l'un d'eux ne marche pas."
     },
     {
-      "texte": "3. Chronos manuels sur le vrai vault (10 min).",
+      "texte": "4. Chronos manuels sur le vrai vault (10 min).",
       "detail": "out\\tools\\measure-coldstart.ps1 -ProcessName rocksy -RunsRoot out\\spikes\\a-tauri-cm6\\runs (3 lancements, F8/F9), une fois à chaud et une fois après redémarrage de Windows (Drive à froid). Même chose sur Obsidian pour la baseline, qui n'a jamais été relevée."
     },
     {
-      "texte": "5. Décider du commit.",
-      "detail": "Rien n'est commité (règle du plan). Le dossier out/spikes/a-tauri-cm6/runs pèse 18 Mo (45 captures de l'app sur données synthétiques) : à alléger ou à ignorer avant de commiter."
-    },
-    {
-      "texte": "6. Lancer le script KPI étendu sur le vrai vault (75 s, non bloquant).",
+      "texte": "5. Lancer le script KPI étendu sur le vrai vault (75 s, non bloquant).",
       "detail": "powershell -NoProfile -ExecutionPolicy Bypass -File \"\\\\wsl.localhost\\Ubuntu\\home\\alec\\projects\\008-Rocksy\\out\\tools\\vault-kpis.ps1\" -Vault \"G:\\Mon Drive\\MonVault\"  — compteurs uniquement, sortie datée dans out/data/. Si le chemin \\\\wsl.localhost est refusé, copie le script sur C: et ajoute -OutFile."
     }
   ],
@@ -231,31 +231,38 @@ window.ROCKSY_ETAT = {
     {
       "id": "e6",
       "titre": "Étape 6 — Persistance de l'index des tags",
-      "statut": "en_cours",
-      "pct": 5,
+      "statut": "fait",
+      "pct": 100,
       "poids": 2,
       "taches": [
         {
           "t": "Cœur : fichier persistant par vault, chargement, réconciliation par taille + mtime",
-          "s": "en_cours",
-          "note": "sous-agent « persist »"
+          "s": "fait",
+          "note": "96 tests sous Linux, 93 sous Windows (première exécution réelle des tests du cœur sous Windows). Fichier corrompu ou d'une autre version : ignoré puis reconstruit."
         },
         {
           "t": "App : charger au démarrage, réconcilier en arrière-plan, sauver après enregistrement et à la fermeture",
-          "s": "todo",
-          "note": "session principale"
+          "s": "fait",
+          "note": "Enregistrement différé de 5 s après une modification, et à la fermeture."
         },
         {
           "t": "Interface : état de l'index (depuis le cache, vérification, à jour)",
-          "s": "todo"
+          "s": "fait"
         },
         {
           "t": "Tests dans l'app réelle et mesures (1x, 20x)",
-          "s": "todo"
+          "s": "fait",
+          "note": "5 étapes sur une copie du 1x (relance, modification externe, enregistrement depuis l'app puis arrêt brutal). 20x : tags disponibles en 34 à 38 ms, vérification finie en ~95 ms, 0 note relue. Démarrage inchangé (652 ms / 917 ms). Détail : runs/…_persistance-tags."
         },
         {
           "t": "Nouveau build de l'app",
-          "s": "todo"
+          "s": "fait",
+          "note": "0.1.1 dans C:\\Users\\aleca\\rocksy-test\\release-0.1.1"
+        },
+        {
+          "t": "Vérification sur le vrai vault (Drive)",
+          "s": "todo",
+          "note": "À faire par toi."
         }
       ]
     }
@@ -313,8 +320,9 @@ window.ROCKSY_ETAT = {
       "id": "persist",
       "titre": "Cœur : persistance des tags",
       "modele": "Fable",
-      "statut": "en_cours",
-      "perimetre": "src/crates/rocksy-core"
+      "statut": "fait",
+      "perimetre": "src/crates/rocksy-core",
+      "bilan": "Livré : chargement de l'index 20x en 25 à 38 ms sous Windows, fichier de 4,4 Mo."
     }
   ],
   "journal": [
@@ -545,10 +553,40 @@ window.ROCKSY_ETAT = {
       "type": "décision",
       "texte": "Le cœur est confié au sous-agent qui a écrit rocksy-core (repris avec son contexte) ; je garde la colle Tauri, l'interface et les tests de l'app.",
       "pourquoi": "Même répartition que ce matin, une seule main sur le contrat."
+    },
+    {
+      "h": "12:46",
+      "type": "info",
+      "texte": "Commit 14f80b5 à la demande d'Alec, sur une nouvelle branche release-0.1 (pas sur main).",
+      "pourquoi": "Les 18 Mo de captures du run d'intégration sont exclus par .gitignore et restent sur disque. Pas d'étiquette v0.1.0 : le commit contenait déjà un début de persistance."
+    },
+    {
+      "h": "13:10",
+      "type": "décision",
+      "texte": "Version passée à 0.1.1 pour le build avec persistance ; la 0.1.0 reste dans son dossier.",
+      "pourquoi": "Tu utilises déjà la 0.1.0 : deux dossiers distincts évitent toute confusion sur ce que tu testes."
+    },
+    {
+      "h": "13:10",
+      "type": "décision",
+      "texte": "L'index est enregistré 5 s après une modification et à la fermeture ; à la fermeture, l'app annule l'indexation en cours, l'attend, puis enregistre ce qui a déjà été lu.",
+      "pourquoi": "Une première indexation interrompue sur Drive ne repart pas de zéro. Ce cas d'interruption n'a pas pu être provoqué en test (indexation trop rapide sur les vaults synthétiques)."
+    },
+    {
+      "h": "13:10",
+      "type": "mesure",
+      "texte": "Persistance dans l'app réelle : 1x → tags disponibles en 9 à 11 ms après relance ; 20x → 34 à 38 ms, vérification complète en ~95 ms sans relire de note ; une note modifiée → 1 seule relue.",
+      "pourquoi": "Vaults synthétiques sur C:, cache chaud. Sur Drive, la vérification coûtera le temps de lister les fichiers (250 ms mesurés à chaud dans l'audit, 57 s pour le tout premier listing à froid), plus jamais la lecture de toutes les notes."
+    },
+    {
+      "h": "13:10",
+      "type": "info",
+      "texte": "Constat : %LOCALAPPDATA% et %APPDATA%\\dev.rocksy.app existent de nouveau.",
+      "pourquoi": "Ce sont tes propres lancements de l'app (mes tests utilisent des profils isolés). Je n'y touche pas."
     }
   ],
   "rapport": {
-    "synthese": "Session du 23/11/2026, environ 1 h 40, de 10:50 à 12:30. Le plan prévoyait que tu compiles et chronomètres sous Windows ; comme Windows n'avait aucune chaîne de build, j'ai compilé pour Windows depuis WSL et testé l'app moi-même. Résultat : une app Rocksy 0.1.0 qui tourne sous Windows, vérifiée sur des vaults synthétiques, et un verdict sur Rune. Elle n'a jamais touché ton vrai vault ni Google Drive : c'est la première chose à essayer.",
+    "synthese": "Session du 23/11/2026, environ 1 h 40, de 10:50 à 12:30. Le plan prévoyait que tu compiles et chronomètres sous Windows ; comme Windows n'avait aucune chaîne de build, j'ai compilé pour Windows depuis WSL et testé l'app moi-même. Résultat : une app Rocksy 0.1.0 qui tourne sous Windows, vérifiée sur des vaults synthétiques, et un verdict sur Rune. Elle n'a jamais touché ton vrai vault ni Google Drive : c'est la première chose à essayer. Suite de l'après-midi (12:35 à 13:15) : commit du code à ta demande, puis persistance de l'index des tags, livrée en 0.1.1.",
     "sections": [
       {
         "titre": "Ce qui a été fait",
@@ -560,6 +598,16 @@ window.ROCKSY_ETAT = {
           "Interface CodeMirror 6 : Live Preview, onglets, deux volets, arbre virtualisé, Ctrl+O, palette, panneau des tags, canvas en lecture, Mermaid via Pele, thème sombre.",
           "Rune : verdict de l'étape 0 (passe sous conditions, hors 0.1) et essai réussi de compilation et de lancement sous Windows.",
           "Documents : out/spikes/m2-resultats.md, grilles F1-F9, out/release/README.md et install.ps1, CLAUDE.md mis à jour."
+        ]
+      },
+      {
+        "titre": "Ajout de l'après-midi : persistance de l'index des tags (0.1.1)",
+        "points": [
+          "Un fichier d'index par vault dans le dossier de données de l'app, jamais dans le vault ; rechargé à l'ouverture sans lire aucune note, puis vérifié par taille et date.",
+          "Testé dans l'app réelle : relance, note modifiée de l'extérieur (1 seule relue), enregistrement depuis l'app suivi d'un arrêt brutal (tag conservé). Sur le 20x : tags disponibles en 34 à 38 ms.",
+          "Tests du cœur : 96 sous Linux et, pour la première fois, 93 exécutés réellement sous Windows, tous verts. Démarrage de l'app inchangé.",
+          "Non testé : vrai vault, Google Drive, interruption d'une longue première indexation.",
+          "Limite : une note modifiée sans changement de taille ni de date n'est pas revue ; le fichier d'index contient des extraits de notes."
         ]
       },
       {
@@ -586,7 +634,7 @@ window.ROCKSY_ETAT = {
       {
         "titre": "Limites connues de la 0.1",
         "points": [
-          "Index des tags non persisté : reconstruit à chaque ouverture du vault (13 s à la première lecture de 9 760 fichiers sur C:, plus long sur Drive). Priorité n°1 de la suite.",
+          "Première indexation des tags d'un vault : lit toutes les notes (13 s pour 9 760 fichiers jamais lus sur C:, plus long sur Drive). Les suivantes sont instantanées depuis la 0.1.1.",
           "Pas de recherche plein texte, backlinks, graphe, renommage de tags, création ou renommage de fichiers depuis l'arbre, mods, import des vaults d'Obsidian.",
           "Session propre à Rocksy : le workspace.json d'Obsidian n'est pas lu ; la disposition en volets n'est pas restaurée.",
           "Tableau, Mermaid ou callout repliable imbriqué dans une liste ou une citation : affiché en source. Lignes de plus de 6 000 caractères : affichées en source.",
@@ -618,7 +666,7 @@ window.ROCKSY_ETAT = {
         "titre": "Suite proposée, dans l'ordre",
         "points": [
           "Essai sur le vrai vault et chronos manuels : ils diront si Drive à froid tient les cibles.",
-          "Persistance de l'index des tags et watcher de dossier (M3).",
+          "Watcher de dossier (détecter les changements pendant que l'app est ouverte, rafales du nettoyeur IA).",
           "Recherche plein texte et backlinks, puis renommage de tags.",
           "Décider de la structure du dépôt et commiter ; alléger les captures.",
           "Avant publication : licence, anonymisation de in/ et out/data/, CSP, identifiant dev.rocksy.app."

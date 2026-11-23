@@ -1,6 +1,6 @@
-# Rocksy 0.1.0 — installation et prise en main
+# Rocksy 0.1.1 — installation et prise en main
 
-Rocksy 0.1 est un éditeur Markdown rapide pour Windows 11, qui ouvre n'importe quel `.md` (avec ou sans vault) et lit un vault Obsidian sans le convertir. Ce n'est pas encore le remplaçant d'Obsidian : voir « Limites ».
+Rocksy 0.1.1 est un éditeur Markdown rapide pour Windows 11, qui ouvre n'importe quel `.md` (avec ou sans vault) et lit un vault Obsidian sans le convertir. Ce n'est pas encore le remplaçant d'Obsidian : voir « Limites ».
 
 ## Contenu
 
@@ -45,14 +45,20 @@ Désinstaller : `powershell -ExecutionPolicy Bypass -File .\install.ps1 -Uninsta
 | Tags | Panneau des tags : filtrer, cliquer un tag pour voir ses fragments, cliquer un fragment pour ouvrir la note à l'endroit exact |
 | Canvas | Lecture seule |
 
+## Nouveautés de la 0.1.1
+
+- Index des tags persisté : après une première indexation, les tags sont disponibles dès l'ouverture du vault. Le panneau des tags indique « index enregistré, vérification en cours… » puis « à jour ».
+- Pour passer de la 0.1.0 à la 0.1.1 : remplacer `rocksy.exe` (ou relancer `install.ps1`). Les données de `%APPDATA%\dev.rocksy.app` sont conservées.
+
 ## Ce que Rocksy écrit, et où
 
 - Dans un vault ou à côté d'un fichier : **uniquement** le `.md` que tu enregistres (écriture atomique). Jamais dans `.obsidian/`, jamais dans un `.canvas`.
-- Ses propres données : `%APPDATA%\dev.rocksy.app\` (liste des vaults, snapshots d'arbre, dernière session, journal de timings). Supprimer ce dossier remet l'app à zéro sans toucher aux notes.
+- Ses propres données : `%APPDATA%\dev.rocksy.app\` (liste des vaults, snapshots d'arbre, index des tags, dernière session, journal de timings). L'index des tags contient des extraits de tes notes : ce dossier est à traiter comme tes notes si tu le sauvegardes ou le partages. Supprimer ce dossier remet l'app à zéro sans toucher aux notes.
 
 ## Limites de la 0.1
 
-- L'index des tags n'est pas persisté : il est reconstruit en arrière-plan à chaque ouverture d'un vault. Sur Google Drive à froid, cela peut prendre de l'ordre de la minute ; l'éditeur et l'arbre restent utilisables pendant ce temps.
+- La **première** indexation des tags d'un vault lit toutes les notes en arrière-plan. Sur Google Drive à froid, cela peut prendre de l'ordre de la minute ; l'éditeur et l'arbre restent utilisables pendant ce temps. Les ouvertures suivantes rechargent l'index enregistré sans lire aucune note, puis ne relisent que les notes dont la taille ou la date a changé.
+- Une note modifiée par un autre outil sans changement de taille ni de date n'est pas revue par l'index des tags avant sa prochaine modification.
 - Pas de recherche plein texte, de backlinks, de graphe, de renommage de tags, de mise à jour des liens au renommage, ni de création, renommage ou suppression de fichiers depuis l'arbre.
 - Pas de mods ni de store. Pas d'import automatique des vaults d'Obsidian (ajout manuel).
 - Les modifications externes ne sont détectées que pour les fichiers ouverts (scrutation toutes les 2 s) ; l'arbre se met à jour à l'ouverture du vault.

@@ -153,7 +153,7 @@ impl Inner {
     }
 
     /// Id of the entry for `path`, created (as present) if needed.
-    pub fn file_id(&mut self, path: &str, rel: &str) -> u32 {
+    fn file_id(&mut self, path: &str, rel: &str) -> u32 {
         let key = path_key(path);
         if let Some(&id) = self.by_path.get(&key) {
             self.files[id as usize].present = true;

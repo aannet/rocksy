@@ -43,12 +43,11 @@ pub fn tags_index_path(data_dir: &Path, root: &str) -> PathBuf {
 /// file.
 fn checksum(bytes: &[u8]) -> u64 {
     let mut h: u64 = 0x9E37_79B9_7F4A_7C15 ^ bytes.len() as u64;
-    let mut chunks = bytes.chunks_exact(8);
-    for chunk in &mut chunks {
-        let word = u64::from_le_bytes(chunk.try_into().unwrap_or([0; 8]));
-        h = (h ^ word).wrapping_mul(0x0000_0100_0000_01B3).rotate_left(29);
+    let (words, rest) = bytes.as_chunks::<8>();
+    for word in words {
+        h = (h ^ u64::from_le_bytes(*word)).wrapping_mul(0x0000_0100_0000_01B3).rotate_left(29);
     }
-    for &b in chunks.remainder() {
+    for &b in rest {
         h = (h ^ u64::from(b)).wrapping_mul(0x0000_0100_0000_01B3).rotate_left(29);
     }
     h
@@ -246,14 +245,19 @@ pub(super) fn decode(bytes: &[u8], root: &str) -> Option<Inner> {
         }
 
         let path = join_rel(root, rel);
-        if inner.by_path.contains_key(&path_key(&path)) {
-            return None;
+        let file = inner.files.len() as u32;
+        if inner.by_path.insert(path_key(&path), file).is_some() {
+            return None; // the same file twice
         }
-        let file = inner.file_id(&path, rel);
+        inner.files.push(FileData {
+            path,
+            rel: rel.to_string(),
+            meta,
+            present: true,
+            unreadable: flags & 2 == 2,
+            ..FileData::default()
+        });
         inner.attach(file, occs, excerpts);
-        let data = &mut inner.files[file as usize];
-        data.meta = meta;
-        data.unreadable = flags & 2 == 2;
     }
     if r.pos != payload.len() {
         return None;
@@ -261,4 +265,86 @@ pub(super) fn decode(bytes: &[u8], root: &str) -> Option<Inner> {
     inner.generation = 0;
     inner.saved_generation = Some(0);
     Some(inner)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tags::parse::parse;
+    use crate::tags::store::FileParsed;
+
+    fn sample() -> Inner {
+        let mut inner = Inner::with_root("/v");
+        for (rel, text) in [
+            ("a.md", "---\ntags: [x, y/z]\n---\npara #x #été\n"),
+            ("b/c.md", "- item #y/z/w\n  - child #🎉\n"),
+            ("empty.md", "no tag\n"),
+        ] {
+            let parsed = FileParsed::from_parsed(parse(text));
+            inner.put_file(&format!("/v/{rel}"), rel, Some((text.len() as u64, 1_800_000_000_000)), false, parsed);
+        }
+        inner.put_file("/v/bad.md", "bad.md", None, true, FileParsed::default());
+        inner
+    }
+
+    fn with_header(payload: &[u8]) -> Vec<u8> {
+        let mut out = Vec::new();
+        out.extend_from_slice(MAGIC);
+        out.extend_from_slice(&VERSION.to_le_bytes());
+        out.extend_from_slice(&(payload.len() as u64).to_le_bytes());
+        out.extend_from_slice(&checksum(payload).to_le_bytes());
+        out.extend_from_slice(payload);
+        out
+    }
+
+    #[test]
+    fn encode_decode_round_trip() {
+        let inner = sample();
+        let bytes = encode(&inner).unwrap();
+        let back = decode(&bytes, "/v").unwrap();
+        assert_eq!(back.md_files(), 4);
+        assert_eq!(back.occurrences, inner.occurrences);
+        assert_eq!(back.live_tags(), inner.live_tags());
+        assert!(!back.is_dirty());
+        let bad = &back.files[back.by_path[&path_key("/v/bad.md")] as usize];
+        assert!(bad.unreadable && bad.meta.is_none());
+        let a = &back.files[back.by_path[&path_key("/v/a.md")] as usize];
+        assert_eq!(a.meta, Some((38, 1_800_000_000_000)));
+        // Deterministic: encoding the decoded index gives the same bytes.
+        assert_eq!(encode(&back).unwrap(), bytes);
+        assert!(decode(&bytes, "/other").is_none());
+        assert!(encode(&Inner::default()).is_none());
+    }
+
+    #[test]
+    fn decoder_survives_any_single_byte_corruption_with_a_valid_checksum() {
+        // The checksum normally rejects damaged files; here it is recomputed
+        // so that the structural checks themselves are exercised.
+        let bytes = encode(&sample()).unwrap();
+        let payload = &bytes[HEADER_LEN..];
+        for pos in 0..payload.len() {
+            for value in [0x00, 0x7F, 0x80, 0xFF, payload[pos] ^ 0x01, payload[pos].wrapping_add(1)] {
+                let mut mutated = payload.to_vec();
+                mutated[pos] = value;
+                if let Some(inner) = decode(&with_header(&mutated), "/v") {
+                    // Whatever was accepted must be internally consistent.
+                    let own: usize = inner.tags.iter().map(|t| t.postings.len()).sum();
+                    assert_eq!(own, inner.occurrences);
+                    for f in &inner.files {
+                        assert!(f.occs.iter().all(|o| (o.excerpt as usize) < f.excerpts.len()));
+                    }
+                }
+            }
+        }
+        // Truncated payloads with a valid header.
+        for len in 0..payload.len() {
+            assert!(decode(&with_header(&payload[..len]), "/v").is_none(), "len {len}");
+        }
+        // An endless varint and an absurd count.
+        assert!(decode(&with_header(&[0xFF; 32]), "/v").is_none());
+        let mut huge = Vec::new();
+        put_str(&mut huge, "/v");
+        put_varint(&mut huge, u64::MAX);
+        assert!(decode(&with_header(&huge), "/v").is_none());
+    }
 }

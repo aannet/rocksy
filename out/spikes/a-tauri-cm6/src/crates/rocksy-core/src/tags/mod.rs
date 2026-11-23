@@ -17,6 +17,8 @@ mod parse;
 mod persist;
 mod store;
 #[cfg(test)]
+mod persist_tests;
+#[cfg(test)]
 mod tests;
 
 use serde::{Deserialize, Serialize};

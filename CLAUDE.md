@@ -16,7 +16,7 @@ Code landed on 2026-11-23: the M2 spike A (Tauri 2 + CodeMirror 6) was built as 
 ### Code layout (`out/spikes/a-tauri-cm6/src/`)
 
 - `CONTRACT.md`: the interface contract (commands, events, JSON types) between core, shell and UI. Change it first, then the three sides.
-- `crates/rocksy-core/`: UI-independent Rust core (files with atomic save, vault registry, tree snapshot, tag index with fragments, session) plus the `rocksy-cli` measurement binary. Only `serde`, `serde_json`, `memchr`. Workspace root is `src/Cargo.toml`.
+- `crates/rocksy-core/`: UI-independent Rust core (files with atomic save, vault registry, tree snapshot, tag index with fragments, persisted per vault in `data_dir/tags/` and reconciled by size + mtime, session) plus the `rocksy-cli` measurement binary. Only `serde`, `serde_json`, `memchr`. Workspace root is `src/Cargo.toml`.
 - `src-tauri/`: Tauri 2 shell, thin command wrappers in `src/main.rs`, single-instance and dialog plugins. Deliberately outside the workspace (own `Cargo.lock`) so the core builds and tests on Linux without the Tauri tree.
 - `ui/`: Vite + TypeScript + CodeMirror 6, no framework. `src/backend.ts` has a Tauri backend and an in-memory mock backend (used in a plain browser and by the tests). UI strings in French.
 

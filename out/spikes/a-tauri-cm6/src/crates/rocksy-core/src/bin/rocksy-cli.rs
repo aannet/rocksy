@@ -3,11 +3,13 @@
 //!
 //!   rocksy-cli tree <vault> [--data-dir D]
 //!   rocksy-cli tags <vault> [--threads N] [--reps N]
+//!   rocksy-cli tags-persist <vault> [--data-dir D] [--work-dir W] [--modify N] [--threads N]
 //!   rocksy-cli fragments <file.md>
 
 use rocksy_core::{
     file_tags, list_tree, load_tree_snapshot, open_tree, read_file, reconcile_tree,
-    save_tree_snapshot, tree_snapshot_path, ApiError, BuildOptions, CancelToken, TagIndex,
+    save_tree_snapshot, tags_index_path, tree_snapshot_path, ApiError, BuildOptions, CancelToken,
+    ReconcileReport, TagIndex,
 };
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -17,6 +19,7 @@ use std::time::Instant;
 const USAGE: &str = "usage:
   rocksy-cli tree <vault> [--data-dir D]
   rocksy-cli tags <vault> [--threads N] [--reps N]
+  rocksy-cli tags-persist <vault> [--data-dir D] [--work-dir W] [--modify N] [--threads N]
   rocksy-cli fragments <file.md>";
 
 fn ms(start: Instant) -> f64 {
@@ -245,6 +248,160 @@ fn cmd_tags(vault: &Path, threads: Option<usize>, reps: usize) -> Result<Value, 
     }))
 }
 
+fn reconcile(index: &TagIndex, data: &Path, vault: &Path, threads: Option<usize>) -> Result<ReconcileReport, String> {
+    index
+        .reconcile(data, vault, BuildOptions { threads }, &CancelToken::new(), |_| {})
+        .map_err(err)?
+        .ok_or_else(|| "reconcile cancelled".to_string())
+}
+
+/// Copies the visible `.md` files of `vault` (and their folders) to `dest`.
+/// The reference vault is only read.
+fn copy_markdown(vault: &Path, dest: &Path) -> Result<Vec<PathBuf>, String> {
+    let tree = list_tree(vault).map_err(err)?;
+    let io = |e: std::io::Error| format!("copy failed: {e}");
+    std::fs::create_dir_all(dest).map_err(io)?;
+    let mut copied = Vec::new();
+    for entry in &tree.entries {
+        let mut to = dest.to_path_buf();
+        entry.path.split('/').for_each(|c| to.push(c));
+        if entry.is_dir {
+            std::fs::create_dir_all(&to).map_err(io)?;
+        } else if entry.path.to_lowercase().ends_with(".md") {
+            let mut from = PathBuf::from(&tree.root);
+            entry.path.split('/').for_each(|c| from.push(c));
+            std::fs::copy(&from, &to).map_err(io)?;
+            copied.push(to);
+        }
+    }
+    Ok(copied)
+}
+
+fn cmd_tags_persist(
+    vault: &Path,
+    data_dir: Option<&str>,
+    work_dir: Option<&str>,
+    modify: usize,
+    threads: Option<usize>,
+) -> Result<Value, String> {
+    let data = DataDir::new(data_dir);
+    let io = |e: std::io::Error| format!("I/O error: {e}");
+
+    // 1. Full build through reconcile (empty index, no persisted file).
+    let root = rocksy_core::paths::absolute_string(vault).map_err(err)?;
+    let file = tags_index_path(&data.path, &root);
+    let _ = std::fs::remove_file(&file);
+    let index = TagIndex::new();
+    let start = Instant::now();
+    let full = reconcile(&index, &data.path, vault, threads)?;
+    let full_wall_ms = ms(start);
+    let file_bytes = std::fs::metadata(&file).map(|m| m.len()).unwrap_or(0);
+    let stats = index.stats();
+
+    // 2. save: the file is removed before each run so that there is something to write.
+    let (save_median, save_max, saved) = bench(5, || {
+        let _ = std::fs::remove_file(&file);
+        index.save(&data.path)
+    });
+    if !saved.map_err(err)? {
+        return Err("save did not write the file".into());
+    }
+
+    // 3. load_persisted into a new index.
+    let (load_median, load_max, loaded) = bench(20, || {
+        let fresh = TagIndex::new();
+        let ready = fresh.load_persisted(&data.path, vault);
+        (fresh, ready)
+    });
+    let (loaded_index, ready) = loaded;
+    let ready = ready.ok_or("persisted index could not be loaded")?;
+    let round_trip_ok = loaded_index.stats() == stats
+        && loaded_index.tags_list("") == index.tags_list("")
+        && index.tags_list("").iter().take(50).all(|t| {
+            loaded_index.tag_fragments(&t.tag, Some(500)) == index.tag_fragments(&t.tag, Some(500))
+        });
+    let (list_median, list_max, _) = bench(20, || loaded_index.tags_list("").len());
+
+    // 4. Reconcile with nothing changed, on the loaded index.
+    let (same_median, same_max, same) = bench(5, || reconcile(&loaded_index, &data.path, vault, threads));
+    let same = same?;
+
+    // 5. Reconcile after modifying N files, on a temporary copy of the vault.
+    let work = match work_dir {
+        Some(w) => PathBuf::from(w).join(format!("rocksy-cli-work-{}", std::process::id())),
+        None => std::env::temp_dir().join(format!("rocksy-cli-work-{}", std::process::id())),
+    };
+    let modified = (|| -> Result<Value, String> {
+        let copy = work.join("vault");
+        let copy_data = work.join("data");
+        let start = Instant::now();
+        let files = copy_markdown(vault, &copy)?;
+        let copy_ms = ms(start);
+        let session = TagIndex::new();
+        let start = Instant::now();
+        let first = reconcile(&session, &copy_data, &copy, threads)?;
+        let first_wall_ms = ms(start);
+
+        let n = modify.min(files.len());
+        let mut rounds = Vec::new();
+        let mut times = Vec::new();
+        for round in 0..3 {
+            // N files spread over the vault get one more tagged line.
+            for k in 0..n {
+                let target = &files[(k * files.len() / n.max(1) + round) % files.len()];
+                let mut bytes = std::fs::read(target).map_err(io)?;
+                bytes.extend_from_slice(format!("\nligne ajoutée #rocksy-cli/modif{round}\n").as_bytes());
+                std::fs::write(target, bytes).map_err(io)?;
+            }
+            let start = Instant::now();
+            let report = reconcile(&session, &copy_data, &copy, threads)?;
+            let wall = ms(start);
+            times.push(wall);
+            rounds.push(json!({ "wallMs": wall, "report": report }));
+        }
+        times.sort_by(|a, b| a.total_cmp(b));
+        // One file removed and one added.
+        std::fs::remove_file(&files[0]).map_err(io)?;
+        std::fs::write(copy.join("rocksy-cli-nouveau.md"), "#rocksy-cli/nouveau\n").map_err(io)?;
+        let start = Instant::now();
+        let add_remove = reconcile(&session, &copy_data, &copy, threads)?;
+        let add_remove_ms = ms(start);
+        // Baseline on the same copy: nothing changed (walk and comparison only).
+        let (idle_median, idle_max, idle) = bench(3, || reconcile(&session, &copy_data, &copy, threads));
+        let idle = idle?;
+        Ok(json!({
+            "noChangeOnCopyMs": { "median": idle_median, "max": idle_max, "reps": 3, "reread": idle.reread },
+            "copiedMarkdownFiles": files.len(),
+            "copyMs": copy_ms,
+            "firstBuild": { "wallMs": first_wall_ms, "report": first },
+            "modifiedFiles": n,
+            "reconcileMs": { "median": times[times.len() / 2], "max": times[times.len() - 1], "reps": 3 },
+            "rounds": rounds,
+            "oneAddedOneRemoved": { "wallMs": add_remove_ms, "report": add_remove },
+        }))
+    })();
+    let _ = std::fs::remove_dir_all(&work);
+    let modified = modified?;
+
+    Ok(json!({
+        "command": "tags-persist",
+        "vault": root,
+        "dataDir": data.path,
+        "threads": threads,
+        "fullBuild": { "wallMs": full_wall_ms, "report": full },
+        "filesWithTags": stats.files,
+        "skipped": stats.skipped,
+        "persistedBytes": file_bytes,
+        "saveMs": { "median": save_median, "max": save_max, "reps": 5 },
+        "loadMs": { "median": load_median, "max": load_max, "reps": 20, "reportedMs": ready.ms,
+                    "files": ready.files, "tags": ready.tags, "occurrences": ready.occurrences },
+        "roundTripOk": round_trip_ok,
+        "tagsListAfterLoadMs": { "median": list_median, "max": list_max, "reps": 20 },
+        "reconcileNoChangeMs": { "median": same_median, "max": same_max, "reps": 5, "report": same },
+        "reconcileAfterChanges": modified,
+    }))
+}
+
 fn cmd_fragments(file: &Path) -> Result<Value, String> {
     let content = read_file(file).map_err(err)?;
     let start = Instant::now();
@@ -267,6 +424,13 @@ fn run(raw: &[String]) -> Result<Value, String> {
     match command {
         "tree" => cmd_tree(&target, args.opt("data-dir")),
         "tags" => cmd_tags(&target, args.usize_opt("threads")?, args.usize_opt("reps")?.unwrap_or(100)),
+        "tags-persist" => cmd_tags_persist(
+            &target,
+            args.opt("data-dir"),
+            args.opt("work-dir"),
+            args.usize_opt("modify")?.unwrap_or(50),
+            args.usize_opt("threads")?,
+        ),
         "fragments" => cmd_fragments(&target),
         other => Err(format!("unknown command: {other}\n{USAGE}")),
     }
