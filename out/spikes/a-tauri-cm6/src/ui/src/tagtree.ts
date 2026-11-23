@@ -92,3 +92,57 @@ export function tagMatches(fragmentTag: string, tag: string): boolean {
   const b = tag.toLowerCase();
   return a === b || a.startsWith(b + "/");
 }
+
+/** The whole tag list of a vault (`tags_list("")`), kept in memory so the filter does not call the backend per keystroke. */
+export interface TagLibrary {
+  /** In the order of `tags_list("")`: decreasing count, then key. */
+  tags: readonly TagCount[];
+  /** Lower-cased tags, same indexes. */
+  keys: readonly string[];
+}
+
+export function makeTagLibrary(tags: readonly TagCount[]): TagLibrary {
+  return { tags, keys: tags.map((t) => t.tag.toLowerCase()) };
+}
+
+/** Code-point order, as the core compares its keys (differs from UTF-16 order only beyond the BMP). */
+function compareKeys(a: string, b: string): number {
+  if (a === b) return 0;
+  const n = Math.min(a.length, b.length);
+  for (let i = 0; i < n; i++) {
+    const x = a.charCodeAt(i);
+    const y = b.charCodeAt(i);
+    if (x !== y) {
+      const sx = x >= 0xd800 && x <= 0xdfff;
+      const sy = y >= 0xd800 && y <= 0xdfff;
+      return sx === sy ? x - y : sx ? 1 : -1;
+    }
+  }
+  return a.length - b.length;
+}
+
+/** Rank of a key for a non-empty query, as in the core: 0 starts with it, 1 a level starts with it, 2 contains it, -1 no match. */
+function tagRank(key: string, q: string): number {
+  const first = key.indexOf(q);
+  if (first < 0) return -1;
+  if (first === 0) return 0;
+  // Non-overlapping occurrences, like the core's `match_indices`.
+  for (let p = first; p >= 0; p = key.indexOf(q, p + q.length)) if (key.charCodeAt(p - 1) === 47) return 1;
+  return 2;
+}
+
+/**
+ * Same result as the backend's `tags_list(query)`, computed on the cached library: case-insensitive substring
+ * (a leading `#` is ignored), tags starting with the query first, then tags with a level starting with it,
+ * then the other matches; inside each group by decreasing count, then key.
+ */
+export function filterTagLibrary(lib: TagLibrary, query: string): TagCount[] {
+  const q = query.trim().replace(/^#+/, "").toLowerCase();
+  const hits: { rank: number; i: number }[] = [];
+  for (let i = 0; i < lib.tags.length; i++) {
+    const rank = q ? tagRank(lib.keys[i], q) : 0;
+    if (rank >= 0) hits.push({ rank, i });
+  }
+  hits.sort((a, b) => a.rank - b.rank || lib.tags[b.i].count - lib.tags[a.i].count || compareKeys(lib.keys[a.i], lib.keys[b.i]));
+  return hits.map((h) => lib.tags[h.i]);
+}

@@ -1,0 +1,12 @@
+{
+ "scenario": "f2",
+ "saved": {
+  "fmFoldedPreferenceBefore": "1",
+  "fmOpenByDefault": "{\"folded\":0,\"head\":1,\"lines\":7}",
+  "fmFolded": "{\"folded\":1,\"head\":0,\"label\":\"Propriétés\",\"preference\":\"1\"}",
+  "fmUnfoldedAgain": "{\"folded\":0,\"head\":1,\"lines\":7,\"dirty\":false,\"preference\":\"0\"}",
+  "lineAfterTableClick": "| Cadrage | **Alix** | ==terminé== | 3 |"
+ },
+ "errors": [],
+ "csp": []
+}

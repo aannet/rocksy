@@ -10,8 +10,8 @@ import type { Fragment, TreeEntry } from "../src/types";
 import { excerptAround, foldText, groupByPath, highlightTerms, parseQuery, segments, segmentsHtml, termRanges } from "../src/excerpt";
 import { MockIndex, parseLinks } from "../src/mock/index";
 
-const f = (path: string): TreeEntry => ({ path, isDir: false, size: 1, mtimeMs: 1 });
-const d = (path: string): TreeEntry => ({ path, isDir: true, size: 0, mtimeMs: 1 });
+const f = (path: string): TreeEntry => ({ path, isDir: false });
+const d = (path: string): TreeEntry => ({ path, isDir: true });
 const index = new FileIndex([
   d("Notes"),
   d("Projets"),

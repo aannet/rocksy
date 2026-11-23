@@ -1,0 +1,163 @@
+{
+ "steps": [
+  {
+   "nav": "{DIST}?open=00__DEMO/Journal.md"
+  },
+  {
+   "wait": "window.rocksyReady && window.rocksy.tree && rocksyMock.tagsReady",
+   "timeout": 20000
+  },
+  {
+   "eval": "JSON.stringify({first:rocksyMock.calls.slice(0,4), readFileCalls:rocksyMock.calls.filter(c=>c==='read_file').length, prefetched:rocksy.metrics.firstFilePrefetched, marks:rocksyMock.timings.map(t=>t.name)})",
+   "save": "P5_P8_P9_startup"
+  },
+  {
+   "eval": "(()=>{rocksyMock.readDelayMs=700;rocksyMock.touch(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md','# Version externe\\n\\nÉcrite par une autre machine.\\n');const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return 1})()"
+  },
+  {
+   "sleep": 100
+  },
+  {
+   "type": " frappe pendant la lecture"
+  },
+  {
+   "sleep": 1100
+  },
+  {
+   "eval": "(()=>{const d=rocksy.activeDoc();return JSON.stringify({typedKept:rocksy.focused.view.state.doc.toString().includes('frappe pendant la lecture'), conflict:d.conflict, dirty:d.dirty, banner:document.querySelector('.banner').textContent, saves:rocksyMock.saves.length, diskIsExternal:rocksyMock.textOf(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md').startsWith('# Version externe')})})()",
+   "save": "B2_typingDuringReloadKept"
+  },
+  {
+   "shot": "reload-typed-during-read.png"
+  },
+  {
+   "sleep": 2300
+  },
+  {
+   "eval": "JSON.stringify({savesAfterAutosaveDelay:rocksyMock.saves.length, conflict:rocksy.activeDoc().conflict})",
+   "save": "B2_noAutosaveOverExternal"
+  },
+  {
+   "click": ".banner button[data-act='reload']"
+  },
+  {
+   "wait": "!rocksy.activeDoc().conflict",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({text:rocksy.focused.view.state.doc.toString().slice(0,18), dirty:rocksy.activeDoc().dirty, focusInEditor:rocksy.focused.view.hasFocus})",
+   "save": "B2_explicitReload"
+  },
+  {
+   "eval": "(()=>{rocksyMock.readDelayMs=0;rocksyMock.touch(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md','# Deux\\n');return 1})()"
+  },
+  {
+   "wait": "rocksy.focused.view.state.doc.toString()==='# Deux\\n'",
+   "timeout": 5000
+  },
+  {
+   "eval": "document.querySelector('.st-toast').textContent",
+   "save": "B2_cleanDocReloaded"
+  },
+  {
+   "eval": "(()=>{rocksyMock.remove(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md');return 1})()"
+  },
+  {
+   "wait": "rocksy.activeDoc().conflict==='deleted'",
+   "timeout": 4000
+  },
+  {
+   "eval": "(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return 1})()"
+  },
+  {
+   "type": " apres suppression"
+  },
+  {
+   "sleep": 2400
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "JSON.stringify({banner:document.querySelector('.banner .banner-text').textContent, buttons:[...document.querySelectorAll('.banner button')].map(b=>b.textContent), status:document.querySelector('.st-save').textContent, toast:document.querySelector('.st-toast').textContent, recreated:rocksyMock.textOf(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md')!==null, saves:rocksyMock.saves.length})",
+   "save": "B14_deletedFlagged_notRecreated"
+  },
+  {
+   "shot": "reload-file-deleted.png"
+  },
+  {
+   "click": ".banner button[data-act='recreate']"
+  },
+  {
+   "wait": "!rocksy.activeDoc().conflict && !rocksy.activeDoc().dirty",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({onDisk:rocksyMock.textOf(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md'), last:rocksyMock.saves[rocksyMock.saves.length-1]})",
+   "save": "B14_explicitRecreate"
+  },
+  {
+   "sleep": 900
+  },
+  {
+   "eval": "(()=>{const e0=rocksy.epoch();const foot0=document.querySelector('.tree-foot').textContent;const idx=rocksy.index;rocksyMock.emit('tree-updated',{root:rocksy.tree.root,fromSnapshot:true,entries:rocksy.tree.entries.map(e=>({...e}))});const e1=rocksy.epoch();const same=rocksy.index===idx;const foot1=document.querySelector('.tree-foot').textContent;rocksyMock.emit('tree-updated',{root:rocksy.tree.root,fromSnapshot:false,entries:[...rocksy.tree.entries,{path:'zz-nouveau.md',isDir:false}]});return JSON.stringify({epochSamePaths:e1-e0, indexKept:same, foot0, foot1, epochNewFile:rocksy.epoch()-e1, files:rocksy.index.files.length})})()",
+   "save": "B5b_treeUpdatedSamePaths"
+  },
+  {
+   "eval": "(()=>{const info=JSON.stringify(rocksy.indexInfo);const n=rocksy.indexEvents.length;rocksyMock.emit('index-ready',{...rocksy.indexInfo,vault:'D:\\\\Vaults\\\\Second',files:1,tags:1,links:1});rocksyMock.emit('tags-ready',{files:1,tags:1,occurrences:1,ms:1,vault:'D:\\\\Vaults\\\\Second'});rocksyMock.emit('tags-progress',{done:1,total:9,vault:'D:\\\\Vaults\\\\Second'});rocksyMock.emit('index-ready',{...rocksy.indexInfo,vault:undefined,files:2});return JSON.stringify({infoUnchanged:JSON.stringify(rocksy.indexInfo)===info, eventsRecorded:rocksy.indexEvents.length-n, tagsInfoFiles:rocksy.tagsInfo.files>1, progress:rocksy.tagsProgress, status:document.querySelector('#statusbar span:nth-child(4)').textContent})})()",
+   "save": "B15_otherVaultIgnored"
+  },
+  {
+   "click": "#rb-links"
+  },
+  {
+   "wait": "rocksy.sidebar.tab==='links' && document.querySelector('.links-sec')",
+   "timeout": 5000
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "(async()=>{const m=()=>({req:rocksy.metrics.linksRequests||0, ren:rocksy.metrics.linksRenders||0, skip:rocksy.metrics.linksSkipped||0});const calls=()=>rocksyMock.calls.filter(c=>c==='backlinks').length;const a=m(), c0=calls();const node=document.querySelector('.links-content').firstChild;for(let i=0;i<5;i++)rocksyMock.emit('index-ready',{...rocksy.indexInfo,ms:i});await new Promise(r=>setTimeout(r,150));const b=m(), c1=calls();const v=rocksy.focused.view;v.dispatch({changes:{from:v.state.doc.length,insert:'\\nSans lien.'}});await rocksy.save(rocksy.activeDoc());await new Promise(r=>setTimeout(r,250));const c=m(), c2=calls();const domKept=document.querySelector('.links-content').firstChild===node;v.dispatch({changes:{from:v.state.doc.length,insert:'\\nVoir [[Callouts]].'}});await rocksy.save(rocksy.activeDoc());await new Promise(r=>setTimeout(r,250));const d=m();return JSON.stringify({fiveIndexReadySameGeneration:{requests:b.req-a.req, backlinksCalls:c1-c0, renders:b.ren-a.ren, skipped:b.skip-a.skip}, saveWithoutLinkChange:{requests:c.req-b.req, backlinksCalls:c2-c1, renders:c.ren-b.ren, domKept}, saveWithNewLink:{renders:d.ren-c.ren, out:rocksy.metrics.outgoing}})})()",
+   "save": "P7_linksPanel"
+  },
+  {
+   "click": "#rb-tags"
+  },
+  {
+   "wait": "rocksy.sidebar.tab==='tags' && document.querySelector('.tag-row')",
+   "timeout": 5000
+  },
+  {
+   "eval": "(async()=>{const sb=rocksy.sidebar;const calls=()=>rocksyMock.calls.filter(c=>c==='tags_list').length;const c0=calls();const out=[];for(const q of ['p','pr','pro','proj','projet','projet/','','re','d','de','dem','demo']){sb.tagInput.value=q;await sb.refreshTags();out.push([q,rocksy.metrics.tagsListMs,rocksy.metrics.tagsListCount,(await rocksy.backend.tagsList(q)).length])}return JSON.stringify({tagsListCallsFor12Keystrokes:calls()-c0-12, rows:out, sameCountAsBackend:out.every(r=>r[2]===r[3])})})()",
+   "save": "P10_tagFilterCached"
+  },
+  {
+   "eval": "(()=>{window.__l={add:0,rem:0};const a=window.addEventListener.bind(window), r=window.removeEventListener.bind(window);window.addEventListener=(t,...x)=>{if(t==='mousemove'||t==='mouseup')window.__l.add++;return a(t,...x)};window.removeEventListener=(t,...x)=>{if(t==='mousemove'||t==='mouseup')window.__l.rem++;return r(t,...x)};rocksy.splitRight();return rocksy.openPath(rocksyMock.root+'\\\\00__DEMO\\\\Carte.canvas').then(()=>new Promise(r=>setTimeout(r,500))).then(()=>JSON.stringify({panes:rocksy.panes.length, canvas:!!document.querySelector('.canvas-view .cv-node'), listeners:{...window.__l}}))})()",
+   "save": "B19_canvasMounted"
+  },
+  {
+   "shot": "reload-canvas-second-pane.png"
+  },
+  {
+   "eval": "rocksy.closeDoc(rocksy.activeDoc()).then(()=>JSON.stringify({panes:rocksy.panes.length, listeners:{...window.__l}, leftBehind:window.__l.add-window.__l.rem}))",
+   "save": "B19_paneClosed_listenersRemoved"
+  },
+  {
+   "eval": "(()=>{rocksyMock.calls.length=0;rocksy.closeVault();return JSON.stringify({closed:rocksyMock.closedVaults, calls:rocksyMock.calls})})()",
+   "save": "B16_closeVault"
+  },
+  {
+   "nav": "{DIST}?open=00__DEMO/Journal.md&firstfile=0"
+  },
+  {
+   "wait": "window.rocksyReady && window.rocksy.tree && rocksyMock.tagsReady",
+   "timeout": 20000
+  },
+  {
+   "eval": "JSON.stringify({first:rocksyMock.calls.slice(0,4), prefetched:rocksy.metrics.firstFilePrefetched, loaded:rocksy.activeDoc().loaded})",
+   "save": "P5_fallbackReadFile"
+  }
+ ]
+}

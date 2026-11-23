@@ -1,0 +1,22 @@
+{
+ "scenario": "a5-links",
+ "saved": {
+  "attachMs": 584,
+  "treeEntries": 1051,
+  "K0_before": "{\"generation\":497,\"out\":3,\"requests\":1}",
+  "K1_afterSaveWithoutLinkChange": "{\"indexReadyEvents\":0,\"generation\":497,\"out\":3,\"requests\":1}",
+  "K2_afterSaveWithNewLink": "{\"indexReadyAfterMs\":0,\"events\":[{\"fromCache\":false,\"linksGeneration\":498,\"links\":1411}],\"out\":4,\"requests\":2,\"status\":\"00_INBOX/Décision plan 00434.mdIndex ✓1 192 mots · 10 387 ca\"}",
+  "closed": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 36
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  28992
+ ],
+ "csp": null,
+ "ourPidsStillAlive": []
+}

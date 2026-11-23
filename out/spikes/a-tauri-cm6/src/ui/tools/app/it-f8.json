@@ -2,7 +2,10 @@
  "app": {
   "dataDir": "{IT}\\data-f8",
   "args": [
-   "{IT}\\files\\hors-vault.md"
+   "{IT}\\files\\hors-vault.md",
+   "{IT}\\files\\vide.md",
+   "{IT}\\files\\longue.md",
+   "{IT}\\files\\a-supprimer.md"
   ]
  },
  "before": [
@@ -23,6 +26,16 @@
   {
    "eval": "JSON.stringify({metrics:rocksy.metrics, vault:rocksy.vaultRoot, dormant:rocksy.dormantVault, sidebarHidden:document.getElementById('sidebar').hidden, tabs:rocksy.docs().map(d=>[d.name,d.outside]), badge:T.count('.tab-badge')})",
    "save": "F8_start"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-f8",
+   "save": "F8_dataDir"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\data-f8\\opened.json",
+   "save": "F8_openedJson"
   },
   {
    "py": "readtext",
@@ -73,25 +86,16 @@
    "save": "checkboxUndo"
   },
   {
-   "launch": [
-    "{IT}\\files\\second.md"
-   ],
-   "until": "rocksy.activeDoc() && rocksy.activeDoc().name==='second' && rocksy.activeDoc().loaded",
-   "save": "F8_secondLaunchToActiveTabMs"
+   "eval": "T.open(T.it('files','second.md')).then(r=>JSON.stringify({open:r, readOnly:rocksy.activeDoc().readOnly, outside:rocksy.activeDoc().outside, badge:!!document.querySelector('.tab.is-active .tab-badge.is-readonly')}))",
+   "save": "F8_neighbourOpenedByPath_isReadOnly"
   },
   {
-   "eval": "JSON.stringify({tabs:rocksy.docs().map(d=>[d.name,d.outside]), active:rocksy.activeDoc().name})",
-   "save": "F8_afterSecondLaunch"
+   "eval": "T.inv('save_file',{path:T.it('files','second.md'),text:'x'}).then(()=>'SAVED',e=>JSON.stringify({kind:e.kind,code:e.code}))",
+   "save": "F8_neighbourSaveRefused"
   },
   {
-   "shot": "it-f8-second-launch-tab.png"
-  },
-  {
-   "launch": [
-    "{IT}\\files\\fauxvault\\note isolée.md"
-   ],
-   "until": "rocksy.activeDoc() && rocksy.activeDoc().name==='note isolée' && rocksy.activeDoc().loaded",
-   "save": "F8_thirdLaunchMs"
+   "eval": "T.open(T.it('files','fauxvault','note isolée.md')).then(JSON.stringify)",
+   "save": "F8_fileInUnregisteredVaultFolder_open"
   },
   {
    "sleep": 500
@@ -225,7 +229,7 @@
    "shot": "it-robust-deleted-file.png"
   },
   {
-   "click": ".banner button[data-act='overwrite']"
+   "click": ".banner button[data-act='recreate']"
   },
   {
    "sleep": 500
@@ -250,6 +254,9 @@
    "sleep": 300
   },
   {
+   "eval": "(()=>{window.__ext=[];rocksy.backend.openExternal=(u)=>{window.__ext.push(u);return Promise.resolve()};return 1})()"
+  },
+  {
    "click": "[data-href='https://example.org']"
   },
   {
@@ -260,7 +267,7 @@
    "save": "targetsAfterLink"
   },
   {
-   "eval": "JSON.stringify({href:location.href, active:rocksy.activeDoc().name})",
+   "eval": "JSON.stringify({href:location.href, active:rocksy.activeDoc().name, openExternalCalledWith:window.__ext})",
    "save": "afterLinkClick"
   },
   {

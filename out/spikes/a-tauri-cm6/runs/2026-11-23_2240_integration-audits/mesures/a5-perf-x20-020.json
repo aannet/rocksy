@@ -1,0 +1,37 @@
+{
+ "scenario": "a5-perf-x20",
+ "saved": {
+  "attachMs": 665,
+  "P1_firstIndexing": "{\"firstIndexingSinceAddVaultMs\":2582,\"events\":[{\"atMs\":2871,\"fromCache\":false,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760,\"reread\":9760,\"ms\":2298}],\"metrics\":{\"openVaultMs\":133}}",
+  "P1_lastEvents_3sLater": "[{\"fromCache\":false,\"searchReady\":true,\"searchDocs\":9760,\"reread\":9760}]",
+  "P2_openBigNote": "{\"open\":{\"loaded\":true,\"error\":null,\"ms\":99,\"name\":\"__DAILY NOTES SYNTH\"},\"autosave\":false,\"bytes\":309938,\"lines\":4372}",
+  "P2_typingLatency_middle": "{\"n\":216,\"update\":{\"median\":3.3,\"p95\":4.7,\"max\":11.4},\"withLayout\":{\"median\":3.4,\"p95\":4.9,\"max\":11.5}}",
+  "P2_typingLatency_start": "{\"n\":216,\"update\":{\"median\":4.3,\"p95\":6.8,\"max\":7.5},\"withLayout\":{\"median\":4.4,\"p95\":7,\"max\":7.7}}",
+  "P3_saveFile_318KB_fromPage": "{\"bytes\":310370,\"runs\":[135.2,233.5,95.1,101.4,111.3,94.6,292.9],\"median\":111.3,\"min\":94.6,\"max\":292.9}",
+  "P4_searchLatency_realTyping": "{\"searches\":86,\"keystrokeToPainted\":{\"median\":105.1,\"p95\":128.7,\"max\":234.5},\"callRoundTrip\":{\"median\":9.4,\"p95\":27.3,\"max\":141.3},\"backendMs\":{\"median\":4.7,\"p95\":19.6,\"max\":26.2},\"filesMax\":9760}",
+  "P5_externalChange": "{\"treeShowsFileAfterMs\":679,\"searchFindsFileAfterMs\":686}",
+  "P6_sessionBeforeRestart": "{\"dirty\":[\"__DAILY NOTES SYNTH\"],\"session\":{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\settled-x20\",\"active\":\"__DAILY NOTES SYNTH\"}}",
+  "P6_relaunchAttachMs": 1312,
+  "P6_relaunch_index": "{\"events\":[{\"atMs\":647,\"fromCache\":true,\"searchReady\":false,\"files\":9760,\"searchDocs\":0},{\"atMs\":696,\"fromCache\":true,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760},{\"atMs\":751,\"fromCache\":false,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760,\"reread\":0}],\"editorReadyMs\":279,\"treeReadyMs\":523}",
+  "P6_relaunch_timings": {
+   "tree-ready": 1151,
+   "editor-ready": 1096,
+   "editor-ready-since-navigation": 1097,
+   "editor-painted-since-navigation": 1231
+  },
+  "P6_memory": {
+   "webviewMb": 392,
+   "appPrivateMb": 38,
+   "appMb": 65,
+   "webviewProcs": 6
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\release-0.2.0\\rocksy.exe",
+ "pids": [
+  5336,
+  1620
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

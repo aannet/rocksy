@@ -1,0 +1,56 @@
+{
+ "scenario": "is-f7",
+ "saved": {
+  "attachMs": 665,
+  "entries": 1049,
+  "opened": "[[\"__DAILY NOTES SYNTH.md\",true],[\"Décision plan 00434.md\",true],[\"Architecture plan 00341.md\",true],[\"Canvas simple.canvas\",true]]",
+  "linksOfBigNote": "{\"back\":2,\"out\":446}",
+  "session": "{\"tabs\":[[\"__DAILY NOTES SYNTH\",false],[\"Décision plan 00434\",false],[\"Architecture plan 00341\",false],[\"Canvas simple.canvas\",false],[\"Équipe budget 00291\",false],[\"Audit architecture 00338\",false],[\"Décision revue 00395\",false]],\"searches\":2,\"events\":1}",
+  "closeMainWindow(ok exited)": "True True",
+  "P6_F7_diff_afterSession": {
+   "added": [],
+   "removed": [],
+   "changed": [],
+   "files": 4658
+  },
+  "P6_dataDir": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ],
+  "P6_search": [
+   "36dba838a7a1d08f"
+  ],
+  "P6_tags": [
+   "36dba838a7a1d08f.tags"
+  ],
+  "P6_vaultRootListing": [
+   ".obsidian",
+   ".opencode",
+   ".rocksy-synth",
+   ".trash",
+   "00_INBOX",
+   "01_WORK",
+   "AI",
+   "LLM",
+   "MEETINGS",
+   "PERMANENT",
+   "PERSONAL",
+   "TASKS",
+   "TEMPLATES",
+   "WRITE",
+   "_ASSETS"
+  ]
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  34156
+ ],
+ "csp": null,
+ "ourPidsStillAlive": []
+}

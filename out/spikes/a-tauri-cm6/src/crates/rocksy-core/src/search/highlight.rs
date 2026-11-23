@@ -4,7 +4,7 @@
 use super::fold::Tokens;
 use super::query::{Clause, ParsedQuery};
 use super::SearchMatch;
-use crate::excerpt::line_excerpt;
+use crate::excerpt::{line_excerpt, EXCERPT_MAX};
 use memchr::memchr2_iter;
 
 /// Excerpts returned per file.
@@ -109,6 +109,11 @@ impl<'a> LineTracker<'a> {
 /// (line number, byte offset of the line, byte ranges matched on it).
 type KeptLine = (u32, usize, Vec<(usize, usize)>);
 
+/// Bytes after the start of the first range of a line beyond which no range
+/// can be shown: the excerpt starts at or before that range and holds at
+/// most [`EXCERPT_MAX`] characters of at most four bytes.
+const SHOWN_SPAN: usize = EXCERPT_MAX * 4;
+
 /// Occurrences of the positive clauses of `query` in `text`: their number
 /// and the first [`MAX_MATCHES`] lines containing one, in text order.
 pub(crate) fn find_matches(text: &str, query: &ParsedQuery) -> (usize, Vec<SearchMatch>) {
@@ -121,6 +126,9 @@ pub(crate) fn find_matches(text: &str, query: &ParsedQuery) -> (usize, Vec<Searc
     let mut found: Vec<(usize, usize)> = Vec::new();
     let mut count = 0;
     let mut kept: Vec<KeptLine> = Vec::new();
+    // End of the last line that can be kept, known once it is: looked up
+    // once, not for every later occurrence (the line may be very long).
+    let mut last_kept_end: Option<usize> = None;
 
     while let Some(token) = tokens.next_token() {
         found.clear();
@@ -129,7 +137,7 @@ pub(crate) fn find_matches(text: &str, query: &ParsedQuery) -> (usize, Vec<Searc
             continue;
         }
         count += found.len();
-        if kept.len() == MAX_MATCHES && kept.last().is_some_and(|k| lines.line_end(k.1) < token.start) {
+        if last_kept_end.is_some_and(|end| end < token.start) {
             continue; // past the last kept line: only counting
         }
         for &(start, _) in &found {
@@ -141,12 +149,18 @@ pub(crate) fn find_matches(text: &str, query: &ParsedQuery) -> (usize, Vec<Searc
             let same_line = kept.last().is_some_and(|last| last.0 == line);
             if same_line {
                 if let Some(last) = kept.last_mut() {
-                    if last.2.last().is_none_or(|prev| prev.1 <= range.0) {
+                    // Ranges too far to be shown are not stored: a line of
+                    // any length keeps a bounded list.
+                    let shown = range.0 <= last.2[0].0 + SHOWN_SPAN;
+                    if shown && last.2.last().is_none_or(|prev| prev.1 <= range.0) {
                         last.2.push(range);
                     }
                 }
             } else if kept.len() < MAX_MATCHES {
                 kept.push((line, line_start, vec![range]));
+                if kept.len() == MAX_MATCHES {
+                    last_kept_end = Some(lines.line_end(line_start));
+                }
             }
         }
     }

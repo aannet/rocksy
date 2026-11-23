@@ -1,0 +1,18 @@
+{
+ "scenario": "shell",
+ "saved": {
+  "tabsAfterQuickOpen": "[\"__DAILY NOTES DEMO\",\"Live Preview\",\"Tableaux et code\"]",
+  "afterCompletions": "able.png]]\n\nVoir [[Callouts]] et #projet",
+  "conflictKind": "external",
+  "saveDuringConflict": "{\"saves\":0,\"toast\":\"Conflit : choisissez « Recharger » ou « Écraser » dans le bandeau\"}",
+  "afterOverwrite": "{\"conflict\":null,\"dirty\":false,\"last\":{\"path\":\"C:\\\\Vaults\\\\Demo\\\\00__DEMO\\\\Tableaux et code.md\",\"size\":1093}}",
+  "afterExternalOnClean": "{\"text\":\"# Rechargé\\n\\nContenu externe sur onglet propre.\\n\",\"dirty\":false,\"toast\":\"« Tableaux et code » rechargé (modifié sur le disque)\"}",
+  "afterReload": "{\"text\":\"# Encore\\n\",\"dirty\":false,\"conflict\":null}",
+  "lastSession": "{\"activeVault\":\"C:\\\\Vaults\\\\Demo\",\"tabs\":[\"C:\\\\Vaults\\\\Demo\\\\01__WORK\\\\__DAILY NOTES DEMO.md\",\"C:\\\\Vaults\\\\Demo\\\\00__DEMO\\\\Live Preview.md\",\"C:\\\\Vaults\\\\Demo\\\\00__DEMO\\\\Tableaux et code.md\",\"C:\\\\Temp\\\\Notes\\\\hors-vault.md\"],\"activeTab\":\"C:\\\\Temp\\\\Notes\\\\hors-vault.md\"}",
+  "tabsAfterMiddleClick": "[\"__DAILY NOTES DEMO\",\"Tableaux et code\",\"hors-vault\"]",
+  "panes": "[[\"Tableaux et code\",\"hors-vault\"],[\"__DAILY NOTES DEMO\"]]",
+  "vaultAdd": "{\"calls\":[\"open_vault\",\"pick_folder\",\"add_vault\",\"close_vault\",\"open_vault\"],\"vaults\":[{\"path\":\"C:\\\\Vaults\\\\Demo\",\"name\":\"Demo\"},{\"path\":\"D:\\\\Vaults\\\\Second\",\"name\":\"Second\"}],\"outside\":[[\"Tableaux et code\",true],[\"hors-vault\",true],[\"__DAILY NOTES DEMO\",true]]}"
+ },
+ "errors": [],
+ "csp": []
+}

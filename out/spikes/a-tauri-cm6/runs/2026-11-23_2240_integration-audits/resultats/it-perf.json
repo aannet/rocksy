@@ -1,0 +1,148 @@
+{
+ "scenario": "it-perf",
+ "saved": {
+  "attachMs": 685,
+  "info": "{\"autosave\":false,\"metrics\":{\"mark:script-start\":137,\"mark:backend-ready\":137,\"mark:startup-info\":165,\"mark:file-read\":191,\"firstFilePrefetched\":1,\"mark:state-created\":208,\"editorReadyMs\":309,\"mark:events-wired\":325,\"mark:vault-requested\":325,\"mark:first-frame\":377,\"editorPaintedMs\":401,\"mark:nav-response-end\":32,\"mark:nav-dom-content-loaded\":140,\"mark:first-file-prefetched\":1},\"bytes\":309938,\"lines\":4372,\"dpr\":2,\"win\":[1280,820],\"ua\":\"Edg/157.0.0.0\"}",
+  "timings": "{\"ms\":984.0,\"name\":\"editor-ready\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":987}\n{\"ms\":309.0,\"name\":\"editor-ready-since-navigation\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":987}\n{\"ms\":401.0,\"name\":\"editor-painted-since-navigation\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1077}\n{\"ms\":137.0,\"name\":\"ui-script-start\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1078}\n{\"ms\":137.0,\"name\":\"ui-backend-ready\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1079}\n{\"ms\":165.0,\"name\":\"ui-startup-info\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1079}\n{\"ms\":191.0,\"name\":\"ui-file-read\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1081}\n{\"ms\":208.0,\"name\":\"ui-state-created\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1081}\n{\"ms\":325.0,\"name\":\"ui-events-wired\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1082}\n{\"ms\":325.0,\"name\":\"ui-vault-requested\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1083}\n{\"ms\":377.0,\"name\":\"ui-first-frame\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1084}\n{\"ms\":32.0,\"name\":\"ui-nav-response-end\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1085}\n{\"ms\":140.0,\"name\":\"ui-nav-dom-content-loaded\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1087}\n{\"ms\":1.0,\"name\":\"ui-first-file-prefetched\",\"processStartMs\":1795470113540,\"sinceProcessStartMs\":1089}\n",
+  "posStart": "- [[Note risque 00167]]",
+  "latencyStart": "{\"n\":216,\"update\":{\"median\":2.2,\"p95\":4,\"max\":11},\"withLayout\":{\"median\":2.3,\"p95\":4.2,\"max\":11.4}}",
+  "posMiddle": "Ionsol. Riel conrécordé pevini. Oukoconpe [[Client plan 0023",
+  "latencyMiddle": "{\"n\":216,\"update\":{\"median\":2.4,\"p95\":3.6,\"max\":4.5},\"withLayout\":{\"median\":2.5,\"p95\":3.8,\"max\":4.7}}",
+  "posEnd": "Cordan pepeeux proiondanvi euxkodan luko koviré riré markoré",
+  "latencyEnd": "{\"n\":216,\"update\":{\"median\":2.2,\"p95\":3.1,\"max\":3.5},\"withLayout\":{\"median\":2.2,\"p95\":3.2,\"max\":3.6}}",
+  "posTask": "    - [ ] Promartaldé tenpepe baairementeux",
+  "latencyInTaskWithMarkup": "{\"n\":215,\"update\":{\"median\":1.9,\"p95\":3.2,\"max\":14.1},\"withLayout\":{\"median\":2,\"p95\":3.3,\"max\":14.1}}",
+  "scroll120pxPerFrame": "{\"frames\":299,\"px\":36000,\"median\":16.7,\"p95\":16.8,\"max\":17,\"over20ms\":0,\"over34ms\":0}",
+  "scroll600pxPerFrame": "{\"frames\":149,\"px\":90000,\"median\":16.7,\"p95\":16.8,\"max\":17,\"over20ms\":0,\"over34ms\":0}",
+  "end": "{\"dirty\":true,\"scrollTop\":90000,\"scrollHeight\":149254}"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  33140
+ ],
+ "csp": [],
+ "log": [
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000397.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000375.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000185.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000352.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000403.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000343.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000445.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000074.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000157.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000371.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000099.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000120.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000397.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000403.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000445.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000074.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000099.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000157.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000371.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000375.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000185.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000352.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000343.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5C01_WORK%5CPasted%20image%200000120.png"
+  }
+ ],
+ "ourPidsStillAlive": []
+}

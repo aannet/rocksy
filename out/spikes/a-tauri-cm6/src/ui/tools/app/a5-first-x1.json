@@ -1,0 +1,70 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-first-x1",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\fresh-x1"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\x1",
+   "dst": "{IT}\\fresh-x1",
+   "save": "copy"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{window.__ev=[];const t0=performance.now();for(const n of ['tags-ready','index-ready'])window.__TAURI__.event.listen(n,e=>{const p=e.payload||{};window.__ev.push({n,t:Math.round(performance.now()-t0),fromCache:p.fromCache,files:p.files,searchReady:p.searchReady,searchDocs:p.searchDocs,reread:p.reread,pending:p.pending,ms:p.ms})});return 1})()"
+  },
+  {
+   "eval": "(()=>{window.__t0=performance.now();T.addVault(T.it('fresh-x1'));return 1})()"
+  },
+  {
+   "wait": "window.__ev.some(e=>e.n==='index-ready'&&e.fromCache===false&&e.searchReady)",
+   "timeout": 60000,
+   "save": "firstIndexWaitMs"
+  },
+  {
+   "eval": "JSON.stringify({afterMs:Math.round(performance.now()-window.__t0), status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,120)})",
+   "save": "atFirstReady"
+  },
+  {
+   "sleep": 4000
+  },
+  {
+   "eval": "T.inv('search',{query:'plan',limit:5}).then(r=>JSON.stringify({total:r.total,searchReady:r.searchReady}))",
+   "save": "search"
+  },
+  {
+   "eval": "JSON.stringify(window.__ev)",
+   "save": "events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-first-x1\\timings.jsonl",
+   "name": "index-pending",
+   "save": "pendingLog"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-first-x1\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "all_listings"
+  },
+  {
+   "py": "close",
+   "waitMs": 10000,
+   "save": "closed"
+  }
+ ]
+}

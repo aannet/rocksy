@@ -1,0 +1,15 @@
+{
+ "scenario": "readonly",
+ "saved": {
+  "A0_explicitFileIsEditable": "{\"doc\":\"hors-vault\",\"readOnly\":false,\"calls\":[\"startup_info\"],\"prefetched\":1}",
+  "A1_linkedFileIsReadOnly": "{\"readOnly\":true,\"badge\":true,\"status\":\"Lecture seule\",\"statusTitle\":\"Lecture seule : fichier atteint par un lien depuis une note hors vault (Rocksy n'écrit que dans un vault ou dans un fichier ouvert par vous)\",\"textUnchanged\":true,\"dirty\":false,\"saves\":0,\"saveCalls\":0,\"stateReadOnly\":true}",
+  "A2_ctrlSExplains": "Lecture seule : fichier atteint par un lien depuis une note hors vault (Rocksy n'écrit que dans un vault ou dans un fichier ouvert par vous)",
+  "A3_txtIsReadOnly": "{\"readOnly\":true,\"dirty\":false,\"toast\":\"Lecture seule : Rocksy n'enregistre que les fichiers .md et .markdown\",\"status\":\"Lecture seule\",\"saveCalls\":0}",
+  "B1_pathNotAllowed": "{\"error\":\"Ouverture refusée : ce fichier n'est ni dans un vault enregistré, ni un fichier que vous avez ouvert, ni à côté d'un tel fichier (path not allowed (outside the registered vaults and the files opened by the user): C:\\\\Prive\\\\secret.md)\",\"shown\":\"Impossible d'ouvrir ce fichierOuverture refusée : ce fichier n'est ni dans un vault enregistré, ni un fichier que vous avez ouvert, ni à côté d'un tel fichier (path not allowed (outside the registered vaults and the files opened by the user): C:\\\\Prive\\\\secret.md)C:\\\\Prive\\\\secret.md\"}",
+  "B2_fileTooLarge": "{\"error\":\"Fichier trop volumineux : Rocksy n'ouvre pas les fichiers de plus de 50 Mo (C:\\\\Temp\\\\Notes\\\\gros.md is too large to open (60.0 MiB, limit 50.0 MiB))\"}",
+  "C1_networkLinkNotOpened": "{\"toasts\":[\"Lien vers un chemin réseau : non ouvert (//serveur/partage/x.md)\",\"Lien vers un chemin réseau : non ouvert (file://serveur/partage/x.md)\",\"Lien vers un chemin réseau : non ouvert (\\\\\\\\serveur\\\\partage\\\\note)\"],\"newTabs\":0,\"newReads\":0,\"external\":0}",
+  "C2_networkImageChip": "{\"chips\":[\"Image : chemin réseau non chargé : //serveur/partage/a.png\",\"Image : chemin réseau non chargé : \\\\\\\\serveur\\\\p\\\\b.png\"],\"imgsToNetwork\":0}"
+ },
+ "errors": [],
+ "csp": []
+}

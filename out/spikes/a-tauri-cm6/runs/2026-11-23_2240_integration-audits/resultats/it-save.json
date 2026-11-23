@@ -1,0 +1,259 @@
+{
+ "scenario": "it-save",
+ "saved": {
+  "attachMs": 611,
+  "treeEntries": 1052,
+  "before_lf": {
+   "size": 10666,
+   "sha1": "4d54b2da9a481e8384f85a2b570de8a3e9855001",
+   "bom": false,
+   "crlf": 0,
+   "lf": 121,
+   "endsWithNewline": true,
+   "tailHex": "70726f206f75656c656c2e0a"
+  },
+  "open_lf": "{\"loaded\":true,\"error\":null,\"ms\":125,\"name\":\"Décision plan 00434\"}",
+  "pos_lf": "{\"line\":15,\"text\":\"### Risque Oumentdancon réouvi\",\"state\":{\"name\":\"Décision plan 00434\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795394619356,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}}",
+  "ctrlS_waitMs_lf": 64,
+  "state_lf": "{\"name\":\"Décision plan 00434\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469991510,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "diff_lf": {
+   "before": {
+    "size": 10666,
+    "sha1": "4d54b2da9a481e8384f85a2b570de8a3e9855001",
+    "bom": false,
+    "crlf": 0,
+    "lf": 121,
+    "endsWithNewline": true,
+    "tailHex": "70726f206f75656c656c2e0a"
+   },
+   "after": {
+    "size": 10675,
+    "sha1": "5741dd4d621cf8c5de3c886c553b8e612fb3002f",
+    "bom": false,
+    "crlf": 0,
+    "lf": 121,
+    "endsWithNewline": true,
+    "tailHex": "70726f206f75656c656c2e0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "### Risque Oumentdancon réouvi"
+     ],
+     "after": [
+      "### Risque Oumentdancon réouvi MODIF-LF"
+     ]
+    }
+   ]
+  },
+  "before_crlf": {
+   "size": 10809,
+   "sha1": "81c49028feb299df8a4cc8f6ae4b2a4477ab46a0",
+   "bom": false,
+   "crlf": 121,
+   "lf": 0,
+   "endsWithNewline": true,
+   "tailHex": "726f206f75656c656c2e0d0a"
+  },
+  "open_crlf": "{\"loaded\":true,\"error\":null,\"ms\":9,\"name\":\"Test CRLF\"}",
+  "pos_crlf": "{\"line\":15,\"text\":\"### Risque Oumentdancon réouvi MODIF-CRLF MODIF-CR\",\"state\":{\"name\":\"Test CRLF\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795460140999,\"eol\":\"crlf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}}",
+  "ctrlS_waitMs_crlf": 31,
+  "state_crlf": "{\"name\":\"Test CRLF\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469991968,\"eol\":\"crlf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "diff_crlf": {
+   "before": {
+    "size": 10809,
+    "sha1": "81c49028feb299df8a4cc8f6ae4b2a4477ab46a0",
+    "bom": false,
+    "crlf": 121,
+    "lf": 0,
+    "endsWithNewline": true,
+    "tailHex": "726f206f75656c656c2e0d0a"
+   },
+   "after": {
+    "size": 10820,
+    "sha1": "868f9d86b043a1c869f098e8c2e281e21baf42bd",
+    "bom": false,
+    "crlf": 121,
+    "lf": 0,
+    "endsWithNewline": true,
+    "tailHex": "726f206f75656c656c2e0d0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "### Risque Oumentdancon réouvi MODIF-CRLF MODIF-CRLF\r"
+     ],
+     "after": [
+      "### Risque Oumentdancon réouvi MODIF-CRLF MODIF-CRLF MODIF-CRLF\r"
+     ]
+    }
+   ]
+  },
+  "before_bom": {
+   "size": 10689,
+   "sha1": "624a4caa4295bd871002465a3c08b8da981bce81",
+   "bom": true,
+   "crlf": 0,
+   "lf": 121,
+   "endsWithNewline": true,
+   "tailHex": "70726f206f75656c656c2e0a"
+  },
+  "open_bom": "{\"loaded\":true,\"error\":null,\"ms\":10,\"name\":\"Test BOM\"}",
+  "pos_bom": "{\"line\":15,\"text\":\"### Risque Oumentdancon réouvi MODIF-BOM MODIF-BOM\",\"state\":{\"name\":\"Test BOM\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795460141082,\"eol\":\"lf\",\"bom\":true,\"status\":\"Enregistré\",\"banner\":null}}",
+  "ctrlS_waitMs_bom": 38,
+  "state_bom": "{\"name\":\"Test BOM\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469992079,\"eol\":\"lf\",\"bom\":true,\"status\":\"Enregistré\",\"banner\":null}",
+  "diff_bom": {
+   "before": {
+    "size": 10689,
+    "sha1": "624a4caa4295bd871002465a3c08b8da981bce81",
+    "bom": true,
+    "crlf": 0,
+    "lf": 121,
+    "endsWithNewline": true,
+    "tailHex": "70726f206f75656c656c2e0a"
+   },
+   "after": {
+    "size": 10699,
+    "sha1": "18b4697b196b7be418c20fa6512d816671e06b09",
+    "bom": true,
+    "crlf": 0,
+    "lf": 121,
+    "endsWithNewline": true,
+    "tailHex": "70726f206f75656c656c2e0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "### Risque Oumentdancon réouvi MODIF-BOM MODIF-BOM"
+     ],
+     "after": [
+      "### Risque Oumentdancon réouvi MODIF-BOM MODIF-BOM MODIF-BOM"
+     ]
+    }
+   ]
+  },
+  "before_bomcrlf": {
+   "size": 10816,
+   "sha1": "2f6acc0c626dbc81f3c468420f1293b6a840510f",
+   "bom": true,
+   "crlf": 120,
+   "lf": 0,
+   "endsWithNewline": false,
+   "tailHex": "6570726f206f75656c656c2e"
+  },
+  "open_bomcrlf": "{\"loaded\":true,\"error\":null,\"ms\":8,\"name\":\"Test BOM CRLF sans fin\"}",
+  "pos_bomcrlf": "{\"line\":15,\"text\":\"### Risque Oumentdancon réouvi MODIF-BOMCRLF MODIF\",\"state\":{\"name\":\"Test BOM CRLF sans fin\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795460141167,\"eol\":\"crlf\",\"bom\":true,\"status\":\"Enregistré\",\"banner\":null}}",
+  "ctrlS_waitMs_bomcrlf": 32,
+  "state_bomcrlf": "{\"name\":\"Test BOM CRLF sans fin\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469992182,\"eol\":\"crlf\",\"bom\":true,\"status\":\"Enregistré\",\"banner\":null}",
+  "diff_bomcrlf": {
+   "before": {
+    "size": 10816,
+    "sha1": "2f6acc0c626dbc81f3c468420f1293b6a840510f",
+    "bom": true,
+    "crlf": 120,
+    "lf": 0,
+    "endsWithNewline": false,
+    "tailHex": "6570726f206f75656c656c2e"
+   },
+   "after": {
+    "size": 10830,
+    "sha1": "ca10d997d41c90ad2813a835de618365bc97a0c1",
+    "bom": true,
+    "crlf": 120,
+    "lf": 0,
+    "endsWithNewline": false,
+    "tailHex": "6570726f206f75656c656c2e"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "### Risque Oumentdancon réouvi MODIF-BOMCRLF MODIF-BOMCRLF\r"
+     ],
+     "after": [
+      "### Risque Oumentdancon réouvi MODIF-BOMCRLF MODIF-BOMCRLF MODIF-BOMCRLF\r"
+     ]
+    }
+   ]
+  },
+  "autosaveOn": true,
+  "autosaveDelayMs": 2029,
+  "diff_autosave": {
+   "before": {
+    "size": 10666,
+    "sha1": "4d54b2da9a481e8384f85a2b570de8a3e9855001",
+    "bom": false,
+    "crlf": 0,
+    "lf": 121,
+    "endsWithNewline": true,
+    "tailHex": "70726f206f75656c656c2e0a"
+   },
+   "after": {
+    "size": 10680,
+    "sha1": "7ca8b48daa9f179c261b54b4e722fd50399c6935",
+    "bom": false,
+    "crlf": 0,
+    "lf": 121,
+    "endsWithNewline": true,
+    "tailHex": "70726f206f75656c656c2e0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "### Risque Oumentdancon réouvi"
+     ],
+     "after": [
+      "### Risque Oumentdancon réouvi MODIF-LF AUTO"
+     ]
+    }
+   ]
+  },
+  "undo_lenBefore": 10381,
+  "undo_afterType": "{\"len\":10393,\"same\":false}",
+  "undo_afterCtrlZx2": "{\"len\":10376,\"endsAuto\":false,\"hasTyped\":false}",
+  "redo_afterCtrlYx2": "{\"len\":10393,\"hasTyped\":true}",
+  "undo_afterCtrlZx6more": "{\"len\":10367,\"hasTyped\":false,\"hasAuto\":false,\"hasModif\":false}",
+  "beforeExternal": "{\"name\":\"Décision plan 00434\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469994338,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "externalReloadDelayMs": 21,
+  "afterExternalClean": "{\"state\":{\"name\":\"Décision plan 00434\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469994940,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null},\"toast\":\"« Décision plan 00434 » rechargé (modifié sur le disque)\"}",
+  "conflictBannerDelayMs": 1977,
+  "conflictState": "{\"name\":\"Décision plan 00434\",\"dirty\":true,\"saving\":false,\"conflict\":\"external\",\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469994940,\"eol\":\"lf\",\"bom\":false,\"status\":\"Conflit\",\"banner\":\"Ce fichier a été modifié sur le disque alors que vous avez des changements non enregistrés.Recharger depuis le disqueÉcr\"}",
+  "afterReloadClick": "{\"state\":{\"name\":\"Décision plan 00434\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469994972,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null},\"has2\":true}",
+  "saveConflictDelayMs": 15,
+  "saveConflictState": "{\"name\":\"Décision plan 00434\",\"dirty\":true,\"saving\":false,\"conflict\":\"save\",\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469994972,\"eol\":\"lf\",\"bom\":false,\"status\":\"Conflit\",\"banner\":\"Enregistrement refusé : ce fichier a changé sur le disque depuis son ouverture.Recharger depuis le disqueÉcraser avec ma\"}",
+  "overwriteDelayMs": 16,
+  "__disk": "---\nauthor: idée\nstatus: qualitéy\nsource: projet\nversion: revue\narea: équipe\nmodified: 2024-01-18\naliases: [synthèse]\ntype: scénario\nproject: idée\n---\n## Arbitrage Talacaire baairementeux\nViri tenmarricor martalkoré nivi conri. Euxkodan ionpe pe luten acmareux rériaclu aireelvivi. Proaire euxpropro taleuxelcor corproairelu tendédé acsolel peré oudantal baairementeux propro aireionba danludécor euxpeel talsolmar tenaireluion lutalaireaire corniluni euxni euxbape ridépe ouelel pesol menttenac protalcon. Ac\n\n### Risque Oumentdancon réouvi\nSolmar. Solréac accorouni elprosol airecormentment oudé ousolcorri déba pecontenvi ritaleuxba soltal euxeuxoupro acpro luré aireel elproba. Pe. Ionionkoré eux pedéconten niconréeux acmareux tenperéba bamentviment marmar dékovi solmentel lunieux révi aireaire bael airecorré oukotencon euxnibani airesoltal. Dan accorsolion\n\n# Scénario Ouelripe vimentbasol\nEuxnibani tenpepe badandan coracouou vital tenviniion aireionba oudanou koviré talprotalion riprosol ouelripe taldé réniel viou promentpro. Ionairetal talri propeko acba démentconsol luproou niel koviré. Viou ioncon aire niten iontenel kocorcor prodan corniluni décon pe martalkoré airecorré danaire\n\n#### Synthèse Pro komarcon\nVi ioncon pebaoudan procon coracouou solionnicor luaireba pevilu euxpropro ionlurécon. Corkosolcor. Taleuxdanion. Pe solri. Coracni tenperéba solnimarcon rériri elvi. Aireion vimentbasol. Balu riel conrécordé lutalaireaire solaceldé solmareux lusol ko corpro. Baiondéou rivioutal euxbape tenpepe danelpe corkosolcor accorouni\n\n- Oumentdancon rédépro cor ionionkoré tenprodé solré nielconlu kodélu provi #projet/corsol Talconsolsol solluel nielconlu danludécor mentpro\n  - Acsolel elvi talmentlu martalkoré\n- Ritaleuxba actalviri acba proiondanvi\n\n\n## Hypothèse Solrieux ellu\nTenaireluion taltal corsol vipro badandan solconeuxpro dépro dansol acrisol acprodéaire dédancor rimarcortal taleuxdanion niten barépe elsoltenlu danmarpromar lueleuxcon ouou conko rivioutal ricor pecorou ouniion. Corpro proou peou répe babasol tenment aireel ouréelment coneuxou euxcorpe marmar komarcon contallu\n\n### Synthèse Tenac acion\nVivi aireniconaire danac oukopeko corkosolcor proni ionpe elmar dépekoac viou menttaltalou riproelpe oulucor dandédéeux tenluou ionpe tenment coracouou déouvidé euxni acmarcor aireion mentba taldé ac. Récor airecorré menteux danac ionairetal acelmareux ré mention pepeko acelmareux conri peba\n\n#### Cadre Déouvidé ouriréri\nDépro euxtenac danairesol aireion pementel martal teneux aireaccor. Ouconmentri lutalsolni mentpro euxbaelcon danlu aireionri luten euxni elbadécor koelpeion tenoument lusol conac iontalkovi euxcorpe. Taltennipro talri eltenmentmar actenlupe dépro batalricor talmentlu. Récor elproba tenni barépe peionac récorelri bamentcon\n\n| Élément | État | Valeur |\n| --- | --- | :---: |\n| conba | bloqué | #theme37 |\n| nibaoument | ok | #cycle/tendé/atelier |\n| pement | ok | #format/démardé/bilan #source/oudanou/decision |\n\n\nTalprotalion kodé rielel koacré danba euxeuxoupro peprodancon corni #lieu/déouvidé/risque Solsolni rémartal\n\n\n## Budget Pro proba\nKoprodé conréel elbadécor tallumentten viaireni taleuxelcor vimarpro ridé euxko ko elprosol. Tenrédé pesoltenvi airecordé cor ionoudéni talaire acmentment aireeuxcor koprodé solréréion solaceldé. Airement iontalré ionluionsol perévidan mentelni protalcon iontenel ri protalcon ionré. Rieux dépekoac talcorri oueuxtal rériri\n\nProconvipro airedé taleuxelcor eldanac ac [[Cadre plan 00003#Résumé]] Vimarpro soleuxpe corac mention [[Note synthèse 00048|plan]] Baniairemar ni airetalmentba [[Modèle hypothèse 00026#Résumé]] Baréionsol ioncon\n\n\n## Idée Solou acmareux #format/mentsol/recette\n\n\n### Veille Dépekoac tallumentten\nEuxbaelcon teneuxten. Niouel acvi danairesol oulucor ioncon acpro cor vi koprodé cordédémar récor niproac talconba acba koacré iondan elprosol tensol luconko ko kovisol taltal corpro pecon ouou déba koni tentalionion bamentconri pesoltenvi rieuxlu. Acninisol mentrépro riréac proou\n\n## Données Euxtenac acsolel\nRéprodéou aireaccor airement tendé ionluionsol ouprodanpro baniairemar teneuxten réouvi euxbaelcon vielriac démentconsol. Bamentcon vivibaten tendédé talmentlu rielel débabasol oumartalni ouniion rériri pementel danridétal mentviniac. Coroucorion elment ouelripe niouel proba oukoconpe acelmareux cor ionoudéni. Procorko pro. Iontalré mention\n\n# Revue Euxbaelcon conrécordé.\nNipedéou viou riprosol pecorou solkoré taltennipro dandédéeux pesoltenvi markoréko acion solréac oudantal cordédémar kovisol talten mentviniac lunieux baconri promarpro. Ion baoucon conacel solionnicor décon pecorou talion mentnivi ouconmentri. Danba ouconmentri solmentel euxmar déouvidé badébaten acaireion airedéri peionac\n\n# Audit Koionni rédépro\nConac peou dé pevielvi solmentel luten euxbape kobaeuxpro mentelpe prolument ouniion riprosol talconrémar nimentacpro tenniion kolueux aireaccor rieuxlu niel. Soleuxpe elprosol dédancor vitalpe niel ouconmentri propro tenmarricor talmentlu kodéac. Solaireko solelkoel conpe koionni lument kopedan ko kopedan.\n\n## Budget Ouelripe tenmentdélu\nVikoproac sol ousolcorri rériaclu ouré bapekopro tenniion dépekoac conko. Talionac viaireni elrikoment accorsolion. Bamentcon danaire balu acprodéaire. Euxdan bamentcon acprodéaire acelmareux contalpeion ionoudéni mentlu répe solment. Proconion. Ouelel oudénipro talmentlu danrévicor. Ionouionac ouvi nidan réel promarpro euxkoaire\n\n- [x] Danconelou baoucon rériri eldanac pepemar talacaire\n- [x] Teneuxten euxbaelcon proconion lubaba kotalouré\n- [x] Nioupro euxel concon vivi. Proconion riactal\n    - [x] Euxpeel ionsol sol.\n- [x] Rériaclu bamar ri luprobaou.\n    - [ ] Peba nielconlu vidanacvi\n\n\n### Stratégie Solaireko koeux\nAcrisol. Proiondanvi peré acelmareux menteuxion tenniion euxeuxoupro tenrédé oueuxtal riproelpe ri. Acmareux solaceldé kodéac protalcon aireoucon con euxbape cormentoucon taleuxdanion niconrimar tenko acpetalko tenionou solelkoel elprocor acpetalko aireelvivi airesoltal. Solelactal solluel con soldéioneux euxtenac. Badan danpro lutalaireaire\n\n#### Qualité Kovisol bael\nCormentoucon proconvipro elrikoment proni oudédanri contalri déprocon corpro pevielvi. Taldé ellu nidanko danoupe. Nivi rémentdan badé ripevi airecorré acelmareux rirédan proaire ionmar elprosol iondanoudan vimar ellu kodé aireionba pepeeux luproou ououconré danac airetenlu pro tenionou solmentel mentelpe\n\n### Plan Corrésoldan aireel\nProconmar rémartal luproou proconion pedanacment markoréko riproelpe. Tentenpeba conrécordé solaireko conment déprocon danridétal procorko koko danac récorelri elproba koviré proconvipro. Soltal. Proni solou solréac rilu ridé perévidan bamentconri talconsolsol oudénipro koel ionsol bapekopro rékomardan coroucorion bamentsol koba\n\n### Revue Acconel ripesol\nPeouou dépekoac elrikoment dékovi kodélu cordan aire convitalpro marsol. Pecon elmentpe prokocor contallu provi kotalouré markoréko acconel ouriréri soleuxpe vivibaten tendédé acnitalel niten danpro solmentel talconrémar rieuxlu vital tenmentten rénipeac pebaoudan riprosol solsolni oumentdancon elprocor soltalkolu euxtenac\n\n## Stratégie Baoutal peprodancon\nElprocor talba badébaten kodélu vivibaten. Rétalou riaireairecor solmar danairesol proiondanvi aceux markoréko talconba danconelou talconba kotalou. Pecorou ionbari peionac kopedan proou airecorré tenment bamentviment corpro tenviniion tenvi provi tendédé elment nioupro convitalpro conri niconrimar ionmenttalpro baoucon solelkoel\n\n#### Étude Oudénipro acdésoldé\nCormentoucon elaire déprocon dé oumentdancon euxko talconsolsol conri conri taldé déba kosol proba solment conrécordé corproairelu pedanacment talelrivi oument corproairelu euxcon conconmarni euxnibani acvi teneux luten récor proel acdaneux elment niten airement pepeeux aireeuxcor propro tenac eltenmentmar\n\n# Chantier Corni récor\nTenvi mentpro badandan corpro pebaoudan airesoltal proba proiondanvi acrisol pepro tennipro petalsol concon acpro luré rériaclu mentdanvieux dékovi danviriaire nidanko aireion taleuxdanion luré dépeni promentpro dékovi danoupe ellu corrésoldan pesoltenvi ouou. Baconri iondanoudan pecon peouou corproairelu mentrépro\n\n## Plan Lukodéri accorouni\nNipe taltal proiondanvi danviriaire proconmar tentalionion airecorré bael rimarcortal ouré solou aireaire ba lu elaire danmentionré iontenel. Lusol proconion contalri réprodéou pebaoudan. Luri bape koviré aceux ionmarment nipe badan ousoloudé cor corvibaten euxtenac lueleuxcon pevilu proaireelcon ellu\n\n# Atelier Euxcon airesolba\nTeneuxten airecormentment oulucor ouré solviou euxdanactal condé bamentsol dé peré acnitalel euxeuxoupro répe actalviri. Solelkoel aireniconaire ionbaionion nielconlu kotalouré proaire corsol. Vimarpro réionionlu. Aceux euxmar nibaoument martal vital vimarpro lutalsolni rémentdan. Peko acelmareux aireelvivi solaccon. Oudé mentrépro\n\n#### Audit Tenperéba tenaireluion\nDanluko riactal airesoltal koelpeion euxel. Ionbari mentnivi ionmentdédan ionionkoré kopedan ionbaionion danludécor promentpro corsol proou contenel provi dé. Vikobael euxko talconsolsol niconrimar répe koprodé peré el. Cormentoucon ionmentdédan contenel tenni prolucon kodélu solri proconmar solmareux niproac talaire\n\n> [!quote]- Architecture Euxkodan ouniion\n> Pecon mention euxcor. Acconel elko pepeko\n\n\n#### Cadre Danlu ripevi\nKolueux rielel baairementeux tal solmentel protalcon rédépro danairesol ionmarment soldéko réelaireel euxkodan talmardanpe euxel provi batalricor airement. Koeux euxni kotalouré propro déaccon ionpe taldé martalkoré dé lueleuxcon airekoré ionoudéni tenac coroucorion acsolel danpro vikoproac vipro riproelpe baouproac\n\n#### Risque Tensol viaireni\nTenment viaireni rirépeel badan euxeuxoupro lusol taltennipro tenluou pepeeux koni bamar taldan. Niouel acprodéaire réelaireel elprosol riaireairecor perévidan corproairelu ouridanment ripesol accorsolion solconeuxpro danmentionré lutalsolni acaireion ouelripe. Tendan pevilu ritaleuxba nidéré. Talri déouvidé nibaoument décon actenlupe niconréeux\n\n### Revue Lulu prolument\nBape déba. Riouelac. Rilubapro riouelac martal tenperéba baréionsol pevilu talba marion ousolcorri tenni danridétal kocorcor talsolmar iontenel aireion koko acprodéaire riprosol vielriac dékovi procon oudantal bamentcon bako markoréko conri batalricor soleuxpe ionmentdédan ellu corniluni tenoument pepro ouelel.\n\nLIGNE EXTERNE 1\nLIGNE EXTERNE 2\n",
+  "afterOverwrite": "{\"name\":\"Décision plan 00434\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469997757,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "inboxListing": [
+   "Décision plan 00434.md",
+   "Format bilan 00103.md",
+   "Outil roadmap 00241.md",
+   "Outil scénario 00305.md",
+   "Revue processus 00020.md",
+   "Réunion atelier 00064.md",
+   "Synthèse note 00033.md",
+   "Test BOM CRLF sans fin.md",
+   "Test BOM.md",
+   "Test CRLF.md",
+   "__Scénario format 00073.md",
+   "plan 000-04",
+   "équipe 000-00"
+  ]
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  10048
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

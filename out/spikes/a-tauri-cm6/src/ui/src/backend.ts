@@ -25,6 +25,8 @@ export interface Backend {
   addVault(path: string): Promise<VaultRef[]>;
   removeVault(path: string): Promise<VaultRef[]>;
   openVault(path: string): Promise<Tree>;
+  /** Stops following the folder, persists then releases the index of this vault (`close_vault`). */
+  closeVault(path: string): Promise<void>;
   buildTags(vaultPath: string): Promise<void>;
   tagsList(query: string): Promise<TagCount[]>;
   tagFragments(tag: string, limit?: number): Promise<Fragment[]>;
@@ -40,6 +42,10 @@ export interface Backend {
   logTiming(name: string, ms: number): Promise<void>;
   /** Opens an http(s)/mailto link in the system browser or mail client (`open_external`); rejects with `invalid` otherwise. */
   openExternal(url: string): Promise<void>;
+  /** Tells the backend the UI is alive, right after `close-requested` (`close_ack`). */
+  closeAck(): Promise<void>;
+  /** Everything is saved, or the user confirmed: the backend exits (`quit`). */
+  quit(): Promise<void>;
   /** Subscribes to a core event. Returns the unsubscribe function. */
   on<K extends keyof BackendEvents>(event: K, cb: (payload: BackendEvents[K]) => void): () => void;
   /** URL usable in `<img src>` for a local absolute path. */
@@ -106,6 +112,7 @@ function tauriBackend(): Backend {
     addVault: (path) => call("add_vault", { path }),
     removeVault: (path) => call("remove_vault", { path }),
     openVault: (path) => call("open_vault", { path }),
+    closeVault: (path) => call("close_vault", { path }),
     buildTags: (vaultPath) => call("build_tags", { vaultPath }),
     tagsList: (query) => call("tags_list", { query }),
     tagFragments: (tag, limit) => call("tag_fragments", limit == null ? { tag } : { tag, limit }),
@@ -119,6 +126,8 @@ function tauriBackend(): Backend {
     pickFile: () => call("pick_file"),
     logTiming: (name, ms) => call("log_timing", { name, ms }),
     openExternal: (url) => call("open_external", { url }),
+    closeAck: () => call("close_ack"),
+    quit: () => call("quit"),
     on: (event, cb) => subscribe(event, cb),
     assetUrl: (absPath) => convertFileSrc(absPath),
     // Under Tauri the core intercepts drops and emits `open-files`: nothing to do here.

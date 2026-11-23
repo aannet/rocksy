@@ -1,0 +1,53 @@
+{
+ "scenario": "a5-integrity",
+ "saved": {
+  "attachMs": 579,
+  "treeEntries": 1049,
+  "I1_readOnlyTour": "{\"images\":12,\"canvasNodes\":150,\"imageTab\":\"_ASSETS/Pasted image 0000000.png\",\"tagRows\":131,\"tags\":614,\"fragments\":50,\"outLinks\":446,\"unresolved\":27,\"search\":93,\"docsDirty\":0,\"csp\":[]}",
+  "I1_close": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 30
+  },
+  "I1_vaultDiff_afterReadOnlySession": {
+   "added": [],
+   "removed": [],
+   "changed": [],
+   "files": 4658
+  },
+  "I1_dataDir": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ],
+  "I2_close": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 37
+  },
+  "I2_vaultDiff_afterOneSave": {
+   "added": [],
+   "removed": [],
+   "changed": [
+    "00_INBOX\\Décision plan 00434.md"
+   ],
+   "files": 4658
+  }
+ },
+ "errors": [
+  {
+   "console": "[{\"type\": \"string\", \"value\": \"Viewport failed to stabilize\"}]"
+  }
+ ],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  26776,
+  30740
+ ],
+ "csp": null,
+ "ourPidsStillAlive": []
+}

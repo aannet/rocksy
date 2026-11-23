@@ -1,0 +1,51 @@
+{
+ "scenario": "a5-perf-x20",
+ "saved": {
+  "attachMs": 604,
+  "P1_firstIndexing": "{\"firstIndexingSinceAddVaultMs\":1754,\"events\":[{\"atMs\":1974,\"fromCache\":false,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760,\"reread\":9760,\"pending\":0,\"ms\":1635}],\"metrics\":{\"openVaultMs\":97}}",
+  "P1_lastEvents_3sLater": "[{\"fromCache\":false,\"searchReady\":true,\"searchDocs\":9760,\"reread\":9760,\"pending\":0}]",
+  "P2_openBigNote": "{\"open\":{\"loaded\":true,\"error\":null,\"ms\":76,\"name\":\"__DAILY NOTES SYNTH\"},\"autosave\":false,\"bytes\":309938,\"lines\":4372}",
+  "P2_typingLatency_middle": "{\"n\":216,\"update\":{\"median\":2.4,\"p95\":4.6,\"max\":12.6},\"withLayout\":{\"median\":2.5,\"p95\":4.8,\"max\":13.2}}",
+  "P2_typingLatency_start": "{\"n\":216,\"update\":{\"median\":3,\"p95\":4.5,\"max\":5.6},\"withLayout\":{\"median\":3,\"p95\":4.6,\"max\":5.7}}",
+  "P3_saveFile_318KB_fromPage": "{\"bytes\":310370,\"runs\":[26.4,22.1,20.1,21.1,20.7,26.7,19.5],\"median\":21.1,\"min\":19.5,\"max\":26.7}",
+  "P4_searchLatency_realTyping": "{\"searches\":86,\"keystrokeToPainted\":{\"median\":100.7,\"p95\":118.1,\"max\":151.1},\"callRoundTrip\":{\"median\":7.2,\"p95\":17.7,\"max\":24.7},\"backendMs\":{\"median\":3.9,\"p95\":13.2,\"max\":18.5},\"filesMax\":9760}",
+  "P5_externalChange": "{\"treeShowsFileAfterMs\":567,\"searchFindsFileAfterMs\":577}",
+  "P6_sessionBeforeRestart": "{\"dirty\":[\"__DAILY NOTES SYNTH\"],\"session\":{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\settled-x20\",\"active\":\"__DAILY NOTES SYNTH\"}}",
+  "P6_relaunchAttachMs": 718,
+  "P6_relaunch_index": "{\"events\":[{\"atMs\":336,\"fromCache\":true,\"searchReady\":false,\"files\":9760,\"searchDocs\":0},{\"atMs\":388,\"fromCache\":true,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760},{\"atMs\":445,\"fromCache\":false,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760,\"reread\":0,\"pending\":0}],\"editorReadyMs\":178,\"treeReadyMs\":360}",
+  "P6_relaunch_timings": {
+   "ui-script-start": 604,
+   "ui-nav-response-end": 606,
+   "ui-backend-ready": 606,
+   "ui-nav-dom-content-loaded": 606,
+   "ui-startup-info": 608,
+   "ui-first-file-prefetched": 608,
+   "ui-events-wired": 610,
+   "ui-vault-requested": 610,
+   "vault-listing": 779,
+   "ui-tree-received": 829,
+   "ui-tree-applied": 866,
+   "tree-ready": 923,
+   "ui-file-read": 5995,
+   "ui-state-created": 6004,
+   "editor-ready": 593,
+   "editor-ready-since-navigation": 594,
+   "editor-painted-since-navigation": 682,
+   "ui-first-frame": 688
+  },
+  "P6_memory": {
+   "webviewMb": 403,
+   "appPrivateMb": 40,
+   "appMb": 122,
+   "webviewProcs": 6
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  1744,
+  10612
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

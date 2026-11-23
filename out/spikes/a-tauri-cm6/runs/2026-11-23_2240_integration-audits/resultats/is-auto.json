@@ -1,0 +1,15 @@
+{
+ "scenario": "is-auto",
+ "saved": {
+  "attachMs": 671,
+  "entries": 1053,
+  "P5_typingWhileSaving_bigNote": "{\"latency\":{\"n\":474,\"update\":{\"median\":2.3,\"p95\":3.3,\"max\":8.3},\"withLayout\":{\"median\":2.4,\"p95\":3.5,\"max\":8.7}},\"saves\":12,\"saveMs\":{\"min\":20.5,\"median\":22.7,\"max\":119.5},\"keystrokesDuringSaves\":24,\"conflict\":null,\"error\":null}"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  33856
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

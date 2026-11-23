@@ -5,7 +5,7 @@ mod common;
 
 use common::{make_vault, TempDir};
 use rocksy_core::{
-    add_vault, open_tree, read_file, reconcile_tree, save_file, ApiError, BuildOptions,
+    add_vault, open_tree, read_file, reconcile_tree, save_file, ApiError, BuildOptions, ErrorCode,
     CancelToken, ErrorKind, TagIndex, TagsProgress, TagsReady, VaultRef,
 };
 use serde_json::{json, Value};
@@ -25,6 +25,21 @@ fn error_and_payload_json_shapes() {
         assert_eq!(value, json!({"kind": name, "message": "msg"}));
         let back: ApiError = serde_json::from_value(value).unwrap();
         assert_eq!(back.kind, kind);
+        assert_eq!(back.code, None);
+    }
+    // `code` is only present on the errors a caller tells apart.
+    for (code, name) in [
+        (ErrorCode::TooLarge, "too_large"),
+        (ErrorCode::NetworkPath, "network_path"),
+        (ErrorCode::NotAllowed, "not_allowed"),
+        (ErrorCode::ReadOnly, "read_only"),
+        (ErrorCode::Gone, "gone"),
+    ] {
+        let error = ApiError::invalid("msg").with_code(code);
+        let value = serde_json::to_value(&error).unwrap();
+        assert_eq!(value, json!({"kind": "invalid", "message": "msg", "code": name}));
+        assert_eq!(serde_json::from_value::<ApiError>(value).unwrap(), error);
+        assert_eq!(code.as_str(), name);
     }
     assert_eq!(serde_json::to_value(TagsProgress { done: 3, total: 9 }).unwrap(), json!({"done": 3, "total": 9}));
     assert_eq!(
@@ -48,6 +63,40 @@ fn file_content_and_save_result_json() {
     assert_eq!(saved["size"], 4);
     assert!(saved["mtimeMs"].as_u64().unwrap() > 0);
     assert_eq!(saved.as_object().unwrap().len(), 2);
+
+    // The refusals the UI reacts to carry their code.
+    let txt = dir.write("n.txt", "abc");
+    let refused = save_file(&txt, "x", None).unwrap_err();
+    assert_eq!((refused.kind, refused.code), (ErrorKind::Invalid, Some(ErrorCode::ReadOnly)));
+    let gone = save_file(&dir.path().join("absent.md"), "x", Some(1)).unwrap_err();
+    assert_eq!((gone.kind, gone.code), (ErrorKind::Conflict, Some(ErrorCode::Gone)));
+    let changed = save_file(&p, "x", Some(1)).unwrap_err();
+    assert_eq!((changed.kind, changed.code), (ErrorKind::Conflict, None));
+}
+
+#[test]
+fn index_ready_carries_its_vault_and_the_links_generation() {
+    let dir = TempDir::new("contract-index-ready");
+    let vault = make_vault(&dir, "vault");
+    let data = dir.path().join("appdata");
+    let index = TagIndex::new();
+    let empty = serde_json::to_value(index.index_ready(true, 0, None)).unwrap();
+    assert_eq!(empty["vault"], "");
+    let report = index.reconcile(&data, &vault, BuildOptions::default(), &CancelToken::new(), |_| {}).unwrap().unwrap();
+    let ready = serde_json::to_value(index.index_ready(false, 7, Some(&report))).unwrap();
+    let mut keys: Vec<&str> = ready.as_object().unwrap().keys().map(String::as_str).collect();
+    keys.sort_unstable();
+    assert_eq!(
+        keys,
+        [
+            "files", "fromCache", "links", "linksGeneration", "ms", "occurrences", "pending", "removed",
+            "reread", "searchDocs", "searchReady", "tags", "unresolvedLinks", "vault"
+        ]
+    );
+    assert_eq!(ready["pending"], 0);
+    assert!(empty.get("pending").is_none(), "no pending count without a reconcile");
+    assert_eq!(ready["vault"], open_tree(&data, &vault).unwrap().root);
+    assert_eq!(ready["linksGeneration"].as_u64().unwrap(), index.links_generation());
 }
 
 #[test]

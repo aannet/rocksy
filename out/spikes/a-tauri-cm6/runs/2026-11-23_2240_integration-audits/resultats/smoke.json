@@ -1,0 +1,16 @@
+{
+ "scenario": "smoke",
+ "saved": {
+  "attachMs": 590,
+  "readyWaitMs": 487,
+  "info": "{\"metrics\":{\"mark:script-start\":111,\"mark:backend-ready\":112,\"mark:startup-info\":134,\"mark:file-read\":157,\"firstFilePrefetched\":1,\"mark:state-created\":174,\"editorReadyMs\":273,\"mark:events-wired\":290,\"mark:vault-requested\":290,\"mark:first-frame\":339,\"editorPaintedMs\":362,\"mark:nav-response-end\":27,\"mark:nav-dom-content-loaded\":116,\"mark:first-file-prefetched\":1},\"kind\":\"tauri\",\"url\":\"http://tauri.localhost/\",\"doc\":\"__DAILY NOTES SYNTH\",\"bytes\":309938,\"vault\":null,\"w\":1280,\"h\":820,\"dpr\":2}",
+  "timings": "{\"ms\":851.0,\"name\":\"editor-ready\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":855}\n{\"ms\":273.0,\"name\":\"editor-ready-since-navigation\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":855}\n{\"ms\":362.0,\"name\":\"editor-painted-since-navigation\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":942}\n{\"ms\":111.0,\"name\":\"ui-script-start\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":943}\n{\"ms\":112.0,\"name\":\"ui-backend-ready\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":944}\n{\"ms\":134.0,\"name\":\"ui-startup-info\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":944}\n{\"ms\":157.0,\"name\":\"ui-file-read\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":945}\n{\"ms\":174.0,\"name\":\"ui-state-created\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":946}\n{\"ms\":290.0,\"name\":\"ui-events-wired\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":946}\n{\"ms\":290.0,\"name\":\"ui-vault-requested\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":947}\n{\"ms\":339.0,\"name\":\"ui-first-frame\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":948}\n{\"ms\":27.0,\"name\":\"ui-nav-response-end\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":949}\n{\"ms\":116.0,\"name\":\"ui-nav-dom-content-loaded\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":949}\n{\"ms\":1.0,\"name\":\"ui-first-file-prefetched\",\"processStartMs\":1795469962593,\"sinceProcessStartMs\":951}\n"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  7556
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

@@ -1,41 +1,131 @@
 // Read-only viewer for JSON Canvas files (F6). Never writes anything: there is no save path here.
 import { renderInlineHtml } from "./editor/syntax";
 import { iconSvg } from "./icons";
-import { isImagePath } from "./paths";
+import { isImagePath, safeRelPath } from "./paths";
 
-interface CNode {
+export interface CNode {
+  /** "" when the file gave no usable id (such a node cannot carry edges). */
   id: string;
-  type: string;
+  type: "text" | "file" | "link" | "group";
   x: number;
   y: number;
   width: number;
   height: number;
   text?: string;
+  /** Checked relative path (no "..", never absolute): the only form handed to the host. */
   file?: string;
+  /** Raw `file` value that was refused (leaves the vault / absolute / network): shown as text, never loaded. */
+  blockedFile?: string;
   url?: string;
   label?: string;
-  color?: string;
+  /** Validated CSS colour (`#hex`) or "". */
+  color: string;
 }
-interface CEdge {
-  id: string;
+export type CSide = "top" | "right" | "bottom" | "left";
+export interface CEdge {
   fromNode: string;
   toNode: string;
-  fromSide?: string;
-  toSide?: string;
-  toEnd?: string;
-  fromEnd?: string;
+  fromSide?: CSide;
+  toSide?: CSide;
+  arrowEnd: boolean;
+  arrowStart: boolean;
   label?: string;
-  color?: string;
+  color: string;
+}
+export interface CanvasModel {
+  nodes: CNode[];
+  edges: CEdge[];
+  /** Nodes and edges left out because a field was invalid. */
+  dropped: number;
 }
 
 export interface CanvasHost {
-  assetUrl(rel: string): string;
+  /** URL of an image of the canvas, or null when the path is refused or not a file of the vault. */
+  assetUrl(rel: string): string | null;
   open(rel: string): void;
   readText(rel: string): Promise<string | null>;
 }
 
 const PRESET: Record<string, string> = { "1": "#f0717f", "2": "#f0a04b", "3": "#e8c454", "4": "#6fcf79", "5": "#53c8e0", "6": "#b28cf5" };
-const colorOf = (c: string | undefined, fallback: string) => (c ? (PRESET[c] ?? (/^#[0-9a-f]{3,8}$/i.test(c) ? c : fallback)) : fallback);
+const colorOf = (c: unknown, fallback: string): string => {
+  if (typeof c !== "string" || !c) return fallback;
+  if (Object.prototype.hasOwnProperty.call(PRESET, c)) return PRESET[c];
+  return /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(c) ? c : fallback;
+};
+
+// ---------------------------------------------------------------- parsing (pure, unit-tested)
+// A canvas is untrusted input (synced vault, file received from someone): every field used below is typed here,
+// and nothing read from the file ever reaches an HTML or CSS string.
+
+const COORD_MAX = 1e7;
+const SIDES = new Set(["top", "right", "bottom", "left"]);
+const TYPES = new Set(["text", "file", "link", "group"]);
+
+/** A finite number (or a plain decimal string such as "120"), clamped; null for anything else. */
+function coord(v: unknown): number | null {
+  const n = typeof v === "number" ? v : typeof v === "string" && /^-?\d{1,9}(\.\d{1,9})?$/.test(v) ? Number(v) : NaN;
+  return Number.isFinite(n) ? Math.max(-COORD_MAX, Math.min(COORD_MAX, n)) : null;
+}
+const idOf = (v: unknown): string => (typeof v === "string" ? v : typeof v === "number" && Number.isFinite(v) ? String(v) : "");
+const str = (v: unknown): string | undefined => (typeof v === "string" && v ? v : undefined);
+const side = (v: unknown): CSide | undefined => (typeof v === "string" && SIDES.has(v) ? (v as CSide) : undefined);
+
+/** Parses and validates a JSON Canvas. Throws only when the text is not JSON. Invalid nodes and edges are dropped. */
+export function normalizeCanvas(json: string): CanvasModel {
+  const data: unknown = JSON.parse(json || "{}");
+  const obj = (data && typeof data === "object" ? data : {}) as { nodes?: unknown; edges?: unknown };
+  const rawNodes = Array.isArray(obj.nodes) ? obj.nodes : [];
+  const rawEdges = Array.isArray(obj.edges) ? obj.edges : [];
+  const nodes: CNode[] = [];
+  const edges: CEdge[] = [];
+  const ids = new Set<string>();
+  let dropped = 0;
+  for (const raw of rawNodes) {
+    const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+    const x = coord(r.x);
+    const y = coord(r.y);
+    const width = coord(r.width);
+    const height = coord(r.height);
+    if (x == null || y == null || width == null || height == null || width < 0 || height < 0) {
+      dropped++;
+      continue;
+    }
+    const type = (typeof r.type === "string" && TYPES.has(r.type) ? r.type : "text") as CNode["type"];
+    let id = idOf(r.id);
+    if (ids.has(id)) id = "";
+    if (id) ids.add(id);
+    const n: CNode = { id, type, x, y, width, height, color: colorOf(r.color, "") };
+    if (type === "group") n.label = str(r.label);
+    else if (type === "link") n.url = str(r.url);
+    else if (type === "file") {
+      const file = str(r.file);
+      const safe = file ? safeRelPath(file) : null;
+      if (safe) n.file = safe;
+      else if (file) n.blockedFile = file;
+    } else n.text = str(r.text);
+    nodes.push(n);
+  }
+  for (const raw of rawEdges) {
+    const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+    const fromNode = idOf(r.fromNode);
+    const toNode = idOf(r.toNode);
+    if (!fromNode || !toNode || !ids.has(fromNode) || !ids.has(toNode)) {
+      dropped++;
+      continue;
+    }
+    edges.push({
+      fromNode,
+      toNode,
+      fromSide: side(r.fromSide),
+      toSide: side(r.toSide),
+      arrowEnd: r.toEnd !== "none",
+      arrowStart: r.fromEnd === "arrow",
+      label: str(r.label),
+      color: colorOf(r.color, "#6b7a99"),
+    });
+  }
+  return { nodes, edges, dropped };
+}
 
 /** Minimal block Markdown for text cards: headings, lists, paragraphs (inline via renderInlineHtml). */
 function cardHtml(text: string): string {
@@ -60,7 +150,7 @@ function cardHtml(text: string): string {
   return html + (inList ? "</ul>" : "");
 }
 
-function anchor(n: CNode, side: string | undefined, toward: CNode): [number, number, number, number] {
+function anchor(n: CNode, side: CSide | undefined, toward: CNode): [number, number, number, number] {
   let s = side;
   if (!s) {
     const dx = toward.x + toward.width / 2 - (n.x + n.width / 2);
@@ -73,85 +163,141 @@ function anchor(n: CNode, side: string | undefined, toward: CNode): [number, num
   return [n.x + n.width, n.y + n.height / 2, 1, 0];
 }
 
+/** Path data of an edge (numbers only) and the position of its label. */
+export function edgeGeometry(a: CNode, b: CNode, e: CEdge): { d: string; labelX: number; labelY: number } {
+  const [x1, y1, dx1, dy1] = anchor(a, e.fromSide, b);
+  const [x2, y2, dx2, dy2] = anchor(b, e.toSide, a);
+  const k = Math.max(40, Math.hypot(x2 - x1, y2 - y1) * 0.4);
+  return { d: `M${x1} ${y1} C${x1 + dx1 * k} ${y1 + dy1 * k} ${x2 + dx2 * k} ${y2 + dy2 * k} ${x2} ${y2}`, labelX: (x1 + x2) / 2, labelY: (y1 + y2) / 2 - 6 };
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+function svgEl(name: string, attrs: Record<string, string | number>): SVGElement {
+  const el = document.createElementNS(SVG_NS, name);
+  for (const k in attrs) el.setAttribute(k, String(attrs[k]));
+  return el;
+}
+function htmlEl<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text != null) el.textContent = text;
+  return el;
+}
+
 export function mountCanvas(host: HTMLElement, json: string, api: CanvasHost): () => void {
-  let nodes: CNode[] = [];
-  let edges: CEdge[] = [];
+  let model: CanvasModel;
   try {
-    const data = JSON.parse(json || "{}");
-    nodes = Array.isArray(data.nodes) ? data.nodes : [];
-    edges = Array.isArray(data.edges) ? data.edges : [];
+    model = normalizeCanvas(json);
   } catch (e) {
-    host.innerHTML = `<div class="empty is-error"><h2>Canvas illisible</h2><div>${String((e as Error).message).replace(/</g, "&lt;")}</div></div>`;
+    const box = htmlEl("div", "empty is-error");
+    box.append(htmlEl("h2", "", "Canvas illisible"), htmlEl("div", "", String((e as Error).message)));
+    host.replaceChildren(box);
     return () => undefined;
   }
-  const world = document.createElement("div");
-  world.className = "canvas-world";
-  const byId = new Map(nodes.map((n) => [n.id, n]));
-  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => (c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : "&quot;"));
+  const { nodes, edges } = model;
+  const world = htmlEl("div", "canvas-world");
+  const byId = new Map<string, CNode>();
+  for (const n of nodes) if (n.id) byId.set(n.id, n);
+
+  const svg = svgEl("svg", { width: 1, height: 1 });
+  const defs = svgEl("defs", {});
+  const marker = svgEl("marker", { id: "cv-arrow", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" });
+  marker.appendChild(svgEl("path", { d: "M0 0 10 5 0 10z", fill: "context-stroke" }));
+  defs.appendChild(marker);
+  svg.appendChild(defs);
+  for (const e of edges) {
+    const a = byId.get(e.fromNode);
+    const b = byId.get(e.toNode);
+    if (!a || !b) continue;
+    const g = edgeGeometry(a, b, e);
+    const path = svgEl("path", { d: g.d, fill: "none", stroke: e.color, "stroke-width": 2.2 });
+    if (e.arrowEnd) path.setAttribute("marker-end", "url(#cv-arrow)");
+    if (e.arrowStart) path.setAttribute("marker-start", "url(#cv-arrow)");
+    svg.appendChild(path);
+    if (e.label) {
+      const label = svgEl("text", { class: "cv-edge-label", x: g.labelX, y: g.labelY, "text-anchor": "middle" });
+      label.textContent = e.label;
+      svg.appendChild(label);
+    }
+  }
+  world.appendChild(svg);
 
   // Groups first (behind), then cards.
   const ordered = [...nodes].sort((a, b) => (a.type === "group" ? 0 : 1) - (b.type === "group" ? 0 : 1));
   for (const n of ordered) {
     const el = document.createElement("div");
-    el.style.cssText = `left:${n.x}px;top:${n.y}px;width:${n.width}px;height:${n.height}px`;
-    const col = colorOf(n.color, "");
+    el.style.left = n.x + "px";
+    el.style.top = n.y + "px";
+    el.style.width = n.width + "px";
+    el.style.height = n.height + "px";
+    const col = n.color;
     if (col) el.style.borderColor = col;
     if (n.type === "group") {
       el.className = "cv-group";
-      if (col) el.style.background = col + "14";
-      if (n.label) el.innerHTML = `<div class="cv-group-label">${esc(n.label)}</div>`;
+      // Alpha suffix only on #rrggbb (the other validated forms would become an invalid or different colour).
+      if (col.length === 7) el.style.background = col + "14";
+      if (n.label) el.appendChild(htmlEl("div", "cv-group-label", n.label));
     } else if (n.type === "file" && n.file) {
       const file = n.file;
       if (isImagePath(file)) {
         el.className = "cv-node cv-image";
-        const img = document.createElement("img");
-        img.src = api.assetUrl(file);
-        img.alt = file;
-        img.draggable = false;
-        el.appendChild(img);
+        const url = api.assetUrl(file);
+        if (url) {
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = file;
+          img.draggable = false;
+          el.appendChild(img);
+        } else el.appendChild(htmlEl("div", "cv-excerpt", `Image non chargée (introuvable dans le vault) : ${file.slice(0, 200)}`));
       } else {
         el.className = "cv-node cv-file";
         const name = file.slice(file.lastIndexOf("/") + 1).replace(/\.md$/i, "");
-        el.innerHTML = `<div class="cv-title" data-open="${esc(file)}">${iconSvg("file", 14)}<span>${esc(name)}</span></div><div class="cv-excerpt"></div>`;
+        const title = htmlEl("div", "cv-title");
+        title.innerHTML = iconSvg("file", 14); // constant markup, no canvas data
+        title.dataset.open = file;
+        title.appendChild(htmlEl("span", "", name));
+        const excerpt = htmlEl("div", "cv-excerpt");
+        el.append(title, excerpt);
         if (/\.md$/i.test(file)) {
           void api.readText(file).then((t) => {
-            const ex = el.querySelector(".cv-excerpt");
-            if (ex && t) ex.textContent = t.replace(/^---\n[\s\S]*?\n---\n/, "").trim().slice(0, 500);
+            if (t) excerpt.textContent = t.replace(/^---\n[\s\S]*?\n---\n/, "").trim().slice(0, 500);
           });
         }
       }
+    } else if (n.type === "file" && n.blockedFile) {
+      // Path refused by safeRelPath: shown, never opened, read or loaded as an image.
+      el.className = "cv-node cv-file";
+      const title = htmlEl("div", "cv-title");
+      title.innerHTML = iconSvg("file", 14);
+      title.style.cursor = "default";
+      title.appendChild(htmlEl("span", "", n.blockedFile.slice(0, 200)));
+      el.append(title, htmlEl("div", "cv-excerpt", "Chemin refusé (hors du vault) : fichier non chargé."));
     } else if (n.type === "link") {
       el.className = "cv-node cv-link";
-      el.innerHTML = `<div class="cv-body">${iconSvg("external", 14)}<span>${esc(n.url ?? "")}</span></div>`;
+      const body = htmlEl("div", "cv-body");
+      body.innerHTML = iconSvg("external", 14);
+      body.appendChild(htmlEl("span", "", n.url ?? ""));
+      el.appendChild(body);
     } else {
       el.className = "cv-node cv-text";
-      el.innerHTML = `<div class="cv-body">${cardHtml(n.text ?? "")}</div>`;
+      const body = htmlEl("div", "cv-body");
+      body.innerHTML = cardHtml(n.text ?? ""); // escaped by renderInlineHtml / escapeHtml
+      el.appendChild(body);
     }
     world.appendChild(el);
   }
 
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"><defs><marker id="cv-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="context-stroke"/></marker></defs>`;
-  for (const e of edges) {
-    const a = byId.get(e.fromNode);
-    const b = byId.get(e.toNode);
-    if (!a || !b) continue;
-    const [x1, y1, dx1, dy1] = anchor(a, e.fromSide, b);
-    const [x2, y2, dx2, dy2] = anchor(b, e.toSide, a);
-    const k = Math.max(40, Math.hypot(x2 - x1, y2 - y1) * 0.4);
-    const col = colorOf(e.color, "#6b7a99");
-    const end = e.toEnd === "none" ? "" : ' marker-end="url(#cv-arrow)"';
-    const startM = e.fromEnd === "arrow" ? ' marker-start="url(#cv-arrow)"' : "";
-    svg += `<path d="M${x1} ${y1} C${x1 + dx1 * k} ${y1 + dy1 * k} ${x2 + dx2 * k} ${y2 + dy2 * k} ${x2} ${y2}" fill="none" stroke="${col}" stroke-width="2.2"${end}${startM}/>`;
-    if (e.label) svg += `<text class="cv-edge-label" x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2 - 6}" text-anchor="middle">${esc(e.label)}</text>`;
-  }
-  world.insertAdjacentHTML("afterbegin", svg + "</svg>");
-
-  const hud = document.createElement("div");
-  hud.className = "cv-hud";
-  hud.innerHTML = `<button data-z="out" title="Zoom arrière">−</button><span class="cv-zoom">100 %</span><button data-z="in" title="Zoom avant">+</button><button data-z="fit" title="Ajuster">⤢</button>`;
-  const badge = document.createElement("div");
-  badge.className = "cv-badge";
-  badge.textContent = `Canvas en lecture seule · ${nodes.length} nœuds · ${edges.length} liens`;
+  const hud = htmlEl("div", "cv-hud");
+  const hudButton = (z: string, title: string, text: string) => {
+    const b = htmlEl("button", "", text);
+    b.dataset.z = z;
+    b.title = title;
+    return b;
+  };
+  const zoomLabel = htmlEl("span", "cv-zoom", "100 %");
+  hud.append(hudButton("out", "Zoom arrière", "−"), zoomLabel, hudButton("in", "Zoom avant", "+"), hudButton("fit", "Ajuster", "⤢"));
+  const badge = htmlEl("div", "cv-badge");
+  badge.textContent = `Canvas en lecture seule · ${nodes.length} nœuds · ${edges.length} liens` + (model.dropped ? ` · ${model.dropped} éléments invalides ignorés` : "");
   host.append(world, hud, badge);
 
   let scale = 1;
@@ -166,7 +312,7 @@ export function mountCanvas(host: HTMLElement, json: string, api: CanvasHost): (
     world.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
     host.style.backgroundSize = `${24 * scale}px ${24 * scale}px`;
     host.style.backgroundPosition = `${tx}px ${ty}px`;
-    (hud.querySelector(".cv-zoom") as HTMLElement).textContent = Math.round(scale * 100) + " %";
+    zoomLabel.textContent = Math.round(scale * 100) + " %";
     host.dataset.scale = scale.toFixed(3);
     host.dataset.tx = String(Math.round(tx));
   };

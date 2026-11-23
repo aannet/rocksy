@@ -1,0 +1,304 @@
+{
+ "scenario": "a5-loss",
+ "saved": {
+  "attachMs": 784,
+  "treeEntries": 1057,
+  "E_before_eol-lf": {
+   "size": 63,
+   "sha1": "182b1774a16fcf9b81e3edfa80fb1623b2406013",
+   "bom": false,
+   "crlf": 0,
+   "lf": 8,
+   "endsWithNewline": true,
+   "tailHex": "6c69676e6520450a66696e0a"
+  },
+  "E_open_eol-lf": "{\"name\":\"eol-lf\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469819916,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "E_diff_eol-lf": {
+   "before": {
+    "size": 63,
+    "sha1": "182b1774a16fcf9b81e3edfa80fb1623b2406013",
+    "bom": false,
+    "crlf": 0,
+    "lf": 8,
+    "endsWithNewline": true,
+    "tailHex": "6c69676e6520450a66696e0a"
+   },
+   "after": {
+    "size": 69,
+    "sha1": "f20eaacb6ad4f6f6bb1222720d544ce66743a72c",
+    "bom": false,
+    "crlf": 0,
+    "lf": 8,
+    "endsWithNewline": true,
+    "tailHex": "6c69676e6520450a66696e0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "ligne C"
+     ],
+     "after": [
+      "ligne C MODIF"
+     ]
+    }
+   ]
+  },
+  "E_before_eol-crlf": {
+   "size": 71,
+   "sha1": "ef469fef69040f368ff586b101cafa9db4935881",
+   "bom": false,
+   "crlf": 8,
+   "lf": 0,
+   "endsWithNewline": true,
+   "tailHex": "676e6520450d0a66696e0d0a"
+  },
+  "E_open_eol-crlf": "{\"name\":\"eol-crlf\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469819917,\"eol\":\"crlf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "E_diff_eol-crlf": {
+   "before": {
+    "size": 71,
+    "sha1": "ef469fef69040f368ff586b101cafa9db4935881",
+    "bom": false,
+    "crlf": 8,
+    "lf": 0,
+    "endsWithNewline": true,
+    "tailHex": "676e6520450d0a66696e0d0a"
+   },
+   "after": {
+    "size": 77,
+    "sha1": "11f4017ac39b7e48e8ec6444de314162e0e5f362",
+    "bom": false,
+    "crlf": 8,
+    "lf": 0,
+    "endsWithNewline": true,
+    "tailHex": "676e6520450d0a66696e0d0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "ligne C\r"
+     ],
+     "after": [
+      "ligne C MODIF\r"
+     ]
+    }
+   ]
+  },
+  "E_before_eol-bom": {
+   "size": 66,
+   "sha1": "d992683f7a10f6f61269888a619b388701906d5d",
+   "bom": true,
+   "crlf": 0,
+   "lf": 8,
+   "endsWithNewline": true,
+   "tailHex": "6c69676e6520450a66696e0a"
+  },
+  "E_open_eol-bom": "{\"name\":\"eol-bom\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469819917,\"eol\":\"lf\",\"bom\":true,\"status\":\"Enregistré\",\"banner\":null}",
+  "E_diff_eol-bom": {
+   "before": {
+    "size": 66,
+    "sha1": "d992683f7a10f6f61269888a619b388701906d5d",
+    "bom": true,
+    "crlf": 0,
+    "lf": 8,
+    "endsWithNewline": true,
+    "tailHex": "6c69676e6520450a66696e0a"
+   },
+   "after": {
+    "size": 72,
+    "sha1": "fa3c5b6b5aed49cdb70a93c3e9b504313477207d",
+    "bom": true,
+    "crlf": 0,
+    "lf": 8,
+    "endsWithNewline": true,
+    "tailHex": "6c69676e6520450a66696e0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "ligne C"
+     ],
+     "after": [
+      "ligne C MODIF"
+     ]
+    }
+   ]
+  },
+  "E_before_eol-bomcrlf": {
+   "size": 74,
+   "sha1": "cfca72a38068804fc1bfb33d96594983ff7bd177",
+   "bom": true,
+   "crlf": 8,
+   "lf": 0,
+   "endsWithNewline": true,
+   "tailHex": "676e6520450d0a66696e0d0a"
+  },
+  "E_open_eol-bomcrlf": "{\"name\":\"eol-bomcrlf\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469819918,\"eol\":\"crlf\",\"bom\":true,\"status\":\"Enregistré\",\"banner\":null}",
+  "E_diff_eol-bomcrlf": {
+   "before": {
+    "size": 74,
+    "sha1": "cfca72a38068804fc1bfb33d96594983ff7bd177",
+    "bom": true,
+    "crlf": 8,
+    "lf": 0,
+    "endsWithNewline": true,
+    "tailHex": "676e6520450d0a66696e0d0a"
+   },
+   "after": {
+    "size": 80,
+    "sha1": "0dae5d82a23163af38b61cf397388d6249724630",
+    "bom": true,
+    "crlf": 8,
+    "lf": 0,
+    "endsWithNewline": true,
+    "tailHex": "676e6520450d0a66696e0d0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "ligne C\r"
+     ],
+     "after": [
+      "ligne C MODIF\r"
+     ]
+    }
+   ]
+  },
+  "E_before_eol-mixte": {
+   "size": 83,
+   "sha1": "4416ba0343ff0812d1e736ae5fcc82c23b60950e",
+   "bom": false,
+   "crlf": 5,
+   "lf": 2,
+   "endsWithNewline": true,
+   "tailHex": "0d0a66696e2063726c660d0a"
+  },
+  "E_open_eol-mixte": "{\"name\":\"eol-mixte\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469819920,\"eol\":\"mixed\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "E_diff_eol-mixte": {
+   "before": {
+    "size": 83,
+    "sha1": "4416ba0343ff0812d1e736ae5fcc82c23b60950e",
+    "bom": false,
+    "crlf": 5,
+    "lf": 2,
+    "endsWithNewline": true,
+    "tailHex": "0d0a66696e2063726c660d0a"
+   },
+   "after": {
+    "size": 90,
+    "sha1": "94e8343acf0faf6fe053993e40405fff2137b716",
+    "bom": false,
+    "crlf": 6,
+    "lf": 1,
+    "endsWithNewline": true,
+    "tailHex": "0d0a66696e2063726c660d0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "replace",
+     "before": [
+      "ligne C lf"
+     ],
+     "after": [
+      "ligne C lf MODIF\r"
+     ]
+    }
+   ]
+  },
+  "E_mixte_bytesAfter": "23204d697874650d0a6c69676e652041206c660a6c69676e6520422063726c660d0a6c69676e652043206c66204d4f4449460d0a6c69676e6520442063726c660d0a6c69676e6520452063726c660d0a66696e2063726c660d0a",
+  "E_diff_mixte_addedLine": {
+   "before": {
+    "size": 90,
+    "sha1": "94e8343acf0faf6fe053993e40405fff2137b716",
+    "bom": false,
+    "crlf": 6,
+    "lf": 1,
+    "endsWithNewline": true,
+    "tailHex": "0d0a66696e2063726c660d0a"
+   },
+   "after": {
+    "size": 105,
+    "sha1": "b0d3f764b1b4ffed645f0b5cd982a663d936adc1",
+    "bom": false,
+    "crlf": 7,
+    "lf": 1,
+    "endsWithNewline": true,
+    "tailHex": "0d0a66696e2063726c660d0a"
+   },
+   "changedBlocks": 1,
+   "changes": [
+    {
+     "op": "insert",
+     "before": [],
+     "after": [
+      "ligne ajoutee\r"
+     ]
+    }
+   ]
+  },
+  "E_mixte_bytesAfterAddedLine": "23204d697874650d0a6c69676e652041206c660a6c69676e6520422063726c660d0a6c69676e652043206c66204d4f4449460d0a6c69676e6520442063726c660d0a6c69676e6520616a6f757465650d0a6c69676e6520452063726c660d0a66696e2063726c660d0a",
+  "L1_before": "{\"autosave\":true}",
+  "L1_closeRightAfterTyping": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 125
+  },
+  "L1_onDisk": "# Fermeture\n\ntexte initial\nTEXTE-TAPE-JUSTE-AVANT-FERMETURE",
+  "L2_setup": "{\"doc\":\"fermeture\",\"autosave\":false}",
+  "L2a_closeRequest": {
+   "closeRequested": true,
+   "exited": false,
+   "exitMs": 1517
+  },
+  "L2a_dialog": "{\"title\":\"Un document n'est pas enregistré\",\"items\":[\"fermeture — modifications non enregistrées (enregistrement automatique désactivé)\"],\"buttons\":[\"Annuler\",\"Quitter sans enregistrer\",\"Enregistrer et quitter\"]}",
+  "L2a_aliveAfterCancel": true,
+  "L2a_afterCancel": "{\"dialog\":false,\"dirty\":true,\"textKept\":true}",
+  "L2a_onDiskAfterCancel": "# Fermeture\n\ntexte initial\nTEXTE-TAPE-JUSTE-AVANT-FERMETURE",
+  "L2b_closeRequest": {
+   "closeRequested": true,
+   "exited": false,
+   "exitMs": 1514
+  },
+  "L2b_exitAfterSaveMs": 197,
+  "L2b_onDiskAfterSaveAndQuit": "# Fermeture\n\ntexte initial\nTEXTE-TAPE-JUSTE-AVANT-FERMETURE BROUILLON-UN",
+  "L2c_setup": "{\"autosave\":false}",
+  "L2c_closeRequest": {
+   "closeRequested": true,
+   "exited": false,
+   "exitMs": 1521
+  },
+  "L2c_exitAfterDiscardMs": 193,
+  "L2c_onDiskAfterQuitWithoutSaving": "# Fermeture\n\ntexte initial\nTEXTE-TAPE-JUSTE-AVANT-FERMETURE BROUILLON-UN",
+  "L3_setup": "{\"autosave\":true}",
+  "L3_conflict": "{\"afterMs\":1562,\"state\":{\"name\":\"conflit\",\"dirty\":true,\"saving\":false,\"conflict\":\"external\",\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469819922,\"eol\":\"lf\",\"bom\":false,\"status\":\"Conflit\",\"banner\":\"Ce fichier a été modifié sur le disque alors que vous avez des changements non enregistrés.Recharger depuis le disqueÉcr\"},\"editorKeepsTyping\":true}",
+  "L3_onDisk_3sLater": "# Conflit\n\nCONTENU ECRIT PAR UN AUTRE PROGRAMME\n",
+  "L4_open": "{\"name\":\"a-supprimer\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469819923,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "L4_deleted": "{\"afterMs\":2746,\"state\":{\"name\":\"a-supprimer\",\"dirty\":false,\"saving\":false,\"conflict\":\"deleted\",\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795469819923,\"eol\":\"lf\",\"bom\":false,\"status\":\"Fichier supprimé\",\"banner\":\"Ce fichier a été supprimé ou déplacé sur le disque.Enregistrer quand même à cet emplacementFermer l'onglet\"},\"textKept\":true}",
+  "L4_fileRecreatedByItself": false,
+  "cspViolations": "[]",
+  "end_closeRequest(conflicts remain: a dialog is expected)": {
+   "closeRequested": true,
+   "exited": false,
+   "exitMs": 1511
+  },
+  "end_dialogWithConflicts": "{\"dialog\":true,\"items\":[\"conflit — conflit avec la version du disque\"],\"buttons\":[\"Annuler\",\"Quitter sans enregistrer\"]}"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  34172,
+  31760,
+  17692,
+  23748
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

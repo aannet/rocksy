@@ -1,0 +1,354 @@
+{
+ "scenario": "a5-order",
+ "saved": {
+  "attachMs": 624,
+  "A1_firstOpen_treeEntries": 1049,
+  "A1_firstOpen_indexWaitMs": 447,
+  "A1_firstOpen_events": "{\"events\":[\"tags-ready\",\"index-ready:search\"],\"last\":{\"n\":\"index-ready\",\"t\":487,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x1\",\"fromCache\":false,\"files\":488,\"searchReady\":true,\"searchDocs\":488,\"reread\":488,\"pending\":0},\"status\":\"Index ✓Auto ✓Live Previewx1\"}",
+  "A1_firstOpen_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   }
+  ],
+  "A1_switch_treeEntries": 1052,
+  "A1_switch_indexWaitMs": 315,
+  "A1_switch_events": "{\"events\":[\"tags-ready\",\"index-ready:search\"],\"last\":{\"n\":\"index-ready\",\"t\":2316,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\v1\",\"fromCache\":false,\"files\":491,\"searchReady\":true,\"searchDocs\":491,\"reread\":491,\"pending\":0},\"status\":\"Index ✓Auto ✓Live Previewv1\"}",
+  "A1_switch_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   },
+   {
+    "by": "open",
+    "ms": 5,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 2665
+   }
+  ],
+  "A1_back_fromSnapshot": true,
+  "A1_back_indexWaitMs": 35,
+  "A1_back_events": "{\"events\":[\"tags-ready:cache\",\"index-ready:cache:nosearch\",\"index-ready:cache:search\",\"tags-ready\",\"index-ready:search\"],\"last\":{\"n\":\"index-ready\",\"t\":3873,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x1\",\"fromCache\":false,\"files\":488,\"searchReady\":true,\"searchDocs\":488,\"reread\":0,\"pending\":0},\"status\":\"Index ✓Auto ✓Live Previewx1\"}",
+  "A1_back_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   },
+   {
+    "by": "open",
+    "ms": 5,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 2665
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 4502
+   }
+  ],
+  "A1_raw_buildThenOpen40ms": 1,
+  "A1_raw_buildThenOpen40ms_events": "{\"events\":[\"tags-ready:cache\",\"index-ready:cache:nosearch\",\"index-ready:cache:search\",\"tags-ready\",\"index-ready:search\"],\"last\":{\"n\":\"index-ready\",\"t\":5770,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\v1\",\"fromCache\":false,\"files\":491,\"searchReady\":true,\"searchDocs\":491,\"reread\":0,\"pending\":0},\"status\":\"Index ✓Auto ✓Live PreviewAucun vault\"}",
+  "A1_raw_buildThenOpen40ms_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   },
+   {
+    "by": "open",
+    "ms": 5,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 2665
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 4502
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 6407
+   }
+  ],
+  "A1_raw_buildThenOpen900ms": 1,
+  "A1_raw_buildThenOpen900ms_events": "{\"events\":[\"tags-ready:cache\",\"index-ready:cache:nosearch\",\"index-ready:cache:search\",\"tags-ready\",\"index-ready:search\"],\"last\":{\"n\":\"index-ready\",\"t\":7930,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x1\",\"fromCache\":false,\"files\":488,\"searchReady\":true,\"searchDocs\":488,\"reread\":0,\"pending\":0},\"status\":\"Index ✓Auto ✓Live PreviewAucun vault\"}",
+  "A1_raw_buildThenOpen900ms_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   },
+   {
+    "by": "open",
+    "ms": 5,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 2665
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 4502
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 6407
+   },
+   {
+    "by": "index",
+    "ms": 7,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 8573
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 9161
+   }
+  ],
+  "A1_raw_openThenBuild": 1,
+  "A1_raw_openThenBuild_events": "{\"events\":[\"tags-ready:cache\",\"index-ready:cache:nosearch\",\"index-ready:cache:search\",\"tags-ready\",\"index-ready:search\"],\"last\":{\"n\":\"index-ready\",\"t\":10359,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\v1\",\"fromCache\":false,\"files\":491,\"searchReady\":true,\"searchDocs\":491,\"reread\":0,\"pending\":0},\"status\":\"Index ✓Auto ✓Live PreviewAucun vault\"}",
+  "A1_raw_openThenBuild_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   },
+   {
+    "by": "open",
+    "ms": 5,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 2665
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 4502
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 6407
+   },
+   {
+    "by": "index",
+    "ms": 7,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 8573
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 9161
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 10988
+   }
+  ],
+  "A1_raw_switchSameTick": 1,
+  "A1_raw_switchSameTick_events": "{\"events\":[\"tags-ready:cache\",\"index-ready:cache:nosearch\",\"index-ready:cache:search\",\"tags-ready\",\"index-ready:search\"],\"last\":{\"n\":\"index-ready\",\"t\":11901,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x1\",\"fromCache\":false,\"files\":488,\"searchReady\":true,\"searchDocs\":488,\"reread\":0,\"pending\":0},\"status\":\"Index ✓Auto ✓Live PreviewAucun vault\"}",
+  "A1_raw_switchSameTick_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   },
+   {
+    "by": "open",
+    "ms": 5,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 2665
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 4502
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 6407
+   },
+   {
+    "by": "index",
+    "ms": 7,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 8573
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 9161
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 10988
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 12535
+   }
+  ],
+  "A1_beforeRestart_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   },
+   {
+    "by": "open",
+    "ms": 5,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 2665
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 4502
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 6407
+   },
+   {
+    "by": "index",
+    "ms": 7,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 8573
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 9161
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 10988
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 12535
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 14075
+   }
+  ],
+  "A1_restart_attachMs": 540,
+  "A1_restart_indexWaitMs": 317,
+  "A1_restart_events": "{\"events\":[{\"atMs\":247,\"fromCache\":true,\"searchReady\":false,\"files\":488,\"searchDocs\":0},{\"atMs\":248,\"fromCache\":true,\"searchReady\":true,\"files\":488,\"searchDocs\":488},{\"atMs\":248,\"fromCache\":false,\"searchReady\":true,\"files\":488,\"searchDocs\":488,\"reread\":0,\"pending\":0}],\"tree\":1049,\"status\":\"01_WORK/__DAILY NOTES SYNTH.mdIndex ✓35 019 mots · 309 938 car.EnregistréAuto ✓Live Previewx1\"}",
+  "A1_restart_listings": [
+   {
+    "by": "open",
+    "ms": 12,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 671
+   },
+   {
+    "by": "open",
+    "ms": 5,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 2665
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 4502
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 6407
+   },
+   {
+    "by": "index",
+    "ms": 7,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 8573
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 9161
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 10988
+   },
+   {
+    "by": "refresh",
+    "ms": 3,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 12535
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 14075
+   },
+   {
+    "by": "refresh",
+    "ms": 4,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 663
+   }
+  ],
+  "closed": "True True"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  24788,
+  27992
+ ],
+ "cspBeforeRestart": [],
+ "csp": null,
+ "ourPidsStillAlive": []
+}

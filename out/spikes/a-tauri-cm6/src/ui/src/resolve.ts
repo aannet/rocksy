@@ -1,6 +1,6 @@
 // Link and image resolution (pure logic, unit-tested).
 import type { TreeEntry } from "./types";
-import { basename, dirname, isAbsolute, joinAbs, normalizeRel, stripExt, toRel } from "./paths";
+import { basename, dirname, isAbsolute, isNetworkPath, joinAbs, normalizeRel, safeRelPath, stripExt, toRel } from "./paths";
 
 export interface WikiLink {
   target: string;
@@ -118,6 +118,21 @@ export interface ImageContext {
   index: FileIndex | null;
 }
 
+/**
+ * Turns a `file:` URL into a local path; other strings are returned unchanged. Returns null when the URL names a
+ * host or a network path (`file://server/x`, `file:////server/x`, `file:\\server\x`): those are not loadable.
+ */
+export function stripFileScheme(s: string): string | null {
+  const m = /^file:([\\/]*)([\s\S]*)$/i.exec(s);
+  if (!m) return s;
+  const slashes = m[1].length;
+  const rest = m[2];
+  if (slashes === 0) return rest;
+  if (/^[a-zA-Z]:([\\/]|$)/.test(rest)) return slashes <= 3 ? rest : null;
+  // `file:/x` and `file:///x` are local absolute paths; two slashes introduce a host, four or more a UNC path.
+  return slashes === 1 || slashes === 3 ? "/" + rest : null;
+}
+
 export type ImageTarget = { kind: "local"; abs: string } | { kind: "remote"; url: string } | { kind: "missing" };
 
 /**
@@ -135,7 +150,10 @@ export function resolveImage(src: string, ctx: ImageContext): ImageTarget {
   } catch {
     /* keep raw */
   }
-  s = s.replace(/^file:\/\/\/?/i, "");
+  const local = stripFileScheme(s);
+  // Network paths (UNC, `\\?\`, `file://host/…`) are never loaded: displaying the note must not open an SMB connection.
+  if (local == null || isNetworkPath(local)) return { kind: "missing" };
+  s = local;
   if (isAbsolute(s)) return { kind: "local", abs: s };
   const fileDir = dirname(ctx.fileAbs);
   const fileRel = ctx.vaultRoot ? toRel(ctx.vaultRoot, ctx.fileAbs) : null;
@@ -151,4 +169,45 @@ export function linkTextFor(rel: string, index: FileIndex): string {
   const isMd = /\.md$/i.test(name);
   const short = isMd ? stripExt(name) : name;
   return index.named(name).length > 1 ? (isMd ? stripExt(rel) : rel) : short;
+}
+
+/**
+ * True when a link or image source written in a note designates a network or device path (`\\server\share`,
+ * `//server/share`, `\\?\…`, `file://server/…`): such a source is never loaded nor opened. Same normalisation as `resolveImage`.
+ */
+export function isNetworkSource(src: string): boolean {
+  let s = src.trim();
+  if (s.startsWith("<") && s.endsWith(">")) s = s.slice(1, -1);
+  try {
+    s = decodeURIComponent(s);
+  } catch {
+    /* keep raw */
+  }
+  const local = stripFileScheme(s);
+  return local == null || isNetworkPath(local);
+}
+
+/** True when two trees list the same paths (same order, same kinds): nothing that depends on the set of files has to be rebuilt. */
+export function sameTreePaths(a: readonly TreeEntry[], b: readonly TreeEntry[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i].path !== b[i].path || a[i].isDir !== b[i].isDir) return false;
+  return true;
+}
+
+/**
+ * Absolute path of a file referenced by a canvas (`file` field, untrusted), or null when it must not be touched.
+ * In a vault the reference is looked up in the vault index (it has to be a file of the tree) and the result has to
+ * lie under the vault root; without index (tree not loaded yet) nothing resolves. Outside a vault the file has to
+ * stay under the folder of the canvas.
+ */
+export function resolveCanvasFile(ref: string, ctx: ImageContext): string | null {
+  const rel = safeRelPath(ref);
+  if (!rel) return null;
+  const inVault = !!ctx.vaultRoot && toRel(ctx.vaultRoot, ctx.fileAbs) != null;
+  const base = inVault ? ctx.vaultRoot! : dirname(ctx.fileAbs);
+  const hit = inVault ? (ctx.index?.has(rel) ?? null) : rel;
+  if (!hit) return null;
+  const abs = joinAbs(base, hit);
+  return toRel(base, abs) != null ? abs : null;
 }

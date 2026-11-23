@@ -1,0 +1,19 @@
+{
+ "scenario": "links",
+ "saved": {
+  "noLinkCallsBeforePanel": "{\"calls\":[],\"status\":\"Index ✓\",\"title\":\"569 notes · 43 tags · 3 947 liens (3 930 non résolus) · recherche : 569 notes\"}",
+  "linksOfLivePreview": "{\"back\":2,\"out\":5,\"sections\":[\"Liens entrants2\",\"Liens sortants1 non résolu5\"],\"sources\":[\"Callouts\",\"Tableaux et code\"],\"outgoing\":[\"Callouts00__DEMO\",\"Tableaux et code · les tableaux00__DEMO\",\"Callouts > Repliables00__DEMO\",\"Note inexistantenon résolu [X]\",\"Journal00__DEMO\"],\"calls\":[\"backlinks\",\"outgoing_links\"]}",
+  "backlinkClick_opensSourceAtLink": "{\"doc\":\"Callouts\",\"line0\":22,\"atCursor\":\"[[Live Preview]]\",\"panelNote\":\"Callouts\",\"back\":2,\"out\":1}",
+  "editing": "Callouts",
+  "afterSave_outgoingUpdated": "{\"out\":3,\"outgoing\":[\"Live Preview00__DEMO\",\"Journal00__DEMO\",\"Cible absentenon résolu [X]\"],\"sec\":[\"Liens entrants2\",\"Liens sortants1 non résolu3\"]}",
+  "outgoingClick_opens": "{\"active\":\"Live Preview\"}",
+  "journalBacklinks_afterSave": "{\"note\":\"Journal\",\"sources\":[\"Callouts\",\"Live Preview\"],\"back\":2}",
+  "imageBacklinks": "{\"note\":\"schema.png\",\"sections\":[\"Liens entrants9\"],\"sources\":[\"Tableaux et code\",\"__DAILY NOTES DEMO\"],\"embeds\":9}",
+  "outsideFileMessage": "Fichier hors vault : ses liens ne sont pas indexés.",
+  "unresolvedList": "{\"placeholder\":\"Liens non résolus (les 1 000 cibles les plus citées)…\",\"first\":[\"Déploiement contrat 3322 liens · 01__WORK/__DAILY NOTES DEMO (+1)\",\"Estimation validation 0432 liens · 05__PERSO/feuille-019/Version étude 00436 (+1)\",\"Étude risque 1382 liens · 01__WORK/__DAILY NOTES DEMO (+1)\"]}",
+  "unresolvedPick_opensSource": "{\"doc\":\"__DAILY NOTES DEMO\",\"atCursor\":\"[[Déploiement contra\"}",
+  "searchWithoutVault": "{\"disabled\":true,\"msg\":\"Aucun vault ouvert : la recherche porte sur les notes d'un vault.\",\"sidebarHidden\":false}"
+ },
+ "errors": [],
+ "csp": []
+}

@@ -1,0 +1,52 @@
+{
+ "scenario": "is-w1",
+ "saved": {
+  "attachMs": 595,
+  "entries": 1053,
+  "indexEvents_firstIndexing_w1": "[{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\w1\",\"fromCache\":false,\"files\":492,\"tags\":616,\"occurrences\":2899,\"links\":1416,\"unresolvedLinks\":27,\"linksGeneration\":499,\"searchReady\":true,\"searchDocs\":492,\"reread\":492,\"removed\":0,\"pending\":0,\"ms\":305,\"atMs\":687}]",
+  "P4_statusTextForEachIndexState": "{\"{\\\"fromCache\\\":true,\\\"searchReady\\\":false}\":\"Index : tags ✓ liens ✓ · recherche…\",\"{\\\"fromCache\\\":true,\\\"searchReady\\\":true}\":\"Index : vérification…\",\"{\\\"fromCache\\\":false,\\\"searchReady\\\":true,\\\"reread\\\":0,\\\"removed\\\":0}\":\"Index ✓\"}",
+  "P1_LF_results": "{\"info\":\"1 fichier · 2,7 ms\",\"rows\":[[\"Recherche LF.md\",2,22,11],[\"Recherche LF.md\",2,22,11],[\"Recherche LF.md\",8,15,11]]}",
+  "P1_LF_opened": "{\"doc\":\"Recherche LF\",\"line0\":2,\"col\":22,\"selected\":\"zygomatique\",\"flash\":1,\"marks\":2,\"bom\":false,\"eol\":\"lf\"}",
+  "P1_CRLF_secondMatch_results": "{\"info\":\"1 fichier · 1,5 ms\",\"rows\":[[\"Recherche CRLF.md\",2,22,8],[\"Recherche CRLF.md\",2,22,8],[\"Recherche CRLF.md\",8,15,8]]}",
+  "P1_CRLF_secondMatch_opened": "{\"doc\":\"Recherche CRLF\",\"line0\":8,\"col\":15,\"selected\":\"crlfzygo\",\"flash\":1,\"marks\":2,\"bom\":false,\"eol\":\"crlf\"}",
+  "P1_BOM_line0_results": "{\"info\":\"1 fichier · 1,5 ms\",\"rows\":[[\"Recherche BOM.md\",0,1,7],[\"Recherche BOM.md\",0,1,7],[\"Recherche BOM.md\",2,14,7]]}",
+  "P1_BOM_line0_opened": "{\"doc\":\"Recherche BOM\",\"line0\":0,\"col\":0,\"selected\":\"bomzygo\",\"flash\":1,\"marks\":2,\"bom\":true,\"eol\":\"lf\"}",
+  "P1_BOM_line2_results": "{\"info\":\"1 fichier · 1,5 ms\",\"rows\":[[\"Recherche BOM.md\",0,1,7],[\"Recherche BOM.md\",0,1,7],[\"Recherche BOM.md\",2,14,7]]}",
+  "P1_BOM_line2_opened": "{\"doc\":\"Recherche BOM\",\"line0\":2,\"col\":14,\"selected\":\"bomzygo\",\"flash\":1,\"marks\":2,\"bom\":true,\"eol\":\"lf\"}",
+  "P1_accents_ligature_results": "{\"info\":\"2 fichiers · 1,2 ms\",\"rows\":[[\"Recherche CRLF.md\",3,0,3],[\"Recherche CRLF.md\",3,0,3],[\"Recherche LF.md\",3,0,3],[\"Recherche LF.md\",3,0,3]]}",
+  "P1_accents_ligature_opened": "{\"doc\":\"Recherche CRLF\",\"line0\":3,\"col\":0,\"selected\":\"Été\",\"flash\":1,\"marks\":3,\"bom\":false,\"eol\":\"crlf\"}",
+  "P1_accents_termMarksInNote": "{\"marks\":[\"Été\",\"résumé\",\"œuvre\"]}",
+  "P2_before": "{\"back\":0,\"out\":[\"Décision plan 0043400_INBOX\",\"Note à créer par le watcher00_INBOX\",\"Format bilan 0010300_INBOX\",\"Format bilan 0010300_INBOX\"]}",
+  "P2_ctrlS_ms": 19,
+  "P2_afterSave_outgoing": "{\"out\":[\"Décision plan 0043400_INBOX\",\"Note à créer par le watcher00_INBOX\",\"Format bilan 0010300_INBOX\",\"Format bilan 0010300_INBOX\",\"Format bilan 0010300_INBOX\"],\"events\":2}",
+  "P2_targetBacklinks_afterSave": "{\"note\":\"Format bilan 00103\",\"sources\":[\"Recherche LF\",\"__DAILY NOTES SYNTH\"],\"back\":4}",
+  "P2_watcher_unresolvedBefore": "[]",
+  "P2_watcher_resolvedAfterMs": 0,
+  "P2_watcher_state": "{\"out\":[\"Décision plan 0043400_INBOX\",\"Note à créer par le watcher00_INBOX\",\"Format bilan 0010300_INBOX\",\"Format bilan 0010300_INBOX\",\"Format bilan 0010300_INBOX\"],\"searchFindsNewFile\":1,\"stillUnresolved\":false,\"treeHasFile\":true,\"lastEvent\":{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\w1\",\"fromCache\":false,\"files\":492,\"tags\":616,\"occurrences\":2899,\"links\":1417,\"unresolvedLinks\":27,\"linksGeneration\":500,\"searchReady\":true,\"searchDocs\":492,\"ms\":0,\"atMs\":5061}}",
+  "P3_list": "{\"placeholder\":\"Liens non résolus (27 cibles)…\",\"first\":\"Missing 000-03 liens · 00_INBOX/équipe 000-00/Décision revue 00395 (+2)\"}",
+  "P3_pick_cursorOnUnresolvedLink": "{\"doc\":\"Recherche LF\",\"line0\":15,\"col\":0,\"selected\":\"\",\"flash\":1,\"marks\":3,\"bom\":false,\"eol\":\"lf\"}",
+  "P5_ctrlS_bigNote_ms": [
+   31,
+   34,
+   36,
+   29,
+   35
+  ],
+  "P5_saveFile_invokeOnly_bigNote_ms": "[19.1,20.7,20.5,21,22.5]",
+  "autosaveOn": true,
+  "P5_typingDuringAutosave_bigNote": "{\"latency\":{\"n\":360,\"update\":{\"median\":2.7,\"p95\":4.1,\"max\":8},\"withLayout\":{\"median\":2.8,\"p95\":4.3,\"max\":8.1}},\"autosaves\":[23.8],\"dirty\":false}",
+  "mem_w1": {
+   "webviewMb": 516,
+   "appPrivateMb": 30,
+   "appMb": 44,
+   "webviewProcs": 6
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  32136
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

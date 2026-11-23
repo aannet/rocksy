@@ -15,6 +15,11 @@ export class LinksPanel {
   private out: OutLink[] = [];
   private folded = { in: false, out: false };
   private shownPath: string | null = null;
+  /** What the last completed request was made for: vault, note, `linksGeneration`. */
+  private shownKey: string | null = null;
+  /** Signature of what is in the DOM (results and display state). */
+  private shownSig: string | null = null;
+  private dataSig = "";
 
   constructor(private app: App) {
     this.body.className = "sb-body links-panel";
@@ -61,27 +66,55 @@ export class LinksPanel {
   private message(text: string): void {
     this.back = [];
     this.out = [];
-    this.content.innerHTML = `<div class="search-msg">${text}</div>`;
+    this.shownKey = null;
+    this.shownPath = null;
+    const html = `<div class="search-msg">${text}</div>`;
+    if (this.shownSig !== "msg:" + html) {
+      this.shownSig = "msg:" + html;
+      this.content.innerHTML = html;
+    }
   }
 
-  /** Reloads the links of the active note (tab change, save, index-ready, panel shown). */
-  async refresh(): Promise<void> {
-    const req = ++this.req;
+  private setHead(html: string): void {
+    if (this.head.dataset.h !== html) {
+      this.head.dataset.h = html;
+      this.head.innerHTML = html;
+    }
+  }
+
+  /**
+   * Shows the links of the active note (tab change, index-ready, panel shown). Nothing is asked again while the
+   * vault, the note and `linksGeneration` are the ones already shown; `force` asks anyway. A save that
+   * changes links is followed by an `index-ready` with a new generation. The DOM is only replaced when the result differs.
+   */
+  async refresh(force = false): Promise<void> {
     const doc = this.app.activeDoc();
     const root = this.app.vaultRoot;
-    this.head.innerHTML = doc ? `${iconSvg("link", 14)}<span>${escapeHtml(doc.name)}</span>` : "";
-    if (!root) return this.message("Aucun vault ouvert : les liens sont calculés dans un vault.");
-    if (!doc) return this.message("Aucune note active.");
-    if (doc.outside) return this.message("Fichier hors vault : ses liens ne sont pas indexés.");
+    this.setHead(doc ? `${iconSvg("link", 14)}<span>${escapeHtml(doc.name)}</span>` : "");
+    if (!root || !doc || doc.outside) {
+      this.req++;
+      this.content.classList.remove("is-loading");
+      return this.message(!root ? "Aucun vault ouvert : les liens sont calculés dans un vault." : !doc ? "Aucune note active." : "Fichier hors vault : ses liens ne sont pas indexés.");
+    }
+    const info = this.app.indexInfo;
+    const key = `${root}\n${doc.path}\n${info ? info.linksGeneration : "-"}`;
+    if (!force && key === this.shownKey) {
+      this.app.metrics.linksSkipped = (this.app.metrics.linksSkipped ?? 0) + 1;
+      return;
+    }
+    const req = ++this.req;
     if (this.shownPath !== doc.path) this.content.classList.add("is-loading");
     try {
       const [back, out] = await Promise.all([this.app.backend.backlinks(doc.path), doc.kind === "md" ? this.app.backend.outgoingLinks(doc.path) : Promise.resolve([] as OutLink[])]);
       if (req !== this.req) return;
       this.back = back;
       this.out = out;
+      this.dataSig = JSON.stringify([back, out]);
       this.shownPath = doc.path;
+      this.shownKey = key;
       this.app.metrics.backlinks = back.length;
       this.app.metrics.outgoing = out.length;
+      this.app.metrics.linksRequests = (this.app.metrics.linksRequests ?? 0) + 1;
       this.render();
     } catch (e) {
       if (req !== this.req) return;
@@ -95,6 +128,10 @@ export class LinksPanel {
     const root = this.app.vaultRoot ?? "";
     const doc = this.app.activeDoc();
     const preparing = !this.app.indexInfo;
+    // Identical results in the same display state: the DOM is left alone.
+    const sig = `${root}|${doc?.kind}|${preparing}|${this.folded.in}|${this.folded.out}|${this.dataSig}`;
+    if (sig === this.shownSig) return;
+    this.shownSig = sig;
     const rel = (p: string) => toRel(root, p) ?? p;
     const unresolved = this.out.filter((o) => !o.resolved).length;
     let html = `<div class="links-sec${this.folded.in ? "" : " is-open"}" data-sec="in"><span class="chev">${iconSvg("chevron", 14)}</span><span>Liens entrants</span><span class="tc">${this.back.length}</span></div>`;
@@ -123,5 +160,6 @@ export class LinksPanel {
       }
     }
     this.content.innerHTML = html;
+    this.app.metrics.linksRenders = (this.app.metrics.linksRenders ?? 0) + 1;
   }
 }

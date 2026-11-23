@@ -21,3 +21,4 @@ out/**/runs/**/*.mkv
 
 # Captures du run d'integration (18 Mo de PNG sur donnees synthetiques) : conservees sur disque, non versionnees
 out/spikes/a-tauri-cm6/runs/*_integration/captures/
+out/spikes/a-tauri-cm6/runs/*_integration-audits/captures/

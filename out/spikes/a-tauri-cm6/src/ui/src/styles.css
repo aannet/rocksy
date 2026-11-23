@@ -376,3 +376,19 @@ input { font: inherit; color: inherit; }
 .cv-edge-label { font-size: 12px; fill: var(--text-muted); paint-order: stroke; stroke: #171c29; stroke-width: 5px; }
 
 #test-result { display: none; }
+
+/* Application dialog (closing with unsaved changes) */
+.dialog-backdrop { position: fixed; inset: 0; background: rgba(8, 11, 18, 0.6); display: flex; justify-content: center; align-items: flex-start; padding-top: 18vh; z-index: 200; }
+.dialog { width: min(560px, 92vw); background: var(--bg-raised, #1b2233); border: 1px solid #36425c; border-radius: 10px; box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55); padding: 18px 20px 16px; color: var(--text); }
+.dialog h2 { margin: 0 0 10px; font-size: 16px; font-weight: 600; }
+.dialog p { margin: 0 0 8px; color: var(--text-muted); line-height: 1.45; }
+.dialog ul { margin: 0 0 10px; padding-left: 20px; max-height: 30vh; overflow: auto; }
+.dialog li { margin: 2px 0; }
+.dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.dialog-buttons button { padding: 6px 14px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); color: var(--text); }
+.dialog-buttons button:hover { background: rgba(255, 255, 255, 0.16); }
+.dialog-buttons button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.dialog-buttons button.primary { background: var(--accent); color: #0d1524; font-weight: 600; }
+.dialog-buttons button.danger { background: #5a2d36; color: #ffd9de; }
+.tab-badge.is-readonly { color: var(--text-muted); }
+#statusbar .st-save.is-readonly { color: var(--text-muted); }

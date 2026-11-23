@@ -2,7 +2,8 @@
  "app": {
   "dataDir": "{IT}\\data-iso-b",
   "args": [
-   "{IT}\\files\\hors-vault.md"
+   "{IT}\\files\\hors-vault.md",
+   "{IT}\\files\\longue20k.md"
   ]
  },
  "steps": [

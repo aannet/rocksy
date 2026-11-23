@@ -1,0 +1,80 @@
+{
+ "scenario": "a5-security",
+ "saved": {
+  "attachMs": 635,
+  "treeEntries": 1054,
+  "S1_trappedCanvas": "{\"titleUnchanged\":true,\"pwnedAttr\":null,\"pwnedFlag\":null,\"imgsInCanvas\":0,\"scripts\":0,\"handlerAttrs\":0,\"nodes\":1,\"paths\":1,\"message\":null,\"csp\":0}",
+  "S2_bigCell_open": "{\"openAndPaintMs\":130,\"moveCursorAndPaintMs\":24,\"tables\":1,\"docChars\":8065}",
+  "S2_bigCell_typingLatency": "{\"n\":36,\"update\":{\"median\":1.5,\"p95\":3.6,\"max\":6.5},\"withLayout\":{\"median\":1.6,\"p95\":3.8,\"max\":6.8}}",
+  "S2_bigCell_rerender": "{\"cursorIntoTableMs\":84,\"cursorOutAndRerenderMs\":22,\"tables\":1,\"dirty\":true}",
+  "S3_networkImage": "{\"chips\":[\"Image : chemin réseau non chargé : //serveur-inexistant-rocksy/partage/a.png\",\"Image : chemin réseau non chargé : \\\\\\\\serveur-inexistant-rocksy\\\\p\\\\b.png\",\"Image distante non chargée : https://example.invalid/x.png\"],\"imgs\":[{\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5C\",\"ok\":true}],\"imgsToNetwork\":0,\"resourceEntries\":0,\"csp\":[]}",
+  "S4_commandsOutOfScope": "{\"read win.ini\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"not_allowed\"},\"read outside/priv.md\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"not_allowed\"},\"read network\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"network_path\"},\"read device\":{\"ok\":false,\"kind\":\"invalid\",\"code\":null},\"read relative\":{\"ok\":false,\"kind\":\"invalid\",\"code\":null},\"read vault note (allowed)\":{\"ok\":true,\"keys\":[\"path\",\"text\",\"mtimeMs\",\"size\"]},\"save outside/new.md\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"not_allowed\"},\"save outside/priv.md\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"not_allowed\"},\"save outside/x.cmd\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"not_allowed\"},\"save vault .obsidian/x.md\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"read_only\"},\"save vault x.cmd\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"read_only\"},\"save vault piege.canvas\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"read_only\"},\"save vault memo.txt\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"read_only\"},\"save vault note.md:stream\":{\"ok\":false,\"kind\":\"invalid\",\"code\":null},\"open_vault outside\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"not_allowed\"},\"build_tags outside\":{\"ok\":false,\"kind\":\"invalid\",\"code\":\"not_allowed\"},\"open_external file:\":{\"ok\":false,\"kind\":\"invalid\",\"code\":null},\"open_external javascript:\":{\"ok\":false,\"kind\":\"invalid\",\"code\":null}}",
+  "S4_exists_outside_new.md": false,
+  "S4_exists_outside_x.cmd": false,
+  "S4_exists_vault_.obsidian_x.md": false,
+  "S4_exists_vault_x.cmd": false,
+  "S4_outside_priv.md_content": "# privé\n",
+  "S4_canvas_head": "{\"nodes\": [{\"id\": \"a\", \"type\": \"text\", \"text\": \"hello\", \"x\":",
+  "S4_sessionAfterHostileSetSession": "{\n  \"activeVault\": null,\n  \"tabs\": [],\n  \"activeTab\": null\n}",
+  "S5_txt_open": "{\"readOnly\":true,\"badge\":true}",
+  "S5_txt_afterTyping": "{\"text\":\"ligne 1\\nligne 2\\n\",\"dirty\":false,\"status\":\"Lecture seule\",\"toast\":\"Lecture seule : Rocksy n'enregistre que les fichiers .md et .markdown\"}",
+  "S5_txt_bytes": {
+   "before": {
+    "size": 16,
+    "sha1": "75873d94d6ec598de87c123caf0c2288e4479b7f",
+    "bom": false,
+    "crlf": 0,
+    "lf": 2,
+    "endsWithNewline": true,
+    "tailHex": "6520310a6c69676e6520320a"
+   },
+   "after": {
+    "size": 16,
+    "sha1": "75873d94d6ec598de87c123caf0c2288e4479b7f",
+    "bom": false,
+    "crlf": 0,
+    "lf": 2,
+    "endsWithNewline": true,
+    "tailHex": "6520310a6c69676e6520320a"
+   },
+   "changedBlocks": 0,
+   "changes": []
+  },
+  "S6_assetProtocol": "{\"vault image\":\"load 32x32 after 4 ms\",\"vault .obsidian image\":\"error after 3 ms\",\"outside image\":\"error after 2 ms\",\"windows wallpaper\":\"error after 2 ms\",\"network image\":\"error after 1278 ms\"}",
+  "cspViolations": "[]",
+  "closed": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 33
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  33200
+ ],
+ "csp": null,
+ "log": [
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Csv%5C.obsidian%5Csecret.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Coutside%5Cimg.png"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+   "url": "http://asset.localhost/C%3A%5CWindows%5CWeb%5CWallpaper%5CWindows%5Cimg0.jpg"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+   "url": "http://asset.localhost/%5C%5Cserveur-inexistant-rocksy%5Cp%5Cb.png"
+  }
+ ],
+ "ourPidsStillAlive": []
+}

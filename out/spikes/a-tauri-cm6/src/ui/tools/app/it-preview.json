@@ -38,10 +38,13 @@
  {"shot":"it-f2-callouts.png"},
  {"eval":"(()=>{const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.scrollDOM.scrollTop=0;return 1})()"},
  {"sleep":300},
+ {"eval":"JSON.stringify({folded:T.count('.cm-lp-fm-folded'), head:T.count('.cm-lp-fm-head'), preference:localStorage.getItem('rocksy.fmFolded')})","save":"fmOpenInFreshProfile"},
  {"click":".cm-lp-fm-head"},
  {"sleep":300},
- {"eval":"JSON.stringify({folded:T.count('.cm-lp-fm-folded')})","save":"fmFolded"},
+ {"eval":"(()=>{const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});return JSON.stringify({folded:T.count('.cm-lp-fm-folded'), head:T.count('.cm-lp-fm-head'), preference:localStorage.getItem('rocksy.fmFolded')})})()","save":"fmFolded"},
  {"shot":"it-f2-frontmatter-folded.png"},
  {"click":".cm-lp-fm-folded"},
+ {"sleep":300},
+ {"eval":"JSON.stringify({folded:T.count('.cm-lp-fm-folded'), lines:T.count('.cm-line.cm-lp-fm')})","save":"fmUnfolded"},
  {"eval":"JSON.stringify(rocksy.docs().map(d=>[d.name,d.dirty]))","save":"docsDirty"}
 ]}

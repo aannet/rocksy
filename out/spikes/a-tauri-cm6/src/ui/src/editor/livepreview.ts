@@ -19,7 +19,8 @@ import {
 } from "./syntax";
 
 export type LinkRef = { kind: "wiki"; inner: string } | { kind: "url"; href: string };
-export type ImageRef = { kind: "url"; url: string } | { kind: "missing" } | { kind: "remote"; url: string };
+/** `network`: a UNC / device / `file://host` source, never loaded (it would open an SMB connection). */
+export type ImageRef = { kind: "url"; url: string } | { kind: "missing" } | { kind: "remote"; url: string } | { kind: "network" };
 
 /** Services the editor needs from the app shell. */
 export interface LpHost {
@@ -121,7 +122,7 @@ class ImageWidget extends WidgetType {
       const chip = document.createElement("span");
       chip.className = "cm-lp-img-missing";
       chip.innerHTML = iconSvg("image", 14);
-      chip.append(ref.kind === "remote" ? ` Image distante non chargée : ${this.src}` : ` Image introuvable : ${this.src}`);
+      chip.append(ref.kind === "remote" ? ` Image distante non chargée : ${this.src}` : ref.kind === "network" ? ` Image : chemin réseau non chargé : ${this.src}` : ` Image introuvable : ${this.src}`);
       return chip;
     }
     const img = document.createElement("img");

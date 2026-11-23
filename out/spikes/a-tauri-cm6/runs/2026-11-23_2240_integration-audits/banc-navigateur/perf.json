@@ -1,0 +1,18 @@
+{
+ "scenario": "perf",
+ "saved": {
+  "startup": "{\"metrics\":{\"mark:script-start\":115,\"mark:backend-ready\":126,\"mark:startup-info\":163,\"mark:file-read\":190,\"firstFilePrefetched\":1,\"mark:state-created\":211,\"editorReadyMs\":357,\"mark:events-wired\":363,\"mark:vault-requested\":408,\"mark:first-frame\":435,\"editorPaintedMs\":450,\"mark:nav-response-end\":8,\"mark:nav-dom-content-loaded\":117,\"mark:first-file-prefetched\":1,\"openVaultMs\":94,\"mark:tree-received\":458,\"mark:tree-applied\":467,\"treeBuildMs\":1.1,\"treeEntries\":1169,\"treeReadyMs\":493,\"treeRowsInDom\":52},\"timings\":[{\"name\":\"editor-ready\",\"ms\":356},{\"name\":\"editor-ready-since-navigation\",\"ms\":357},{\"name\":\"editor-painted-since-navigation\",\"ms\":450},{\"name\":\"ui-script-start\",\"ms\":115},{\"name\":\"ui-backend-ready\",\"ms\":126},{\"name\":\"ui-startup-info\",\"ms\":163},{\"name\":\"ui-file-read\",\"ms\":190},{\"name\":\"ui-state-created\",\"ms\":211},{\"name\":\"ui-events-wired\",\"ms\":363},{\"name\":\"ui-vault-requested\",\"ms\":408},{\"name\":\"ui-first-frame\",\"ms\":435},{\"name\":\"ui-nav-response-end\",\"ms\":8},{\"name\":\"ui-nav-dom-content-loaded\",\"ms\":117},{\"name\":\"ui-first-file-prefetched\",\"ms\":1},{\"name\":\"ui-tree-received\",\"ms\":458},{\"name\":\"ui-tree-applied\",\"ms\":467},{\"name\":\"tree-ready\",\"ms\":493}],\"genMs\":{\"tree:Demo\":14.4,\"bigNote\":18},\"calls\":[\"startup_info\",\"open_vault\",\"build_tags\"],\"docBytes\":322759,\"lines\":3920,\"nav\":{\"responseEnd\":8,\"domInteractive\":26,\"dcl\":117}}",
+  "posStart": "- [x] comparer par version dans #todo/ur",
+  "latencyStart": "{\"n\":216,\"update\":{\"median\":2.1,\"p95\":3.8,\"max\":14.4},\"withLayout\":{\"median\":2.2,\"p95\":4,\"max\":14.6}}",
+  "lineMiddle": 1951,
+  "latencyMiddle": "{\"n\":216,\"update\":{\"median\":3.2,\"p95\":4,\"max\":5.5},\"withLayout\":{\"median\":3.3,\"p95\":4.1,\"max\":5.6}}",
+  "lineEnd": 3920,
+  "latencyEnd": "{\"n\":216,\"update\":{\"median\":2.5,\"p95\":3.5,\"max\":4},\"withLayout\":{\"median\":2.6,\"p95\":3.6,\"max\":4.1}}",
+  "posTask": "\t\t- [ ] relire mesure architec",
+  "latencyInTaskWithMarkup": "{\"n\":224,\"update\":{\"median\":2.9,\"p95\":3.6,\"max\":4.2},\"withLayout\":{\"median\":3,\"p95\":3.7,\"max\":4.7}}",
+  "saveState": "{\"dirty\":true,\"saves\":0}",
+  "afterAutosave": "{\"dirty\":false,\"saves\":[323631]}"
+ },
+ "errors": [],
+ "csp": []
+}

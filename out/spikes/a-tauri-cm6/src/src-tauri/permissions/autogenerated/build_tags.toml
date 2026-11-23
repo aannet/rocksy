@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-build-tags"
+description = "Enables the build_tags command without any pre-configured scope."
+commands.allow = ["build_tags"]
+
+[[permission]]
+identifier = "deny-build-tags"
+description = "Denies the build_tags command without any pre-configured scope."
+commands.deny = ["build_tags"]

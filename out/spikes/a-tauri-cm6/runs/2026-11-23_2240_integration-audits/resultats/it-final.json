@@ -1,0 +1,21 @@
+{
+ "scenario": "it-final",
+ "saved": {
+  "attachMs": 647,
+  "line20k_open": "{\"loaded\":true,\"error\":null,\"ms\":39,\"name\":\"longue20k\"}",
+  "line20k_latency_afterFix": "{\"n\":68,\"update\":{\"median\":17.1,\"p95\":21,\"max\":35.3},\"withLayout\":{\"median\":17.2,\"p95\":21.2,\"max\":35.7}}",
+  "line216k_open": "{\"loaded\":true,\"error\":null,\"ms\":84,\"name\":\"longue\"}",
+  "line216k_latency_afterFix": "{\"n\":45,\"update\":{\"median\":61.8,\"p95\":65.6,\"max\":69},\"withLayout\":{\"median\":61.9,\"p95\":65.7,\"max\":69.2}}",
+  "entries": 1052,
+  "F9_fileTags_LF_CRLF_BOM": "{\"Test CRLF.md\":{\"bom\":false,\"crlf\":true,\"n\":7,\"samples\":[{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24,\"tagLine\":23,\"col\":76,\"atCol\":\"#projet/corsol\",\"first\":\"- Oumentdancon rédépro cor ionionkoré tenprodé sol\",\"before\":\"\",\"after\":\"- Ritaleuxba actalviri acba pr\"}]},\"Test BOM.md\":{\"bom\":true,\"crlf\":false,\"n\":7,\"samples\":[{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24,\"tagLine\":23,\"col\":76,\"atCol\":\"#projet/corsol\",\"first\":\"- Oumentdancon rédépro cor ionionkoré tenprodé sol\",\"before\":\"\",\"after\":\"- Ritaleuxba actalviri acba pr\"}]},\"Test BOM CRLF sans fin.md\":{\"bom\":true,\"crlf\":true,\"n\":7,\"samples\":[{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24,\"tagLine\":23,\"col\":76,\"atCol\":\"#projet/corsol\",\"first\":\"- Oumentdancon rédépro cor ionionkoré tenprodé sol\",\"before\":\"\",\"after\":\"- Ritaleuxba actalviri acba pr\"}]},\"Décision plan 00434.md\":{\"bom\":false,\"crlf\":false,\"n\":7,\"samples\":[{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24,\"tagLine\":23,\"col\":76,\"atCol\":\"#projet/corsol\",\"first\":\"- Oumentdancon rédépro cor ionionkoré tenprodé sol\",\"before\":\"\",\"after\":\"- Ritaleuxba actalviri acba pr\"}]}}",
+  "F9_openFragment_inCRLF_file": "{\"frag\":{\"tag\":\"projet/corsol\",\"start\":23,\"end\":24},\"cursorLine0\":23,\"flashedLines\":[\"- Oumentdancon rédépro cor ionionkoré tenprodé solré nielcon\",\"  • Acsolel elvi talmentlu martalkoré\"],\"eol\":\"crlf\"}",
+  "ctrlTab": "{\"active\":\"longue20k\",\"tabs\":[\"longue20k\",\"longue\",\"Test CRLF\"]}"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  24360
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

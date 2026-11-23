@@ -1,0 +1,107 @@
+{
+ "scenario": "a5-robust",
+ "saved": {
+  "attachMs": 624,
+  "treeEntries": 1049,
+  "R0_baseline": "{\"searchPlan\":188,\"tags\":614}",
+  "R0_close": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 27
+  },
+  "R0_dataDir": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ],
+  "R3_tagsInfoWaitMs": 319,
+  "R3_tagsRightAway": "{\"sinceNavigationMs\":356,\"tagsAvailable\":614,\"tagsInfo\":{\"files\":488,\"fromCache\":false,\"ms\":5,\"occurrences\":2897,\"persisted\":false,\"removed\":0,\"reread\":0,\"tags\":614,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\rv\"}}",
+  "R3_events": "{\"events\":[{\"atMs\":318,\"fromCache\":true,\"searchReady\":false,\"files\":488,\"searchDocs\":0},{\"atMs\":318,\"fromCache\":true,\"searchReady\":true,\"files\":488,\"searchDocs\":488},{\"atMs\":319,\"fromCache\":false,\"searchReady\":true,\"files\":488,\"searchDocs\":488,\"reread\":0,\"pending\":0}],\"status\":\"01_WORK/__DAILY NOTES SYNTH.mdIndex ✓35 019 mots · 309 938 car.EnregistréAuto ✓Live Previewrv\"}",
+  "R3_timings": {
+   "ui-script-start": 765,
+   "ui-nav-dom-content-loaded": 765,
+   "ui-first-file-prefetched": 765,
+   "ui-backend-ready": 767,
+   "ui-startup-info": 768,
+   "ui-events-wired": 770,
+   "ui-vault-requested": 772,
+   "ui-nav-response-end": 772,
+   "vault-listing": 923,
+   "ui-tree-received": 935,
+   "ui-tree-applied": 939,
+   "tree-ready": 970,
+   "ui-file-read": 1517,
+   "ui-state-created": 1534,
+   "editor-ready": 737,
+   "editor-ready-since-navigation": 737,
+   "editor-painted-since-navigation": 807,
+   "ui-first-frame": 813
+  },
+  "R3_close": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 38
+  },
+  "R1_corruptedFiles_term": [
+   "36cde738a795fe40\\583551aa71654fd4b568ae401f891f29.term",
+   "36cde738a795fe40\\90478d502edf4672b3f8c345616ab264.term",
+   "36cde738a795fe40\\e4e9776209d5451aad6221796c395132.term"
+  ],
+  "R1_corruptedFiles_store": [
+   "36cde738a795fe40\\583551aa71654fd4b568ae401f891f29.store",
+   "36cde738a795fe40\\90478d502edf4672b3f8c345616ab264.store",
+   "36cde738a795fe40\\e4e9776209d5451aad6221796c395132.store"
+  ],
+  "R1_restartAttachMs": 515,
+  "R1_readyWaitMs": 624,
+  "R1_indexBackAfterMs": 96,
+  "R1_events": "{\"events\":[{\"atMs\":348,\"fromCache\":true,\"searchReady\":false,\"files\":488,\"searchDocs\":0},{\"atMs\":471,\"fromCache\":true,\"searchReady\":true,\"files\":488,\"searchDocs\":488},{\"atMs\":727,\"fromCache\":false,\"searchReady\":true,\"files\":488,\"searchDocs\":488,\"reread\":488,\"pending\":0}],\"status\":\"01_WORK/__DAILY NOTES SYNTH.mdIndex ✓35 019 mots · 309 938 car.EnregistréAuto ✓Live Previewrv\"}",
+  "R1_search": "{\"total\":188,\"searchReady\":true}",
+  "R1_alive": true,
+  "R1_pendingLog": [],
+  "R1_close": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 43
+  },
+  "R1b_corruptedFiles_meta": [
+   "36cde738a795fe40\\meta.json"
+  ],
+  "R1b_readyWaitMs": 687,
+  "R1b_indexBackAfterMs": 31,
+  "R1b_events": "{\"events\":[{\"atMs\":362,\"fromCache\":true,\"searchReady\":false,\"files\":488,\"searchDocs\":0},{\"atMs\":712,\"fromCache\":false,\"searchReady\":true,\"files\":488,\"searchDocs\":488,\"reread\":488,\"pending\":0}],\"status\":\"01_WORK/__DAILY NOTES SYNTH.mdIndex ✓35 019 mots · 309 938 car.EnregistréAuto ✓Live Previewrv\"}",
+  "R1b_search": "{\"total\":188,\"searchReady\":true}",
+  "R1b_alive": true,
+  "R1b_close": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 39
+  },
+  "R1c_corruptedFiles_tags": [
+   "36cde738a795fe40.tags"
+  ],
+  "R1c_indexBackAfterMs": 48,
+  "R1c_events": "{\"events\":[{\"atMs\":679,\"fromCache\":false,\"searchReady\":true,\"files\":488,\"searchDocs\":488,\"reread\":488,\"pending\":0}],\"status\":\"01_WORK/__DAILY NOTES SYNTH.mdIndex ✓35 019 mots · 309 938 car.EnregistréAuto ✓Live Previewrv\"}",
+  "R1c_state": "{\"tags\":614,\"search\":188,\"csp\":[]}",
+  "closed": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 35
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  14616,
+  12020,
+  10708,
+  31664,
+  12848
+ ],
+ "csp": null,
+ "ourPidsStillAlive": []
+}

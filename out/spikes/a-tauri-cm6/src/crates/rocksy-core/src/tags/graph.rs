@@ -3,8 +3,10 @@
 //!
 //! The graph is derived data: it is rebuilt in memory from the links stored
 //! with each note and the list of visible files, never by reading a note.
-//! Rebuilding is cheap (one hash lookup per link), so it is simply redone
-//! whenever the index content changed since the last build.
+//! Rebuilding costs one hash lookup per link, which still adds up to tens of
+//! milliseconds on a large vault: it is redone only when the targets of the
+//! links of a note, the set of notes or the other files changed
+//! (`Inner::graph_generation`), not at every save.
 //!
 //! Resolution rules (CONTRACT.md, "Liens"), all case-insensitive:
 //! * wikilink: exact path from the vault root, else path suffix, else file
@@ -32,7 +34,7 @@ pub(super) struct Unresolved {
 }
 
 pub(super) struct Graph {
-    /// (epoch, generation) of the content this graph was built from.
+    /// (epoch, graph generation) of the content this graph was built from.
     pub stamp: (u64, u64),
     /// Per file id, per link: what it resolves to.
     pub resolved: Vec<Vec<Option<Target>>>,
@@ -232,7 +234,7 @@ impl Graph {
             .iter()
             .map(|(rel, &i)| (rel.clone(), resolver.candidates[i as usize].target))
             .collect();
-        Graph { stamp: (inner.epoch, inner.generation), resolved, backlinks, by_rel, unresolved, links }
+        Graph { stamp: (inner.epoch, inner.graph_generation), resolved, backlinks, by_rel, unresolved, links }
     }
 }
 

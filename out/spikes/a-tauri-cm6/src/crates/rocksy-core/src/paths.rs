@@ -112,6 +112,19 @@ pub(crate) fn key_rel<'a>(child_key: &'a str, parent_key: &str, windows: bool) -
     rest.strip_prefix(sep)
 }
 
+/// Whether two path strings designate the same location on the current
+/// platform (case and separators ignored on Windows, trailing separator
+/// ignored everywhere). Lexical: the file system is not consulted.
+pub fn same_path(a: &str, b: &str) -> bool {
+    path_key(a) == path_key(b)
+}
+
+/// Whether `child` is `parent` itself or lies below it, lexically, on the
+/// current platform.
+pub fn is_inside(child: &str, parent: &str) -> bool {
+    key_is_inside(&path_key(child), &path_key(parent), cfg!(windows))
+}
+
 /// Joins an absolute root and a `/`-separated relative path using the native
 /// separator of the current platform.
 pub fn join_rel(root: &str, rel: &str) -> String {

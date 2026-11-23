@@ -2,7 +2,7 @@
 import type { App } from "./app";
 import type { Fragment, TagCount, Tree } from "./types";
 import { basename, extname, joinAbs, toRel } from "./paths";
-import { buildTagTree, countTags, filterTags, tagMatches, type TagNode } from "./tagtree";
+import { buildTagTree, countTags, filterTagLibrary, filterTags, tagMatches, type TagNode } from "./tagtree";
 import { iconSvg } from "./icons";
 import { SearchPanel } from "./searchpanel";
 import { LinksPanel } from "./linkspanel";
@@ -240,13 +240,9 @@ export class Sidebar {
     else void this.links.refresh();
   }
 
-  /** `index-ready`: search may have become available, links may have changed. */
+  /** `index-ready`: search may have become available, links may have changed (the panel checks `linksGeneration`). */
   onIndexReady(): void {
     this.search.onIndex();
-    if (this.tab === "links") void this.links.refresh();
-  }
-
-  onDocSaved(): void {
     if (this.tab === "links") void this.links.refresh();
   }
 
@@ -256,7 +252,12 @@ export class Sidebar {
     return "rocksy.tree." + (this.treeRoot ?? "");
   }
 
-  setTree(tree: Tree | null): void {
+  /** `samePaths`: the tree lists the same files as the one shown (only its freshness changed): nothing is rebuilt. */
+  setTree(tree: Tree | null, samePaths = false): void {
+    if (tree && samePaths && this.treeRoot === tree.root) {
+      this.renderFoot(tree);
+      return;
+    }
     const root = this.app.vaultRoot;
     if (root !== this.searchRoot) {
       this.searchRoot = root;
@@ -290,12 +291,16 @@ export class Sidebar {
     this.roots = buildFileTree(tree);
     this.fileCount = 0;
     for (const e of tree.entries) if (!e.isDir) this.fileCount++;
-    this.treeFoot.innerHTML = `<span>${this.fileCount.toLocaleString("fr-FR")} fichiers</span><span>${tree.fromSnapshot ? "instantané, vérification…" : "à jour"}</span>`;
+    this.renderFoot(tree);
     this.syncActive(false);
     this.flatten();
     this.queueRender(true);
     this.app.metrics.treeBuildMs = Math.round((performance.now() - t0) * 10) / 10;
     this.app.metrics.treeEntries = tree.entries.length;
+  }
+
+  private renderFoot(tree: Tree): void {
+    this.treeFoot.innerHTML = `<span>${this.fileCount.toLocaleString("fr-FR")} fichiers</span><span>${tree.fromSnapshot ? "instantané, vérification…" : "à jour"}</span>`;
   }
 
   private flatten(): void {
@@ -421,6 +426,8 @@ export class Sidebar {
     if (this.tab === "tags" && this.tagMode === "vault" && !this.progressRefresh) {
       this.progressRefresh = window.setTimeout(() => {
         this.progressRefresh = 0;
+        // The list grows while notes are read: fetch it again (twice a second at most).
+        this.app.invalidateTags();
         void this.refreshTags();
       }, 500);
     }
@@ -459,7 +466,7 @@ export class Sidebar {
     return this.app.vaultRoot ? this.tagMode : "file";
   }
 
-  /** Reloads the tag list for the current filter (`tags_list` on every keystroke in vault mode). */
+  /** Shows the tag list for the current filter. Vault mode filters the cached list in memory (same result as `tags_list(query)`). */
   async refreshTags(reloadFragments = false): Promise<void> {
     const req = ++this.listReq;
     const t0 = performance.now();
@@ -469,7 +476,7 @@ export class Sidebar {
     for (const b of this.modeEl.children) b.classList.toggle("is-on", (b as HTMLElement).dataset.mode === mode);
     let tags: TagCount[] = [];
     try {
-      if (mode === "vault") tags = await this.app.backend.tagsList(query);
+      if (mode === "vault") tags = filterTagLibrary(await this.app.allTags(), query);
       else {
         const doc = this.app.activeDoc();
         const state = doc && doc.kind === "md" ? this.app.stateOf(doc) : null;

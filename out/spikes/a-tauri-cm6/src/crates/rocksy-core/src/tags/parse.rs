@@ -16,7 +16,7 @@ use super::frontmatter::parse_frontmatter;
 use super::links::{parse_markdown_link, parse_wikilink, LinkTarget};
 use super::TagSource;
 use crate::excerpt::line_excerpt;
-use memchr::{memchr, memchr2, memchr2_iter};
+use memchr::{memchr, memchr2, memchr2_iter, memmem};
 
 pub(crate) const EXCERPT_MAX: usize = 240;
 
@@ -177,28 +177,104 @@ fn closing_backticks(b: &[u8], mut i: usize, n: usize) -> Option<usize> {
     None
 }
 
-/// Index just past the bracket matching the opener at `open`, honouring
-/// nesting and backslash escapes.
-fn matching(b: &[u8], open: usize, open_ch: u8, close_ch: u8) -> Option<usize> {
-    let mut depth = 0usize;
-    let mut j = open;
-    while j < b.len() {
-        let c = b[j];
-        if c == b'\\' {
-            j += 2;
-            continue;
+/// Bracket pairs of a line: (opener, index just past its closer), sorted by
+/// opener. Unclosed openers are absent.
+type Pairs = Vec<(usize, usize)>;
+
+/// What the inline scanner remembers about a line so that every lookup
+/// ahead (closing bracket, `]]`, `>`, closing backticks) costs one pass over
+/// the line in total, however many openers the line holds.
+///
+/// All positions asked for only grow, and each one starts a token (never
+/// the byte after an unescaped backslash), which is why one pass from the
+/// first opener gives the same answers as a scan restarted at each opener.
+#[derive(Default)]
+struct LineMemo {
+    /// `[`/`]` and `(`/`)` pairs from the first bracket needing them.
+    pairs: Option<(Pairs, Pairs)>,
+    /// A `]]` search was made; `wiki_close` is its result.
+    wiki_searched: bool,
+    wiki_close: Option<usize>,
+    /// No `>` further on the line.
+    no_angle_close: bool,
+    /// Lengths of backtick runs with no closing run further on the line.
+    unclosed_backticks: Vec<usize>,
+}
+
+/// Matches every `[` with its `]` and every `(` with its `)` in `b[from..]`,
+/// each kind on its own, honouring nesting and backslash escapes.
+fn bracket_pairs(b: &[u8], from: usize) -> (Pairs, Pairs) {
+    fn open(pairs: &mut Pairs, stack: &mut Vec<usize>, at: usize) {
+        stack.push(pairs.len());
+        pairs.push((at, usize::MAX));
+    }
+    fn close(pairs: &mut Pairs, stack: &mut Vec<usize>, at: usize) {
+        if let Some(k) = stack.pop() {
+            pairs[k].1 = at + 1;
         }
-        if c == open_ch {
-            depth += 1;
-        } else if c == close_ch {
-            depth -= 1;
-            if depth == 0 {
-                return Some(j + 1);
-            }
+    }
+    let (mut square, mut round) = (Pairs::new(), Pairs::new());
+    let (mut square_open, mut round_open) = (Vec::new(), Vec::new());
+    let mut j = from;
+    while j < b.len() {
+        match b[j] {
+            b'\\' => j += 1,
+            b'[' => open(&mut square, &mut square_open, j),
+            b']' => close(&mut square, &mut square_open, j),
+            b'(' => open(&mut round, &mut round_open, j),
+            b')' => close(&mut round, &mut round_open, j),
+            _ => {}
         }
         j += 1;
     }
-    None
+    square.retain(|p| p.1 != usize::MAX);
+    round.retain(|p| p.1 != usize::MAX);
+    (square, round)
+}
+
+impl LineMemo {
+    /// Index just past the bracket matching the opener at `open` (`[` or
+    /// `(`), honouring nesting and backslash escapes.
+    fn matching(&mut self, b: &[u8], open: usize) -> Option<usize> {
+        let (square, round) = self.pairs.get_or_insert_with(|| bracket_pairs(b, open));
+        let pairs = if b[open] == b'[' { square } else { round };
+        pairs.binary_search_by_key(&open, |p| p.0).ok().map(|k| pairs[k].1)
+    }
+
+    /// Position of the first `]]` at or after `from`.
+    fn wiki_close(&mut self, b: &[u8], from: usize) -> Option<usize> {
+        if self.wiki_searched && self.wiki_close.is_none_or(|p| p >= from) {
+            return self.wiki_close;
+        }
+        self.wiki_searched = true;
+        self.wiki_close = memmem::find(&b[from..], b"]]").map(|p| from + p);
+        self.wiki_close
+    }
+
+    /// Index after the run of exactly `n` backticks closing a code span
+    /// whose content starts at `from`.
+    fn closing_backticks(&mut self, b: &[u8], from: usize, n: usize) -> Option<usize> {
+        if self.unclosed_backticks.contains(&n) {
+            return None;
+        }
+        let end = closing_backticks(b, from, n);
+        if end.is_none() {
+            self.unclosed_backticks.push(n);
+        }
+        end
+    }
+
+    /// HTML tag, comment or autolink starting at `i` (`<a href="#x">`,
+    /// `<https://x/#y>`): returns the index after the closing `>`.
+    fn skip_angle(&mut self, b: &[u8], i: usize) -> Option<usize> {
+        let next = *b.get(i + 1)?;
+        if self.no_angle_close || !(next.is_ascii_alphabetic() || next == b'/' || next == b'!') {
+            return None;
+        }
+        let end = memchr(b'>', &b[i + 1..]).map(|p| i + 1 + p + 1);
+        self.no_angle_close = end.is_none();
+        end
+    }
 }
 
 /// A link found on a line: byte span and what it points to.
@@ -214,38 +290,21 @@ pub(crate) struct LinkHit {
 /// reference link (`[text][ref]`) starts at `i`, returns the index after it
 /// and, when it is a link to a file, its target (with `true` for Markdown
 /// syntax).
-fn scan_link(line: &str, i: usize) -> Option<(usize, Option<(bool, LinkTarget)>)> {
+fn scan_link(line: &str, i: usize, memo: &mut LineMemo) -> Option<(usize, Option<(bool, LinkTarget)>)> {
     let b = line.as_bytes();
     if b.get(i + 1) == Some(&b'[') {
-        let mut j = i + 2;
-        while j + 1 < b.len() {
-            if b[j] == b']' && b[j + 1] == b']' {
-                return Some((j + 2, parse_wikilink(&line[i + 2..j]).map(|t| (false, t))));
-            }
-            j += 1;
-        }
-        return None;
+        let j = memo.wiki_close(b, i + 2)?;
+        return Some((j + 2, parse_wikilink(&line[i + 2..j]).map(|t| (false, t))));
     }
-    let after_text = matching(b, i, b'[', b']')?;
+    let after_text = memo.matching(b, i)?;
     match b.get(after_text) {
         Some(b'(') => {
-            let end = matching(b, after_text, b'(', b')')?;
+            let end = memo.matching(b, after_text)?;
             let target = parse_markdown_link(&line[i + 1..after_text - 1], &line[after_text + 1..end - 1]);
             Some((end, target.map(|t| (true, t))))
         }
-        Some(b'[') => Some((matching(b, after_text, b'[', b']')?, None)),
+        Some(b'[') => Some((memo.matching(b, after_text)?, None)),
         _ => None,
-    }
-}
-
-/// HTML tag, comment or autolink starting at `i` (`<a href="#x">`,
-/// `<https://x/#y>`): returns the index after the closing `>`.
-fn skip_angle(b: &[u8], i: usize) -> Option<usize> {
-    let next = *b.get(i + 1)?;
-    if next.is_ascii_alphabetic() || next == b'/' || next == b'!' {
-        memchr(b'>', &b[i + 1..]).map(|p| i + 1 + p + 1)
-    } else {
-        None
     }
 }
 
@@ -256,6 +315,7 @@ pub(crate) fn scan_inline(line: &str, from: usize, out: &mut Vec<Hit>, links: &m
     if from >= b.len() || memchr2(b'#', b'[', &b[from..]).is_none() {
         return;
     }
+    let mut memo = LineMemo::default();
     let mut i = from;
     let mut prev_ws = true;
     while i < b.len() {
@@ -282,7 +342,7 @@ pub(crate) fn scan_inline(line: &str, from: usize, out: &mut Vec<Hit>, links: &m
                 while i + n < b.len() && b[i + n] == b'`' {
                     n += 1;
                 }
-                i = closing_backticks(b, i + n, n).unwrap_or(i + n);
+                i = memo.closing_backticks(b, i + n, n).unwrap_or(i + n);
                 prev_ws = false;
             }
             b'\\' => {
@@ -295,7 +355,7 @@ pub(crate) fn scan_inline(line: &str, from: usize, out: &mut Vec<Hit>, links: &m
             b'[' => {
                 let embed = i > from && b[i - 1] == b'!';
                 let start = if embed { i - 1 } else { i };
-                i = match scan_link(line, i) {
+                i = match scan_link(line, i, &mut memo) {
                     Some((end, found)) => {
                         if let Some((markdown, target)) = found {
                             links.push(LinkHit { start, end, embed, markdown, target });
@@ -307,7 +367,7 @@ pub(crate) fn scan_inline(line: &str, from: usize, out: &mut Vec<Hit>, links: &m
                 prev_ws = false;
             }
             b'<' => {
-                i = skip_angle(b, i).unwrap_or(i + 1);
+                i = memo.skip_angle(b, i).unwrap_or(i + 1);
                 prev_ws = false;
             }
             _ if c < 0x80 => {
@@ -491,25 +551,25 @@ fn build_excerpt(lines: &[&str], first: usize, first_byte: usize, last: usize, c
 }
 
 /// More than `limit` characters between the start of the block and the tag?
+///
+/// Counts at most `limit + 1` characters per line and stops at the first
+/// line past the limit, so the cost per tag does not depend on the length
+/// of the block or of its lines.
 fn tag_is_far(lines: &[&str], start: usize, tag_line: usize, hash: usize, limit: usize) -> bool {
-    let bytes: usize = lines[start..tag_line].iter().map(|l| l.len() + 1).sum::<usize>() + hash;
-    if bytes <= limit {
-        return false;
-    }
     let mut chars = 0;
     for line in &lines[start..tag_line] {
-        chars += line.chars().count() + 1;
+        chars += line.chars().take(limit + 1).count() + 1;
         if chars > limit {
             return true;
         }
     }
-    chars + lines[tag_line][..hash].chars().count() > limit
+    chars + lines[tag_line][..hash].chars().take(limit + 1).count() > limit
 }
 
 /// Where an excerpt centred on a distant tag starts inside the tag's line.
 fn window_start(line: &str, hash: usize) -> usize {
     const BACK: usize = 60;
-    if line[..hash].chars().count() <= BACK + 20 {
+    if line[..hash].chars().take(BACK + 21).count() <= BACK + 20 {
         return 0;
     }
     let mut start = hash;
@@ -520,10 +580,50 @@ fn window_start(line: &str, hash: usize) -> usize {
         }
     }
     // Prefer starting on a word boundary.
-    match line[start..hash].find(char::is_whitespace) {
-        Some(ws) if start + ws + 1 < hash => start + ws + 1,
+    // (The blank may be wider than one byte: a no-break space.)
+    match line[start..hash].char_indices().find(|(_, c)| c.is_whitespace()) {
+        Some((ws, c)) if start + ws + c.len_utf8() < hash => start + ws + c.len_utf8(),
         _ => start,
     }
+}
+
+/// UTF-16 columns of positions asked in document order: each call counts
+/// from the previous position on the same line rather than from the start
+/// of the line.
+struct ColCursor {
+    line: u32,
+    byte: usize,
+    col: u32,
+}
+
+impl ColCursor {
+    fn new() -> Self {
+        Self { line: u32::MAX, byte: 0, col: 0 }
+    }
+
+    fn col(&mut self, line_no: u32, line: &str, byte: usize) -> u32 {
+        if line_no != self.line || byte < self.byte {
+            *self = Self { line: line_no, byte: 0, col: 0 };
+        }
+        self.col += col_utf16(&line[self.byte..], byte - self.byte);
+        self.byte = byte;
+        self.col
+    }
+}
+
+/// Start of a suffix of `line` whose [`line_excerpt`] for a highlight at
+/// byte `at` is the one of the whole line: far enough before `at` for the
+/// excerpt to be cut inside it, and on a visible character so that nothing
+/// is trimmed. 0 when the line must be given whole.
+fn excerpt_window(line: &str, at: usize) -> usize {
+    // More than the distance at which `line_excerpt` cuts the beginning.
+    const BACK: usize = EXCERPT_MAX + 60;
+    for (n, (pos, c)) in line[..at].char_indices().rev().enumerate() {
+        if n + 1 >= BACK && !c.is_whitespace() && c != '\u{feff}' {
+            return pos;
+        }
+    }
+    0
 }
 
 // ---------------------------------------------------------------------------
@@ -797,9 +897,11 @@ pub(crate) fn parse(text: &str) -> Parsed<'_> {
     };
     block_pass(&lines, body_start, &mut blocks);
 
+    let mut cols = ColCursor::new();
     for (line_no, hit) in blocks.links.drain(..) {
         let line = lines[line_no as usize];
-        let (excerpt, ranges) = line_excerpt(line, &[(hit.start, hit.end)]);
+        let from = excerpt_window(line, hit.start);
+        let (excerpt, ranges) = line_excerpt(&line[from..], &[(hit.start - from, hit.end - from)]);
         parsed.links.push(RawLink {
             target: hit.target.target,
             heading: hit.target.heading,
@@ -807,7 +909,7 @@ pub(crate) fn parse(text: &str) -> Parsed<'_> {
             embed: hit.embed,
             markdown: hit.markdown,
             line: line_no,
-            col: col_utf16(line, hit.start),
+            col: cols.col(line_no, line, hit.start),
             excerpt,
             range: ranges.first().copied().unwrap_or((0, 0)),
         });
@@ -816,6 +918,7 @@ pub(crate) fn parse(text: &str) -> Parsed<'_> {
     // One excerpt per block, shared by its tags unless a tag is too far from
     // the start of the block to be visible in it.
     let mut block_excerpt: Vec<u32> = vec![u32::MAX; blocks.spans.len()];
+    let mut cols = ColCursor::new();
     for p in &blocks.pending {
         let (start, end) = blocks.spans[p.block as usize];
         let (start, end, tag_line) = (start as usize, end as usize, p.line as usize);
@@ -838,9 +941,295 @@ pub(crate) fn parse(text: &str) -> Parsed<'_> {
             start_line: start as u32,
             end_line: end as u32,
             tag_line: p.line,
-            tag_col: col_utf16(line, p.hit.hash),
+            tag_col: cols.col(p.line, line, p.hit.hash),
             excerpt,
         });
     }
     parsed
+}
+
+// ---------------------------------------------------------------------------
+// Tests: the linear scanner against the straightforward one
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+mod linear_tests {
+    use super::*;
+
+    // The scanner as first written: each opener rescans the rest of the
+    // line. Quadratic, but obviously right; kept as the reference.
+
+    fn ref_matching(b: &[u8], open: usize, open_ch: u8, close_ch: u8) -> Option<usize> {
+        let mut depth = 0usize;
+        let mut j = open;
+        while j < b.len() {
+            let c = b[j];
+            if c == b'\\' {
+                j += 2;
+                continue;
+            }
+            if c == open_ch {
+                depth += 1;
+            } else if c == close_ch {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(j + 1);
+                }
+            }
+            j += 1;
+        }
+        None
+    }
+
+    fn ref_scan_link(line: &str, i: usize) -> Option<(usize, Option<(bool, LinkTarget)>)> {
+        let b = line.as_bytes();
+        if b.get(i + 1) == Some(&b'[') {
+            let mut j = i + 2;
+            while j + 1 < b.len() {
+                if b[j] == b']' && b[j + 1] == b']' {
+                    return Some((j + 2, parse_wikilink(&line[i + 2..j]).map(|t| (false, t))));
+                }
+                j += 1;
+            }
+            return None;
+        }
+        let after_text = ref_matching(b, i, b'[', b']')?;
+        match b.get(after_text) {
+            Some(b'(') => {
+                let end = ref_matching(b, after_text, b'(', b')')?;
+                let target = parse_markdown_link(&line[i + 1..after_text - 1], &line[after_text + 1..end - 1]);
+                Some((end, target.map(|t| (true, t))))
+            }
+            Some(b'[') => Some((ref_matching(b, after_text, b'[', b']')?, None)),
+            _ => None,
+        }
+    }
+
+    fn ref_skip_angle(b: &[u8], i: usize) -> Option<usize> {
+        let next = *b.get(i + 1)?;
+        if next.is_ascii_alphabetic() || next == b'/' || next == b'!' {
+            memchr(b'>', &b[i + 1..]).map(|p| i + 1 + p + 1)
+        } else {
+            None
+        }
+    }
+
+    fn ref_scan_inline(line: &str, from: usize, out: &mut Vec<Hit>, links: &mut Vec<LinkHit>) {
+        let b = line.as_bytes();
+        let mut i = from;
+        let mut prev_ws = true;
+        while i < b.len() {
+            let c = b[i];
+            match c {
+                b' ' | b'\t' => {
+                    prev_ws = true;
+                    i += 1;
+                }
+                b'#' => {
+                    if prev_ws {
+                        if let Some((start, end)) = tag_at(line, i + 1) {
+                            out.push(Hit { hash: i, start, end });
+                            i = end;
+                            prev_ws = false;
+                            continue;
+                        }
+                    }
+                    prev_ws = false;
+                    i += 1;
+                }
+                b'`' => {
+                    let mut n = 1;
+                    while i + n < b.len() && b[i + n] == b'`' {
+                        n += 1;
+                    }
+                    i = closing_backticks(b, i + n, n).unwrap_or(i + n);
+                    prev_ws = false;
+                }
+                b'\\' => {
+                    i += 1;
+                    if let Some(ch) = line[i..].chars().next() {
+                        i += ch.len_utf8();
+                    }
+                    prev_ws = false;
+                }
+                b'[' => {
+                    let embed = i > from && b[i - 1] == b'!';
+                    let start = if embed { i - 1 } else { i };
+                    i = match ref_scan_link(line, i) {
+                        Some((end, found)) => {
+                            if let Some((markdown, target)) = found {
+                                links.push(LinkHit { start, end, embed, markdown, target });
+                            }
+                            end
+                        }
+                        None => i + 1,
+                    };
+                    prev_ws = false;
+                }
+                b'<' => {
+                    i = ref_skip_angle(b, i).unwrap_or(i + 1);
+                    prev_ws = false;
+                }
+                _ if c < 0x80 => {
+                    prev_ws = false;
+                    i += 1;
+                }
+                _ => {
+                    let ch = line[i..].chars().next().unwrap_or(' ');
+                    prev_ws = ch.is_whitespace();
+                    i += ch.len_utf8();
+                }
+            }
+        }
+    }
+
+    fn ref_tag_is_far(lines: &[&str], start: usize, tag_line: usize, hash: usize, limit: usize) -> bool {
+        let mut chars = 0;
+        for line in &lines[start..tag_line] {
+            chars += line.chars().count() + 1;
+        }
+        chars + lines[tag_line][..hash].chars().count() > limit
+    }
+
+    fn ref_window_start(line: &str, hash: usize) -> usize {
+        const BACK: usize = 60;
+        if line[..hash].chars().count() <= BACK + 20 {
+            return 0;
+        }
+        let mut start = hash;
+        for _ in 0..BACK {
+            start -= 1;
+            while !line.is_char_boundary(start) {
+                start -= 1;
+            }
+        }
+        match line[start..hash].char_indices().find(|(_, c)| c.is_whitespace()) {
+            Some((ws, c)) if start + ws + c.len_utf8() < hash => start + ws + c.len_utf8(),
+            _ => start,
+        }
+    }
+
+    /// Deterministic generator (xorshift): no dependency, same lines on
+    /// every run.
+    struct Rng(u64);
+
+    impl Rng {
+        fn next(&mut self) -> usize {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            (self.0 >> 11) as usize
+        }
+
+        /// A line made of the pieces that matter to the scanner, heavily
+        /// biased towards brackets, escapes and unclosed openers.
+        fn line(&mut self, pieces: usize) -> String {
+            const PIECES: &[&str] = &[
+                "[", "[", "]", "]", "(", ")", "[[", "]]", "\\", "\\", "!", "`", "``", "```", "<", ">", "<a", "</", "#",
+                " #tag", " #a/b", "#é", " ", " ", "\t", "a", "b.md", "é", "🎉", "|", "x y", "\u{a0}", "[a](b.md)",
+                "[[n|a]]", "![[i.png]]", "[t][r]", "\"t\"", "%20", "://",
+            ];
+            let mut line = String::new();
+            for _ in 0..pieces {
+                line.push_str(PIECES[self.next() % PIECES.len()]);
+            }
+            line
+        }
+    }
+
+    type Scan = (Vec<(usize, usize, usize)>, Vec<(usize, usize, bool, bool, LinkTarget)>);
+
+    fn run(scan: fn(&str, usize, &mut Vec<Hit>, &mut Vec<LinkHit>), line: &str, from: usize) -> Scan {
+        let (mut hits, mut links) = (Vec::new(), Vec::new());
+        scan(line, from, &mut hits, &mut links);
+        (
+            hits.into_iter().map(|h| (h.hash, h.start, h.end)).collect(),
+            links.into_iter().map(|l| (l.start, l.end, l.embed, l.markdown, l.target)).collect(),
+        )
+    }
+
+    #[test]
+    fn same_tags_and_links_as_the_reference_scanner() {
+        let mut rng = Rng(0x9E37_79B9_7F4A_7C15);
+        let (mut tags, mut links) = (0, 0);
+        for round in 0..6000 {
+            let line = rng.line(1 + round % 40);
+            // Any position where the block pass may start the scan.
+            let from = if round % 3 == 0 { 0 } else { line.find(' ').map_or(0, |p| p + 1) };
+            let got = run(scan_inline, &line, from);
+            assert_eq!(got, run(ref_scan_inline, &line, from), "line {line:?} from {from}");
+            tags += got.0.len();
+            links += got.1.len();
+        }
+        assert!(tags > 1000 && links > 1000, "the generator must produce both ({tags} tags, {links} links)");
+    }
+
+    #[test]
+    fn unclosed_openers_before_a_real_link() {
+        let target = |line: &str| {
+            let (_, links) = run(scan_inline, line, 0);
+            links.into_iter().map(|l| (l.0, l.4.target)).collect::<Vec<_>>()
+        };
+        assert_eq!(target("[ voir [a](b.md)"), [(7, "b.md".to_string())]);
+        assert_eq!(target("[[ voir [a](b.md)"), [(8, "b.md".to_string())]);
+        assert_eq!(target("[ ( [ [a](b.md) et [[c]]"), [(6, "b.md".to_string()), (19, "c".to_string())]);
+        assert_eq!(target("[x [y [a [b](c.md)](d.md)"), [(6, "d.md".to_string())]);
+        assert_eq!(target("\\[ [a](b.md) \\] [c](d.md"), [(3, "b.md".to_string())]);
+        assert_eq!(target("[a](b(1).md) [c](d(.md)"), [(0, "b(1).md".to_string())]);
+    }
+
+    #[test]
+    fn positions_and_excerpts_on_long_lines_match_the_whole_line() {
+        let mut rng = Rng(0x2545_F491_4F6C_DD1D);
+        let (mut links, mut far) = (0, 0);
+        for round in 0..300 {
+            // One paragraph line starting with a letter: the block pass
+            // scans it whole, so the scanner gives the expected positions.
+            // (No no-break space here: `line_excerpt`, which this test
+            // calls on whole lines, does not accept one before a far link.)
+            let mut line = format!("a{}", rng.line(20 + round)).replace('\u{a0}', "é");
+            if round % 4 == 0 {
+                line = line.replace(' ', &" ".repeat(1 + round % 400));
+            }
+            let (mut hits, mut link_hits) = (Vec::new(), Vec::new());
+            ref_scan_inline(&line, 0, &mut hits, &mut link_hits);
+            let parsed = parse(&line);
+
+            assert_eq!(parsed.links.len(), link_hits.len(), "{line:?}");
+            for (link, hit) in parsed.links.iter().zip(&link_hits) {
+                assert_eq!(link.col, col_utf16(&line, hit.start), "{line:?}");
+                let (excerpt, ranges) = line_excerpt(&line, &[(hit.start, hit.end)]);
+                assert_eq!((&link.excerpt, link.range), (&excerpt, ranges.first().copied().unwrap_or((0, 0))), "{line:?}");
+                links += 1;
+            }
+            assert_eq!(parsed.occs.len(), hits.len(), "{line:?}");
+            for (occ, hit) in parsed.occs.iter().zip(&hits) {
+                assert_eq!(occ.tag_col, col_utf16(&line, hit.hash), "{line:?}");
+                let limit = EXCERPT_MAX - 40;
+                assert_eq!(tag_is_far(&[&line], 0, 0, hit.hash, limit), ref_tag_is_far(&[&line], 0, 0, hit.hash, limit));
+                assert_eq!(window_start(&line, hit.hash), ref_window_start(&line, hit.hash), "{line:?}");
+                far += usize::from(ref_tag_is_far(&[&line], 0, 0, hit.hash, limit));
+            }
+        }
+        assert!(links > 300 && far > 300, "the generator must reach long lines ({links} links, {far} far tags)");
+
+        // A blank wider than one byte before a far tag: the excerpt starts
+        // after it, on a character boundary.
+        let line = format!("{}mot\u{a0}: suite #tag fin", "x".repeat(300));
+        let parsed = parse(&line);
+        assert_eq!(parsed.excerpts[parsed.occs[0].excerpt as usize], "…: suite #tag fin");
+
+        // Several lines before the tag: same answer as counting everything.
+        let lines = ["é".repeat(90), "x".repeat(500), "court #tag".to_string(), String::new()];
+        let lines: Vec<&str> = lines.iter().map(String::as_str).collect();
+        for (start, tag_line, hash) in [(0, 2, 6), (1, 2, 6), (2, 2, 6), (0, 0, 180), (0, 1, 108), (0, 1, 109), (0, 1, 110)] {
+            for limit in [0, 1, 90, 199, 200, 201] {
+                assert_eq!(
+                    tag_is_far(&lines, start, tag_line, hash, limit),
+                    ref_tag_is_far(&lines, start, tag_line, hash, limit),
+                    "start {start} line {tag_line} byte {hash} limit {limit}"
+                );
+            }
+        }
+    }
 }

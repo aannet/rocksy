@@ -1,0 +1,102 @@
+{
+ "comment": "Shared by rocksy-core (tests/tags_list_cases.rs) and the UI (ui/tests/tagcases.test.ts): tags_list(query) of the core and filterTagLibrary(query) of the UI must both give `expected`. Each note is one file, in this order.",
+ "notes": ["#Projet/Alpha #projet/beta #Zeta", "#projet/alpha #alphabet #Beta/alpha", "#projet/Alpha/phase1 #balpha #école #zoo", "#École/alpha #xa/a/a #a/a #2024/q1", "#alphabet #zeta #beta/alpha/x #été", "#Zeta #alpha"],
+ "library": [
+  { "tag": "Projet", "count": 4 },
+  { "tag": "Projet/Alpha", "count": 3 },
+  { "tag": "Zeta", "count": 3 },
+  { "tag": "alphabet", "count": 2 },
+  { "tag": "Beta", "count": 2 },
+  { "tag": "Beta/alpha", "count": 2 },
+  { "tag": "école", "count": 2 },
+  { "tag": "2024", "count": 1 },
+  { "tag": "2024/q1", "count": 1 },
+  { "tag": "a", "count": 1 },
+  { "tag": "a/a", "count": 1 },
+  { "tag": "alpha", "count": 1 },
+  { "tag": "balpha", "count": 1 },
+  { "tag": "beta/alpha/x", "count": 1 },
+  { "tag": "projet/Alpha/phase1", "count": 1 },
+  { "tag": "projet/beta", "count": 1 },
+  { "tag": "xa", "count": 1 },
+  { "tag": "xa/a", "count": 1 },
+  { "tag": "xa/a/a", "count": 1 },
+  { "tag": "zoo", "count": 1 },
+  { "tag": "École/alpha", "count": 1 },
+  { "tag": "été", "count": 1 }
+ ],
+ "cases": [
+  {
+   "query": "",
+   "expected": ["Projet", "Projet/Alpha", "Zeta", "alphabet", "Beta", "Beta/alpha", "école", "2024", "2024/q1", "a", "a/a", "alpha", "balpha", "beta/alpha/x", "projet/Alpha/phase1", "projet/beta", "xa", "xa/a", "xa/a/a", "zoo", "École/alpha", "été"]
+  },
+  {
+   "query": "al",
+   "expected": ["alphabet", "alpha", "Projet/Alpha", "Beta/alpha", "beta/alpha/x", "projet/Alpha/phase1", "École/alpha", "balpha"]
+  },
+  {
+   "query": "AL",
+   "expected": ["alphabet", "alpha", "Projet/Alpha", "Beta/alpha", "beta/alpha/x", "projet/Alpha/phase1", "École/alpha", "balpha"]
+  },
+  {
+   "query": "#alpha",
+   "expected": ["alphabet", "alpha", "Projet/Alpha", "Beta/alpha", "beta/alpha/x", "projet/Alpha/phase1", "École/alpha", "balpha"]
+  },
+  {
+   "query": "  beta ",
+   "expected": ["Beta", "Beta/alpha", "beta/alpha/x", "projet/beta"]
+  },
+  {
+   "query": "a/a",
+   "expected": ["a/a", "Beta/alpha", "beta/alpha/x", "xa/a", "xa/a/a"]
+  },
+  {
+   "query": "é",
+   "expected": ["école", "École/alpha", "été"]
+  },
+  {
+   "query": "ecole",
+   "expected": []
+  },
+  {
+   "query": "zz",
+   "expected": []
+  },
+  {
+   "query": "p",
+   "expected": ["Projet", "Projet/Alpha", "projet/Alpha/phase1", "projet/beta", "alphabet", "Beta/alpha", "alpha", "balpha", "beta/alpha/x", "École/alpha"]
+  },
+  {
+   "query": "phase",
+   "expected": ["projet/Alpha/phase1"]
+  },
+  {
+   "query": "/",
+   "expected": ["Projet/Alpha", "Beta/alpha", "2024/q1", "a/a", "beta/alpha/x", "projet/Alpha/phase1", "projet/beta", "xa/a", "xa/a/a", "École/alpha"]
+  },
+  {
+   "query": "##zeta",
+   "expected": ["Zeta"]
+  },
+  {
+   "query": "q1",
+   "expected": ["2024/q1"]
+  },
+  {
+   "query": "a",
+   "expected": ["alphabet", "a", "a/a", "alpha", "Projet/Alpha", "Beta/alpha", "beta/alpha/x", "projet/Alpha/phase1", "xa/a", "xa/a/a", "École/alpha", "Zeta", "Beta", "balpha", "projet/beta", "xa"]
+  },
+  {
+   "query": "projet/",
+   "expected": ["Projet/Alpha", "projet/Alpha/phase1", "projet/beta"]
+  },
+  {
+   "query": "É",
+   "expected": ["école", "École/alpha", "été"]
+  },
+  {
+   "query": "x",
+   "expected": ["xa", "xa/a", "xa/a/a", "beta/alpha/x"]
+  }
+ ]
+}

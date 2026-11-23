@@ -1,0 +1,57 @@
+{
+ "scenario": "it-x20",
+ "saved": {
+  "attachMs": 602,
+  "autosave(off pour ne rien écrire dans x20)": false,
+  "x20_openVault": "{\"entries\":20747,\"addAndOpenMs\":254,\"metrics\":{\"mark:script-start\":100,\"mark:backend-ready\":100,\"mark:startup-info\":115,\"mark:events-wired\":121,\"mark:vault-requested\":121,\"mark:nav-response-end\":25,\"mark:nav-dom-content-loaded\":103,\"mark:first-file-prefetched\":0,\"openVaultMs\":133,\"mark:tree-received\":406,\"mark:tree-applied\":453,\"treeBuildMs\":39,\"treeEntries\":20747,\"treeReadyMs\":517}}",
+  "x20_tagsReadyWaitMs": 2346,
+  "x20_tags": "{\"tags\":{\"files\":9760,\"fromCache\":false,\"ms\":2489,\"occurrences\":46208,\"persisted\":true,\"removed\":0,\"reread\":9760,\"tags\":4199,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x20\"},\"fromSnapshot\":false,\"rowsInDom\":11}",
+  "x20_treeAllExpanded": "{\"rows\":20747,\"flattenMs\":1.7,\"renderMedianMs\":7.5,\"renderP95Ms\":12.8,\"rowsInDom\":69}",
+  "x20_openBig": "{\"loaded\":true,\"error\":null,\"ms\":113,\"name\":\"__DAILY NOTES SYNTH\"}",
+  "x20_quickOpenBench": "{\"items\":18544,\"ms\":[3.2,7.4,5,6.2,4,6.1,1.5,4.6,7,4.5],\"hits\":[50,50,50,2,0,1,50,50,50,1]}",
+  "x20_quickOpenTyped": "{\"filter\":4.3,\"render\":13,\"items\":18544,\"first\":\"Audit budget 00121.md\"}",
+  "x20_quickOpenEnter": "{\"active\":\"Audit budget 00121\",\"loaded\":true}",
+  "F9_panelUnfiltered": "{\"rows\":400,\"listMs\":22.1,\"count\":4199,\"label\":\"4 199 tags · 46 208 occurrences · 9 760 notes — à jour : 9 760 relues, 0 retirées (2489 ms)\"}",
+  "F9_filterMs(query,ms,tags,rows)": "[[\"p\",17.8,1107,400],[\"pr\",16,643,400],[\"pro\",16,505,400],[\"proj\",13.5,335,335],[\"proje\",13,335,335],[\"projet\",12.9,335,335],[\"projet/\",14.2,334,335],[\"\",17.6,4199,400],[\"e\",20,2805,400],[\"eq\",10.9,244,244],[\"equipe\",10.6,244,244],[\"theme\",8.6,180,180],[\"a\",20.6,1826,400],[\"xyz\",1.1,0,0]]",
+  "F9_typedFilter": "{\"listMsLastKey\":7.5,\"count\":335,\"rows\":335}",
+  "F9_fragments": "{\"tag\":\"projet\",\"fragMs\":60.3,\"frags\":500,\"head\":\"#projet500 premiers sur 3 769\"}",
+  "F9_fragmentClickToFlashMs": 35,
+  "F9_fragmentOpen": "{\"fragment\":{\"start\":133,\"end\":133,\"tagLine\":133,\"tag\":\"projet/ritalioncor/beta\",\"source\":\"inline\"},\"cursorLine0\":133,\"blockLines\":[\"| mentnivi | ok | #cycle/niko/revue #projet/ritalioncor/beta |\"],\"flashed\":1,\"doc\":\"__Stratégie modèle 04236\",\"samePath\":true}",
+  "F9_randomFragments": "{\"tags\":4199,\"kinds\":{\"liste\":2,\"paragraphe\":2,\"titre\":2,\"citation\":2},\"samples\":[{\"kind\":\"liste\",\"tag\":\"cycle/tendé/b012x17\",\"file\":\"Carte séance 06256.md\",\"start\":96,\"end\":98,\"tagLine\":96,\"tagCol\":77,\"atCol\":\"#cycle/tendé/b012x17\",\"before\":\"\",\"block\":[\"- Koeux talko accorsolion peré soldéioneux proou solréréion aireaire tenrédé #cycle/tendé/\",\"  - Outalcor kocoreux oudédanri marri\",\"  - Solmareux acpro koba eux soltalréac elsoltenlu ionbaionion\"],\"blockLen\":3,\"after\":\"- Outensolri solmar mentlu pepeeux\"},{\"kind\":\"liste\",\"tag\":\"cycle/euxpropro/b008x23\",\"file\":\"Carte synthèse 04257.md\",\"start\":68,\"end\":68,\"tagLine\":68,\"tagCol\":24,\"atCol\":\"#cycle/euxpropro/b008x23\",\"before\":\"  - Danmarpromar luaireba rériri solkoré. Acmarcor\",\"block\":[\"    - Oulucor badébaten #cycle/euxpropro/b008x23\"],\"blockLen\":1,\"after\":\"- Rirépeel acmarcor dédancor euxeuxoupro.\"},{\"kind\":\"paragraphe\",\"tag\":\"domaine/tendédé/b010x19\",\"file\":\"Étude réunion 04980.md\",\"start\":26,\"end\":26,\"tagLine\":26,\"tagCol\":71,\"atCol\":\"#domaine/tendédé/b010x19\",\"before\":\"\",\"block\":[\"Ment sol proba danac solsolni iondancon tenviniion danrévicor riouelac #domaine/tendédé/b0\"],\"blockLen\":1,\"after\":\"\"},{\"kind\":\"titre\",\"tag\":\"format/démardé/bilan\",\"file\":\"Architecture carte 03658.md\",\"start\":13,\"end\":13,\"tagLine\":13,\"tagCol\":28,\"atCol\":\"#format/démardé/bilan\",\"before\":\"\",\"block\":[\"## Veille Acninisol pepemar #format/démardé/bilan\"],\"blockLen\":1,\"after\":\"\"},{\"kind\":\"paragraphe\",\"tag\":\"b0-t35\",\"file\":\"Projet réunion 00142.md\",\"start\":8,\"end\":8,\"tagLine\":8,\"tagCol\":35,\"atCol\":\"#b0-t35\",\"before\":\"---\",\"block\":[\"#theme01 #theme09 #b0-t39 #meeting #b0-t35 #theme16 #b0-t59 #theme16 #b0-t53 #b0-t7\"],\"blockLen\":1,\"after\":\"\"},{\"kind\":\"titre\",\"tag\":\"domaine/euxko/b010x9\",\"file\":\"Audit note 05313.md\",\"start\":15,\"end\":15,\"tagLine\":15,\"tagCol\":37,\"atCol\":\"#domaine/euxko/b010x9\",\"before\":\"\",\"block\":[\"#### Cadre Cormentoucon eltenmentmar #domaine/euxko/b010x9\"],\"blockLen\":1,\"after\":\"\"},{\"kind\":\"citation\",\"tag\":\"outil/prokocor/b010x20\",\"file\":\"Décision audit 05262.md\",\"start\":12,\"end\":14,\"tagLine\":13,\"tagCol\":96,\"atCol\":\"#outil/prokocor/b010x20\",\"before\":\"\",\"block\":[\"> [!example] Qualité Soleuxpe promentpro\",\"> Rilubapro pevielvi. Ridépe délu. Proiondanvi lupro danluko corpetencon aire ouvi mentelp\",\"> Contallu airedé nidan luko luré. Promartaldé réelaireel\"],\"blockLen\":3,\"after\":\"\"},{\"kind\":\"citation\",\"tag\":\"lieu/déludanment/b011x12\",\"file\":\"Projet backlog 05574.md\",\"start\":81,\"end\":84,\"tagLine\":82,\"tagCol\":92,\"atCol\":\"#lieu/déludanment/b011x12\",\"before\":\"\",\"block\":[\"> [!info] Veille Iondanmardan solviou\",\"> Talelrivi solmentel ouriréri ré badé mentnivi cordédémar ré kopedan ripevi marou vielria\",\"> Déion tenniion talaire ousoloudé talprotalion ackodé menteuxion\",\"> Pevilu martalkoré tennipro euxbape peactenni niel pesoltenvi ionbaionion batalricor coro\"],\"blockLen\":4,\"after\":\"\"}]}",
+  "F4_completion": "{\"popup\":0,\"completeFilesMs\":5.9,\"n\":30}",
+  "F4_inserted": "{\"line\":{\"n\":154,\"text\":\"\"},\"dirty\":false}",
+  "F4_linkToClick": "Audit processus 00402",
+  "F4_linkOpened": "{\"active\":\"Audit processus 00402\",\"loaded\":true,\"path\":\"0_INBOX\\\\équipe 000-00\\\\client 000-40\\\\Audit processus 00402.md\"}",
+  "F5_split": "[[\"__DAILY NOTES SYNTH\",\"Audit budget 00121\",\"__Stratégie modèle 04236\",\"second\"],[\"Audit processus 00402\"]]",
+  "docsAtEnd": "[[\"__DAILY NOTES SYNTH\",false],[\"Audit budget 00121\",false],[\"__Stratégie modèle 04236\",false],[\"Audit processus 00402\",false]]",
+  "x20_bigNoteUntouched": {
+   "before": {
+    "size": 318443,
+    "sha1": "99a3f8c58e6c74c7066c4b9c00c3360e6665e14c",
+    "bom": false,
+    "crlf": 0,
+    "lf": 4371,
+    "endsWithNewline": true,
+    "tailHex": "6c736f6c206575786d61720a"
+   },
+   "after": {
+    "size": 318443,
+    "sha1": "99a3f8c58e6c74c7066c4b9c00c3360e6665e14c",
+    "bom": false,
+    "crlf": 0,
+    "lf": 4371,
+    "endsWithNewline": true,
+    "tailHex": "6c736f6c206575786d61720a"
+   },
+   "changedBlocks": 0,
+   "changes": []
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  32636
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

@@ -1,0 +1,108 @@
+{
+ "steps": [
+  {
+   "nav": "{DIST}?start=arg"
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.activeDoc() && rocksy.activeDoc().loaded",
+   "timeout": 20000
+  },
+  {
+   "eval": "JSON.stringify({doc:rocksy.activeDoc().name, readOnly:rocksy.activeDoc().readOnly, calls:rocksyMock.calls.slice(0,6), prefetched:rocksy.metrics.firstFilePrefetched})",
+   "save": "A0_explicitFileIsEditable"
+  },
+  {
+   "eval": "(()=>{rocksy.openLink({kind:'url',href:'voisin.md'},rocksyMock.outside,false);return 1})()"
+  },
+  {
+   "wait": "rocksy.activeDoc().name==='voisin' && rocksy.activeDoc().loaded",
+   "timeout": 5000
+  },
+  {
+   "eval": "(()=>{rocksy.focused.view.focus();return 1})()"
+  },
+  {
+   "type": "zzz"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "key": "b",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 2500
+  },
+  {
+   "eval": "JSON.stringify({readOnly:rocksy.activeDoc().readOnly, badge:!!document.querySelector('.tab.is-active .tab-badge.is-readonly'), status:document.querySelector('.st-save').textContent, statusTitle:document.querySelector('.st-save').title, textUnchanged:rocksy.focused.view.state.doc.toString()===rocksyMock.textOf('C:\\\\Temp\\\\Notes\\\\voisin.md'), dirty:rocksy.activeDoc().dirty, saves:rocksyMock.saves.length, saveCalls:rocksyMock.calls.filter(c=>c==='save_file').length, stateReadOnly:rocksy.focused.view.state.readOnly})",
+   "save": "A1_linkedFileIsReadOnly"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "document.querySelector('.st-toast').textContent",
+   "save": "A2_ctrlSExplains"
+  },
+  {
+   "shot": "readonly-linked-note.png"
+  },
+  {
+   "eval": "(()=>{rocksy.openLink({kind:'url',href:'memo.txt'},rocksyMock.outside,false);return 1})()"
+  },
+  {
+   "wait": "rocksy.activeDoc().name==='memo.txt' && rocksy.activeDoc().loaded",
+   "timeout": 5000
+  },
+  {
+   "eval": "(()=>{rocksy.focused.view.focus();return 1})()"
+  },
+  {
+   "type": "abc"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "JSON.stringify({readOnly:rocksy.activeDoc().readOnly, dirty:rocksy.activeDoc().dirty, toast:document.querySelector('.st-toast').textContent, status:document.querySelector('.st-save').textContent, saveCalls:rocksyMock.calls.filter(c=>c==='save_file').length})",
+   "save": "A3_txtIsReadOnly"
+  },
+  {
+   "eval": "rocksy.openPath('C:\\\\Prive\\\\secret.md').then(()=>JSON.stringify({error:rocksy.activeDoc().error, shown:document.querySelector('.pane .empty').textContent}))",
+   "save": "B1_pathNotAllowed"
+  },
+  {
+   "shot": "readonly-path-refused.png"
+  },
+  {
+   "eval": "(()=>{rocksyMock.allowOpened('C:\\\\Temp\\\\Notes\\\\gros.md');rocksyMock.setFile('C:\\\\Temp\\\\Notes\\\\gros.md','x',60*1024*1024);return rocksy.openPath('C:\\\\Temp\\\\Notes\\\\gros.md').then(()=>JSON.stringify({error:rocksy.activeDoc().error}))})()",
+   "save": "B2_fileTooLarge"
+  },
+  {
+   "shot": "readonly-file-too-large.png"
+  },
+  {
+   "eval": "(()=>{const before=rocksy.docs().length;const reads=rocksyMock.calls.filter(c=>c==='read_file').length;const out=[];for(const l of [{kind:'url',href:'//serveur/partage/x.md'},{kind:'url',href:'file://serveur/partage/x.md'},{kind:'wiki',inner:'\\\\\\\\serveur\\\\partage\\\\note'}]){rocksy.openLink(l,rocksyMock.outside,false);out.push(document.querySelector('.st-toast').textContent)}return JSON.stringify({toasts:out, newTabs:rocksy.docs().length-before, newReads:rocksyMock.calls.filter(c=>c==='read_file').length-reads, external:rocksyMock.calls.filter(c=>c==='open_external').length})})()",
+   "save": "C1_networkLinkNotOpened"
+  },
+  {
+   "eval": "rocksy.openPath(rocksyMock.outside).then(()=>{const v=rocksy.focused.view;v.dispatch({changes:{from:v.state.doc.length,insert:'\\n\\n![reseau](//serveur/partage/a.png)\\n\\n![[\\\\\\\\serveur\\\\p\\\\b.png]]\\n\\n![absente](img/absente-xyz.png)\\n\\nfin\\n'}});v.dispatch({selection:{anchor:v.state.doc.length},scrollIntoView:true});v.focus();return 1})"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify({chips:[...document.querySelectorAll('.cm-lp-img-missing')].map(e=>e.textContent.trim()), imgsToNetwork:[...document.querySelectorAll('img')].filter(i=>/serveur/.test(i.src)).length})",
+   "save": "C2_networkImageChip"
+  },
+  {
+   "shot": "readonly-network-image.png"
+  }
+ ]
+}

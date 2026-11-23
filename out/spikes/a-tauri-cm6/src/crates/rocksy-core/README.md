@@ -72,7 +72,7 @@ const MAX_BATCH_PATHS: usize = 2000;
 fn load_session(data_dir: &Path) -> Option<Session>;
 fn save_session(data_dir: &Path, session: &Session) -> Result<()>;
 
-// Erreurs : ApiError { kind: not_found | not_utf8 | conflict | io | invalid, message }
+// Erreurs : ApiError { kind: not_found | not_utf8 | conflict | io | invalid, message, code?: too_large | network_path | not_allowed | read_only | gone }
 ```
 
 ## Comportements à connaître

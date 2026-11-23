@@ -1,0 +1,10 @@
+{
+ "scenario": "security",
+ "saved": {
+  "titleBefore": "Rocksy",
+  "SEC1_SEC9_hostileCanvas": "{\"titleUnchanged\":true,\"pwned\":null,\"imgs\":0,\"scripts\":0,\"handlerAttrs\":0,\"bgImages\":0,\"nodes\":4,\"groups\":1,\"edgePaths\":7,\"pathD\":[\"M460 40 C500 40 460 40 500 40\",\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\",\"M14 2v5h6\",\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\",\"M14 2v5h6\",\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\",\"M14 2v5h6\"],\"opens\":[\"00__DEMO/Journal.md\"],\"badge\":\"Canvas en lecture seule · 5 nœuds · 1 liens · 3 éléments invalides ignorés\",\"groupLabel\":\"<img src=x o\",\"blocked\":[\"Chemin refusé (hors du vault) \",\"Chemin refusé (hors du vault) \",\"# Journal\\n\\nNote courte liée de\"],\"reads\":2}",
+  "SEC6_tableReDoS": "{\"renderMs\":108,\"under1s\":true,\"table\":true,\"cells\":6,\"longCellIsPlainText\":true,\"linkHref\":[\"https://exemple.test/a_(b)\"]}"
+ },
+ "errors": [],
+ "csp": []
+}

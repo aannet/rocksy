@@ -554,9 +554,9 @@ fn clear_forgets_the_vault_and_another_vault_gets_its_own_file() {
 
 #[test]
 fn reconcile_report_json_is_camel_case() {
-    let report = ReconcileReport { files: 1, tags: 2, occurrences: 3, ms: 4, reread: 5, removed: 6, unchanged: 7, persisted: true };
+    let report = ReconcileReport { files: 1, tags: 2, occurrences: 3, ms: 4, reread: 5, removed: 6, unchanged: 7, persisted: true, pending: 8, unread: 3 };
     assert_eq!(
         serde_json::to_value(report).unwrap(),
-        serde_json::json!({"files": 1, "tags": 2, "occurrences": 3, "ms": 4, "reread": 5, "removed": 6, "unchanged": 7, "persisted": true})
+        serde_json::json!({"files": 1, "tags": 2, "occurrences": 3, "ms": 4, "reread": 5, "removed": 6, "unchanged": 7, "persisted": true, "pending": 8, "unread": 3})
     );
 }

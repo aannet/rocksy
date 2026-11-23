@@ -1,0 +1,27 @@
+{
+ "scenario": "it-iso-b",
+ "saved": {
+  "attachMs": 728,
+  "B_freshDataDir_seesA?": "{\"autosave\":true,\"lsAutosave\":null,\"probe\":null,\"keys\":[]}",
+  "B_dataDir": [
+   "opened.json",
+   "timings.jsonl",
+   "webview"
+  ],
+  "openExternal_file_refused": "{\"kind\":\"invalid\",\"message\":\"unsupported link scheme: file:///C:/x\"}",
+  "openExternal_js_refused": "{\"kind\":\"invalid\",\"message\":\"unsupported link scheme: javascript:alert(1)\"}",
+  "linkClick_callsOpenExternalWith": "[\"https://example.org\"]",
+  "R_line20k_open": "{\"loaded\":true,\"error\":null,\"ms\":69,\"name\":\"longue20k\"}",
+  "R_line20k_length": 20016,
+  "R_line20k_latency": "{\"n\":68,\"update\":{\"median\":16.5,\"p95\":19.4,\"max\":32.9},\"withLayout\":{\"median\":16.6,\"p95\":19.5,\"max\":33.2}}",
+  "sourceMode": true,
+  "R_line20k_latency_sourceMode": "{\"n\":64,\"update\":{\"median\":16.2,\"p95\":18.3,\"max\":19.8},\"withLayout\":{\"median\":16.3,\"p95\":18.5,\"max\":19.9}}"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  34144
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

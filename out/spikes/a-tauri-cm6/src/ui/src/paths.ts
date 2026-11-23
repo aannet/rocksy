@@ -69,8 +69,31 @@ export function toRel(root: string, abs: string): string | null {
   return a.slice(r.length + 1);
 }
 
+/**
+ * True for a path the OS would resolve on the network or through a device namespace: UNC (`\\server\share`,
+ * `//server/share`, mixed slashes) and `\\?\`, `\\.\` prefixes. Touching such a path from rendered content would
+ * open an SMB connection (and leak NTLM credentials), so content-driven resolution must never load it.
+ */
+export function isNetworkPath(p: string): boolean {
+  return /^[\\/]{2}/.test(p);
+}
+
+/** True for an absolute local path (`C:\a`, `C:/a`, `/a`). Network paths (see `isNetworkPath`) are not "absolute" here. */
 export function isAbsolute(p: string): boolean {
-  return /^([a-zA-Z]:[\\/]|[\\/])/.test(p);
+  return /^([a-zA-Z]:[\\/]|[\\/])/.test(p) && !isNetworkPath(p);
+}
+
+/**
+ * Checks a relative path coming from untrusted content (a canvas `file` field) and returns it normalised
+ * ("/" separators, no "." or ".." segment), or null when it could leave its base folder: absolute or network
+ * path, drive / scheme / alternate stream (":"), "..", or a dots-and-spaces segment that Windows would trim to "..".
+ */
+export function safeRelPath(rel: string): string | null {
+  if (!rel || rel.includes("\0") || rel.includes(":") || /^[\\/]/.test(rel)) return null;
+  for (const part of rel.split(/[\\/]/)) if (part !== "." && part !== ".." && /^[. ]+$/.test(part)) return null;
+  const clean = normalizeRel(rel);
+  if (!clean || clean === ".." || clean.startsWith("../")) return null;
+  return clean;
 }
 
 const IMAGE_EXT = new Set(["png", "jpg", "jpeg", "gif", "svg", "webp", "bmp", "avif"]);

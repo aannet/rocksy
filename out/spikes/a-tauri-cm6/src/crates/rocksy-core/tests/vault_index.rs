@@ -6,8 +6,9 @@ mod common;
 use common::{fingerprint, TempDir};
 use rocksy_core::{
     save_file, tags_index_path, BuildOptions, CancelToken, LinkKind, OutLink, ReconcileReport, SearchResult,
-    TagIndex, VaultIndex,
+    TagIndex, VaultIndex, SEARCH_COMMIT_DELAY,
 };
+use std::time::Instant;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -507,22 +508,39 @@ fn search_follows_saves_and_reconciles() {
     let index = VaultIndex::new();
     reconcile(&index, &data, &vault);
 
-    // A save: searchable when the call returns, old words gone, tags too.
+    // A save: tags at once; full-text search after the deferred commit,
+    // which is due SEARCH_COMMIT_DELAY after the save, not before.
     let note = at(&vault, "notes/Divers.md");
     let text = "Texte entièrement nouveau sur les baleines. #mer/océan\n";
     let saved = save_file(&note, text, None).unwrap();
+    assert!(!index.search_commit_pending());
+    let before = Instant::now();
     assert!(index.update_file_with_meta(&note, text, saved.size, saved.mtime_ms));
+    assert_eq!(index.tag_fragments("mer/océan", None).len(), 1, "tags do not wait");
+    assert!(index.search_commit_pending());
+    assert!(!index.commit_search_if_due(before), "not due yet");
+    let early = found(&index, &vault, "baleines");
+    if before.elapsed() < SEARCH_COMMIT_DELAY {
+        assert!(early.is_empty(), "the save no longer waits for the commit");
+    }
+    assert!(index.commit_search_if_due(Instant::now() + SEARCH_COMMIT_DELAY));
+    assert!(!index.search_commit_pending());
     assert_eq!(found(&index, &vault, "baleines"), ["notes/Divers.md"]);
     assert!(found(&index, &vault, "brouillon").is_empty());
     assert_eq!(found(&index, &vault, "tag:mer"), ["notes/Divers.md"]);
     assert!(found(&index, &vault, "tag:projet").is_empty());
     assert_eq!(index.index_ready(false, 0, None).search_docs, 6);
+    // A pass that reads and removes nothing does not rewrite the tags file:
+    // that is left to save_if_due (once a minute at most) and save.
     let report = reconcile(&index, &data, &vault);
-    assert_eq!((report.reread, report.persisted), (0, true), "the saved note is read by neither store");
+    assert_eq!((report.reread, report.persisted), (0, false), "the saved note is read by neither store");
+    assert!(index.is_dirty());
+    assert!(index.save(&data).unwrap());
 
-    // A note the application removes.
+    // A note the application removes: gone from search after the commit.
     fs::remove_file(at(&vault, "notes/Architecture.md")).unwrap();
     index.remove_file(&at(&vault, "notes/Architecture.md"));
+    assert!(index.flush_search());
     assert_eq!(found(&index, &vault, "architecture"), ["Résumé.md", "journal/2026-01.md"]);
 
     // External changes, seen by reconcile: added, modified, removed.
@@ -537,9 +555,10 @@ fn search_follows_saves_and_reconciles() {
     assert!(found(&index, &vault, "reunion").is_empty());
     assert_eq!(index.index_ready(false, 0, None).search_docs, 5);
 
-    // Text that is not on disk (old signature, unsaved): searchable now,
-    // replaced by the disk content at the next reconcile.
+    // Text that is not on disk (old signature, unsaved): searchable after
+    // the commit, replaced by the disk content at the next reconcile.
     assert!(index.update_file(&note, "un brouillon avec un narval\n"));
+    assert!(index.flush_search());
     assert_eq!(found(&index, &vault, "narval"), ["notes/Divers.md"]);
     assert_eq!(reconcile(&index, &data, &vault).reread, 1);
     assert!(found(&index, &vault, "narval").is_empty());

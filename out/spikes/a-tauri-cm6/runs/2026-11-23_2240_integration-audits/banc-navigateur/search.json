@@ -1,0 +1,19 @@
+{
+ "scenario": "search",
+ "saved": {
+  "startup_and_status_beforeSearchReady": "{\"metrics\":{\"mark:script-start\":89,\"mark:backend-ready\":97,\"mark:startup-info\":291,\"mark:file-read\":314,\"firstFilePrefetched\":1,\"mark:state-created\":329,\"editorReadyMs\":459,\"mark:events-wired\":464,\"mark:vault-requested\":523,\"mark:first-frame\":545,\"editorPaintedMs\":556,\"mark:nav-response-end\":7,\"mark:nav-dom-content-loaded\":91,\"mark:first-file-prefetched\":1,\"openVaultMs\":100,\"mark:tree-received\":564,\"mark:tree-applied\":587,\"treeBuildMs\":9.9,\"treeEntries\":18348,\"treeReadyMs\":618,\"treeRowsInDom\":52},\"calls\":[\"startup_info\",\"open_vault\",\"build_tags\"],\"status\":\"Index : tags ✓ liens ✓ · recherche…\",\"title\":\"8 976 notes · 43 tags · 53 427 liens (53 410 non résolus) · recherche : en préparation\"}",
+  "whileNotReady": "{\"msg\":\"Index de recherche en préparation… La recherche se lancera dès qu'il sera prêt.\",\"ready\":false,\"calls\":1}",
+  "autoReplayWaitMs": 4281,
+  "resultsAfterReady": "{\"info\":\"8 277 fichiers · 68 ms · 50 premiers affichés\",\"files\":50,\"matches\":150,\"marks\":173,\"status\":\"Index ✓\"}",
+  "selectedRow": "{\"sel\":\"8- ~~pendant selon avant trajectoire compte dépendance analyse processus~~ analy\",\"row\":{\"path\":\"C:\\\\Vaults\\\\Demo\\\\01__WORK\\\\équipe\\\\jalon-045\\\\Planning objectif 09251.md\",\"line\":7,\"col\":111,\"len\":4}}",
+  "enterToFlashMs": 34,
+  "openedFromResult": "{\"doc\":\"__WORK\\\\équipe\\\\jalon-045\\\\Planning objectif 09251.md\",\"expected\":{\"path\":\"C:\\\\Vaults\\\\Demo\\\\01__WORK\\\\équipe\\\\jalon-045\\\\Planning objectif 09251.md\",\"line\":7,\"col\":111,\"len\":4},\"cursorLine0\":7,\"cursorCol\":115,\"lineText\":\"- ~~pendant selon avant trajectoire compte dépendance analyse processus~~ analys\",\"atCursor\":\" des q\",\"termMarks\":16,\"flash\":1,\"focusInInput\":false}",
+  "openedByClick": "{\"doc\":\"Planning version 07370\",\"cursorLine0\":10,\"atCursor\":\"ning e\"}",
+  "afterEscape": "{\"value\":\"\",\"rows\":0,\"termMarks\":0,\"help\":true}",
+  "searchLatency(typed 140ms apart, 8976 notes)": "{\"n\":80,\"keystrokeToPainted\":{\"median\":178,\"p95\":229.4,\"max\":261.8},\"callRoundTrip\":{\"median\":79.1,\"p95\":128.7,\"max\":156},\"backend\":{\"median\":75.5,\"p95\":124.5,\"max\":153.1},\"docs\":82,\"info\":\"2 439 fichiers · 39 ms · 50 premiers affichés\"}",
+  "syntaxCases": "{\"\\\"plan de\\\"\":{\"info\":\"1 212 fichiers · 37 ms · 50 premiers affichés\",\"files\":50,\"first\":\"Plan déploiement 00045\"},\"plan -budget\":{\"info\":\"765 fichiers · 13 ms · 50 premiers affichés\",\"files\":50,\"first\":\"Estimation plan 10010\"},\"path:00__demo tableau\":{\"info\":\"2 fichiers · 4,8 ms\",\"files\":2,\"first\":\"Tableaux et code\"},\"zzzzqq\":{\"info\":\"0 fichier · 5,1 ms\",\"files\":0,\"msg\":\"Aucun résultat pour « zzzzqq »\"},\"tag:demo\":{\"info\":\"4 fichiers · 5,7 ms\",\"files\":4,\"first\":\"Callouts\"},\"resume\":{\"info\":\"0 fichier · 39 ms\",\"files\":0,\"msg\":\"Aucun résultat pour « resume »\"}}",
+  "staleAnswerIgnored": "{\"lastQuery\":\"planning budget\",\"info\":\"6 625 fichiers · 78 ms · 50 premiers affichés\",\"first\":\"# Budget planning 17254\"}"
+ },
+ "errors": [],
+ "csp": []
+}

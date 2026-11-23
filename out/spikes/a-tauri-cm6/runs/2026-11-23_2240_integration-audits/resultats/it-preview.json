@@ -1,0 +1,33 @@
+{
+ "scenario": "it-preview",
+ "saved": {
+  "attachMs": 592,
+  "welcome": "{\"buttons\":[\"Ouvrir un fichier…\",\"Ajouter un vault\"],\"vaults\":[],\"sidebarHidden\":true}",
+  "treeEntries": 1052,
+  "tagsReadyWaitMs": 186,
+  "afterAddVault": "{\"metrics\":{\"mark:script-start\":95,\"mark:backend-ready\":95,\"mark:startup-info\":108,\"mark:events-wired\":114,\"mark:vault-requested\":114,\"mark:nav-response-end\":23,\"mark:nav-dom-content-loaded\":98,\"mark:first-file-prefetched\":0,\"openVaultMs\":18,\"mark:tree-received\":535,\"mark:tree-applied\":538,\"treeBuildMs\":6.9,\"treeEntries\":1052,\"treeReadyMs\":568,\"treeRowsInDom\":11},\"tags\":{\"files\":491,\"fromCache\":false,\"ms\":209,\"occurrences\":2918,\"persisted\":true,\"removed\":0,\"reread\":491,\"tags\":614,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\v1\"},\"vaults\":[{\"path\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\v1\",\"name\":\"v1\"}],\"sidebarHidden\":false,\"rows\":11}",
+  "openBig": "{\"loaded\":true,\"error\":null,\"ms\":109,\"name\":\"__DAILY NOTES SYNTH\"}",
+  "f1Counts": "{\"line\":-1,\"hiddenMarks\":0,\"h\":1,\"tags\":0,\"checks\":0,\"bullets\":23,\"links\":23,\"quotes\":0,\"code\":0}",
+  "cursorInBold": "{\"line\":-1,\"text\":{\"n\":1,\"text\":\"---\"}}",
+  "embedLine": 145,
+  "imagesWaitMs": 66,
+  "f3Images": "[{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5\"},{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5\"},{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5\"},{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5\"},{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5\"},{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cv1%5\"}]",
+  "codeBlock": "{\"line\":268,\"cb\":6}",
+  "codeColor": "{\"label\":[\"Shell\"],\"coloredSpans\":9}",
+  "openNote": "{\"loaded\":true,\"error\":null,\"ms\":14,\"name\":\"Décision plan 00434\"}",
+  "table": "{\"line\":37,\"tables\":1}",
+  "tableSource": "{\"line\":37,\"tablesAfterCursor\":0,\"src\":5}",
+  "callout": "{\"line\":110,\"callouts\":1}",
+  "fmOpenInFreshProfile": "{\"folded\":0,\"head\":1,\"preference\":null}",
+  "fmFolded": "{\"folded\":1,\"head\":0,\"preference\":\"1\"}",
+  "fmUnfolded": "{\"folded\":0,\"lines\":11}",
+  "docsDirty": "[[\"__DAILY NOTES SYNTH\",false],[\"Décision plan 00434\",false]]"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  31404
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

@@ -1,0 +1,113 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-robust-x20",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\fresh-x20"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\x20",
+   "dst": "{IT}\\fresh-x20"
+  }
+ ],
+ "note": "Close request (CloseMainWindow) during the first indexing of a fresh copy of x20",
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{window.__p=[];window.__TAURI__.event.listen('tags-progress',e=>window.__p.push(e.payload));T.addVault(T.it('fresh-x20'));return 1})()"
+  },
+  {
+   "wait": "window.__p.length>0 && window.__p[window.__p.length-1].done>=800",
+   "timeout": 60000
+  },
+  {
+   "eval": "JSON.stringify({progressWhenCloseIsAsked:window.__p[window.__p.length-1], indexEvents:rocksy.indexEvents.length})",
+   "save": "R2_stateWhenClosing"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 15000,
+   "save": "R2_closeDuringFirstIndexing"
+  },
+  {
+   "py": "alive",
+   "save": "R2_aliveAfterClose"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-a5-robust-x20",
+   "save": "R2_dataDirAfterClose"
+  },
+  {
+   "restart": {
+    "args": []
+   },
+   "save": "R2_relaunchAttachMs"
+  },
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(async()=>{const had=!!rocksy.vaultRoot;if(!had){await T.addVault(T.it('fresh-x20'))}const ms=await T.wait(()=>rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady&&!e.pending),240000);return JSON.stringify({sessionRestoredVault:had, indexWaitMs:ms})})()",
+   "save": "R2_afterRelaunch"
+  },
+  {
+   "sleep": 4000
+  },
+  {
+   "eval": "(async()=>{const r=await T.inv('search',{query:'plan'});return JSON.stringify({events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,reread:e.reread,files:e.files,searchDocs:e.searchDocs,pending:e.pending,ms:e.ms})), search:{total:r.total,ready:r.searchReady}, tags:(await T.inv('tags_list',{query:''})).length})})()",
+   "save": "R2_afterRelaunch_index"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-robust-x20\\timings.jsonl",
+   "name": "index-pending",
+   "save": "R2_pendingLog"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 15000,
+   "save": "R2_secondClose"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksy && rocksy.tagsInfo",
+   "timeout": 20000
+  },
+  {
+   "eval": "(async()=>JSON.stringify({sinceNavigationMs:Math.round(performance.now()), tagsAvailable:(await window.__TAURI__.core.invoke('tags_list',{query:''})).length, tagsInfo:rocksy.tagsInfo}))()",
+   "save": "R3x20_tagsRightAway"
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.indexEvents.some(e=>!e.fromCache)",
+   "timeout": 30000
+  },
+  {
+   "eval": "JSON.stringify(rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,reread:e.reread,files:e.files,searchDocs:e.searchDocs,pending:e.pending})))",
+   "save": "R3x20_thirdLaunch_index"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 15000,
+   "save": "closed"
+  }
+ ]
+}

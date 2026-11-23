@@ -1,0 +1,216 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-robust",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\rv"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\x1",
+   "dst": "{IT}\\rv"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('rv'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "eval": "(async()=>{await T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));rocksy.queueSession();await new Promise(r=>setTimeout(r,600));const r=await T.inv('search',{query:'plan'});return JSON.stringify({searchPlan:r.total, tags:(await T.inv('tags_list',{query:''})).length})})()",
+   "save": "R0_baseline"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "R0_close"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-a5-robust",
+   "save": "R0_dataDir"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksy && rocksy.tagsInfo",
+   "timeout": 20000,
+   "save": "R3_tagsInfoWaitMs"
+  },
+  {
+   "eval": "(async()=>{const t=Math.round(performance.now());const tags=(await window.__TAURI__.core.invoke('tags_list',{query:''})).length;return JSON.stringify({sinceNavigationMs:t, tagsAvailable:tags, tagsInfo:rocksy.tagsInfo})})()",
+   "save": "R3_tagsRightAway"
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 30000
+  },
+  {
+   "eval": "JSON.stringify({events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,files:e.files,searchDocs:e.searchDocs,reread:e.reread,pending:e.pending})), status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,200)})",
+   "save": "R3_events"
+  },
+  {
+   "py": "jsonl",
+   "path": "{IT}\\data-a5-robust\\timings.jsonl",
+   "save": "R3_timings"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "R3_close"
+  },
+  {
+   "py": "corrupt",
+   "path": "{IT}\\data-a5-robust\\search",
+   "suffix": ".term",
+   "offset": 40,
+   "count": 32,
+   "save": "R1_corruptedFiles_term"
+  },
+  {
+   "py": "corrupt",
+   "path": "{IT}\\data-a5-robust\\search",
+   "suffix": ".store",
+   "offset": 40,
+   "count": 32,
+   "save": "R1_corruptedFiles_store"
+  },
+  {
+   "restart": {
+    "args": []
+   },
+   "save": "R1_restartAttachMs"
+  },
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000,
+   "save": "R1_readyWaitMs"
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.wait(()=>rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady&&e.searchDocs>0),60000).then(ms=>ms)",
+   "save": "R1_indexBackAfterMs"
+  },
+  {
+   "eval": "JSON.stringify({events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,files:e.files,searchDocs:e.searchDocs,reread:e.reread,pending:e.pending})), status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,200)})",
+   "save": "R1_events"
+  },
+  {
+   "eval": "T.inv('search',{query:'plan'}).then(r=>JSON.stringify({total:r.total,searchReady:r.searchReady}))",
+   "save": "R1_search"
+  },
+  {
+   "py": "alive",
+   "save": "R1_alive"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-robust\\timings.jsonl",
+   "name": "index-pending",
+   "save": "R1_pendingLog"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "R1_close"
+  },
+  {
+   "py": "corrupt",
+   "path": "{IT}\\data-a5-robust\\search",
+   "suffix": "meta.json",
+   "offset": 10,
+   "count": 40,
+   "save": "R1b_corruptedFiles_meta"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000,
+   "save": "R1b_readyWaitMs"
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.wait(()=>rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady&&e.searchDocs>0),60000).then(ms=>ms)",
+   "save": "R1b_indexBackAfterMs"
+  },
+  {
+   "eval": "JSON.stringify({events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,files:e.files,searchDocs:e.searchDocs,reread:e.reread,pending:e.pending})), status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,200)})",
+   "save": "R1b_events"
+  },
+  {
+   "eval": "T.inv('search',{query:'plan'}).then(r=>JSON.stringify({total:r.total,searchReady:r.searchReady}))",
+   "save": "R1b_search"
+  },
+  {
+   "py": "alive",
+   "save": "R1b_alive"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "R1b_close"
+  },
+  {
+   "py": "corrupt",
+   "path": "{IT}\\data-a5-robust\\tags",
+   "suffix": ".tags",
+   "offset": 30,
+   "count": 64,
+   "save": "R1c_corruptedFiles_tags"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.wait(()=>rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady&&e.searchDocs>0),60000).then(ms=>ms)",
+   "save": "R1c_indexBackAfterMs"
+  },
+  {
+   "eval": "JSON.stringify({events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,files:e.files,searchDocs:e.searchDocs,reread:e.reread,pending:e.pending})), status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,200)})",
+   "save": "R1c_events"
+  },
+  {
+   "eval": "(async()=>JSON.stringify({tags:(await T.inv('tags_list',{query:''})).length, search:(await T.inv('search',{query:'plan'})).total, csp:window.rocksyCsp}))()",
+   "save": "R1c_state"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "closed"
+  }
+ ]
+}

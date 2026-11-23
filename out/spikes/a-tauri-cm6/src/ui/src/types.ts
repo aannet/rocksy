@@ -6,13 +6,16 @@ export type StartupInfo = {
   dataDir: string;
   version: string;
   processStartMs: number;
+  /** The note the UI will open first, read by the backend while the WebView starts; null when not available. */
+  firstFile: FileContent | null;
 };
 export type VaultRef = { path: string; name: string };
 export type Session = { activeVault: string | null; tabs: string[]; activeTab: string | null };
-export type FileContent = { path: string; text: string; mtimeMs: number; size: number };
+/** `readOnly`: `save_file` would be refused for this path (non-Markdown extension, or writing not allowed). */
+export type FileContent = { path: string; text: string; mtimeMs: number; size: number; readOnly: boolean };
 export type SaveResult = { mtimeMs: number; size: number };
 export type Tree = { root: string; fromSnapshot: boolean; entries: TreeEntry[] };
-export type TreeEntry = { path: string; isDir: boolean; size: number; mtimeMs: number };
+export type TreeEntry = { path: string; isDir: boolean };
 export type TagCount = { tag: string; count: number };
 export type Fragment = {
   path: string;
@@ -71,16 +74,27 @@ export type IndexReady = {
   searchDocs: number;
   reread?: number;
   removed?: number;
+  /** Notes the last pass could not bring up to date (read failed); the backend reads them again by itself. Absent when the event does not come from a pass. */
+  pending?: number;
   ms: number;
+  /** Changes when a link of the vault changes (target, position) or when the set of files changes. */
+  linksGeneration: number;
+  /** Root of the vault the event is about (same form as `Tree.root`). */
+  vault: string;
 };
 export type ApiErrorKind = "not_found" | "not_utf8" | "conflict" | "io" | "invalid";
-export type ApiError = { kind: ApiErrorKind; message: string };
+/** Stable reason of an error, when the UI is expected to react to it (the message is English text and may change). */
+export type ApiErrorCode = "too_large" | "network_path" | "not_allowed" | "read_only" | "gone";
+export type ApiError = { kind: ApiErrorKind; message: string; code?: ApiErrorCode };
 
 export type BackendEvents = {
   "open-files": { paths: string[] };
   "tree-updated": Tree;
-  "tags-progress": { done: number; total: number };
-  "tags-ready": { files: number; tags: number; occurrences: number; ms: number; fromCache?: boolean; reread?: number; removed?: number; persisted?: boolean };
+  "tags-progress": { done: number; total: number; vault: string };
+  "tags-ready": { files: number; tags: number; occurrences: number; ms: number; fromCache?: boolean; reread?: number; removed?: number; persisted?: boolean; vault: string };
   "index-ready": IndexReady;
-  "file-changed": { path: string; mtimeMs: number };
+  /** `deleted: true`: an open file disappeared (deleted or moved). */
+  "file-changed": { path: string; mtimeMs: number; deleted?: boolean };
+  /** The user asked to close the window; the window does not close by itself (answer with `close_ack`, then `quit`). */
+  "close-requested": null;
 };

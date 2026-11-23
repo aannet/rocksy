@@ -1,0 +1,186 @@
+{
+ "steps": [
+  {
+   "nav": "{DIST}?open=00__DEMO/Journal.md"
+  },
+  {
+   "wait": "window.rocksyReady && window.rocksy.tree && rocksyMock.tagsReady",
+   "timeout": 20000
+  },
+  {
+   "eval": "(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return 1})()"
+  },
+  {
+   "type": " fin1"
+  },
+  {
+   "eval": "(()=>{rocksyMock.calls.length=0;rocksyMock.saveDelayMs=300;rocksyMock.emit('close-requested',null);return JSON.stringify({ackSentAtOnce:rocksyMock.calls[0], quitYet:rocksyMock.quits})})()",
+   "save": "A1_ackImmediately"
+  },
+  {
+   "wait": "rocksyMock.quits===1",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({calls:rocksyMock.calls.filter(c=>/close_ack|save_file|quit/.test(c)), savesDoneAndStartedAtQuit:rocksyMock.savesAtQuit, diskEndsWithTyped:rocksyMock.textOf(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md').endsWith(' fin1\\n')||rocksyMock.textOf(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md').includes(' fin1'), dialog:!!document.querySelector('.dialog'), dirty:rocksy.activeDoc().dirty})",
+   "save": "A2_savedThenQuit"
+  },
+  {
+   "eval": "(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return 1})()"
+  },
+  {
+   "type": " fin2"
+  },
+  {
+   "eval": "(()=>{rocksyMock.saveDelayMs=0;rocksyMock.failSaves.push({kind:'io',message:'le fichier est verrouillé'});rocksyMock.emit('close-requested',null);rocksyMock.emit('close-requested',null);setTimeout(()=>rocksyMock.emit('close-requested',null),150);return 1})()"
+  },
+  {
+   "wait": "document.querySelector('.dialog')",
+   "timeout": 5000
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({dialogs:document.querySelectorAll('.dialog').length, closeAcks:rocksyMock.closeAcks, quits:rocksyMock.quits, title:document.querySelector('.dialog h2').textContent, items:[...document.querySelectorAll('.dialog li')].map(e=>e.textContent), buttons:[...document.querySelectorAll('.dialog button')].map(e=>e.textContent), focus:document.activeElement.textContent})",
+   "save": "B1_dialogOnFailure"
+  },
+  {
+   "shot": "close-dialog-failure.png"
+  },
+  {
+   "key": "p",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 150
+  },
+  {
+   "eval": "JSON.stringify({paletteOpened:!!document.querySelector('.picker'), dialogStillThere:!!document.querySelector('.dialog')})",
+   "save": "B1b_shortcutsSuspendedDuringDialog"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "sleep": 200
+  },
+  {
+   "eval": "JSON.stringify({dialog:!!document.querySelector('.dialog'), quits:rocksyMock.quits, tabs:rocksy.docs().length, dirty:rocksy.activeDoc().dirty, textKept:rocksy.focused.view.state.doc.toString().includes(' fin2'), banner:document.querySelector('.banner').textContent, status:document.querySelector('.st-save').textContent})",
+   "save": "B2_cancelKeepsAppOpen"
+  },
+  {
+   "shot": "close-after-cancel-save-error.png"
+  },
+  {
+   "eval": "(()=>{rocksyMock.emit('close-requested',null);return 1})()"
+  },
+  {
+   "wait": "rocksyMock.quits===2 || document.querySelector('.dialog')",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({quits:rocksyMock.quits, dialog:!!document.querySelector('.dialog'), onDisk:rocksyMock.textOf(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md').includes(' fin2'), dirty:rocksy.activeDoc().dirty})",
+   "save": "B3_secondRequestSavesAndQuits"
+  },
+  {
+   "eval": "(()=>{rocksy.toggleAutosave();return rocksy.autosave})()",
+   "save": "C0_autosave"
+  },
+  {
+   "eval": "(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return 1})()"
+  },
+  {
+   "type": " brouillon"
+  },
+  {
+   "eval": "(()=>{window.__saves=rocksyMock.saves.length;rocksyMock.emit('close-requested',null);return 1})()"
+  },
+  {
+   "wait": "document.querySelector('.dialog')",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({items:[...document.querySelectorAll('.dialog li')].map(e=>e.textContent), buttons:[...document.querySelectorAll('.dialog button')].map(e=>e.textContent), quits:rocksyMock.quits})",
+   "save": "C1_dialogWhenAutosaveOff"
+  },
+  {
+   "shot": "close-dialog-autosave-off.png"
+  },
+  {
+   "click": ".dialog button[data-choice='discard']"
+  },
+  {
+   "wait": "rocksyMock.quits===3",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({quits:rocksyMock.quits, savesSince:rocksyMock.saves.length-window.__saves, onDisk:rocksyMock.textOf(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md').includes('brouillon')})",
+   "save": "C2_quitWithoutSaving"
+  },
+  {
+   "eval": "(()=>{rocksy.toggleAutosave();rocksyMock.touch(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md','# Autre machine\\n');return rocksy.activeDoc().conflict})()",
+   "save": "D0_conflict"
+  },
+  {
+   "eval": "(()=>{rocksyMock.emit('close-requested',null);return 1})()"
+  },
+  {
+   "wait": "document.querySelector('.dialog')",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({buttons:[...document.querySelectorAll('.dialog button')].map(e=>e.textContent), items:[...document.querySelectorAll('.dialog li')].map(e=>e.textContent)})",
+   "save": "D1_conflictOffersNoSave"
+  },
+  {
+   "click": ".dialog button[data-choice='cancel']"
+  },
+  {
+   "click": ".banner button[data-act='overwrite']"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().conflict",
+   "timeout": 5000
+  },
+  {
+   "eval": "(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return 1})()"
+  },
+  {
+   "type": " onglet"
+  },
+  {
+   "eval": "(()=>{rocksyMock.saveDelayMs=400;rocksyMock.failSaves.push({kind:'io',message:'disque plein'},{kind:'io',message:'disque plein'});const d=rocksy.activeDoc();void rocksy.save(d);void rocksy.closeDoc(d);return JSON.stringify({saving:!!d.saving})})()",
+   "save": "E0_closeDuringSave"
+  },
+  {
+   "wait": "document.querySelector('.dialog')",
+   "timeout": 6000
+  },
+  {
+   "eval": "JSON.stringify({tabStillOpen:rocksy.docs().some(d=>d.name==='Journal'), title:document.querySelector('.dialog h2').textContent, reason:document.querySelector('.dialog p').textContent, buttons:[...document.querySelectorAll('.dialog button')].map(e=>e.textContent)})",
+   "save": "E1_tabKeptAndAsked"
+  },
+  {
+   "shot": "close-tab-save-failed.png"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "sleep": 150
+  },
+  {
+   "eval": "(()=>{rocksyMock.saveDelayMs=0;const d=rocksy.activeDoc();return JSON.stringify({text:rocksy.focused.view.state.doc.toString().includes(' onglet'), dirty:d.dirty, saveError:d.saveError, retries:d.retries, banner:document.querySelector('.banner').textContent, status:document.querySelector('.st-save').textContent})})()",
+   "save": "E2_textKept_errorVisible"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty",
+   "timeout": 9000
+  },
+  {
+   "eval": "JSON.stringify({saveError:rocksy.activeDoc().saveError, error:rocksy.activeDoc().error, bannerHidden:document.querySelector('.banner').hidden, status:document.querySelector('.st-save').textContent, onDisk:rocksyMock.textOf(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md').includes(' onglet')})",
+   "save": "F1_retrySavedByItself"
+  }
+ ]
+}

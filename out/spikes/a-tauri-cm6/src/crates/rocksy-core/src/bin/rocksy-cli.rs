@@ -836,7 +836,10 @@ fn cmd_search_bench(vault: &Path, data_dir: Option<&str>, work_dir: Option<&str>
             rounds.push(json!({ "wallMs": wall, "reread": report.reread, "unchanged": report.unchanged, "searchableAfter": visible }));
         }
         // One save by the application: text in memory into the three.
+        // The full-text commit is deferred: it is measured apart, as the
+        // application pays it (off the save path, at most once per delay).
         let mut saves = Vec::new();
+        let mut commits = Vec::new();
         for k in 0..10 {
             let target = &files[(k * 7919) % files.len()];
             let Ok(mut text) = std::fs::read_to_string(target) else { continue };
@@ -845,8 +848,14 @@ fn cmd_search_bench(vault: &Path, data_dir: Option<&str>, work_dir: Option<&str>
             let start = Instant::now();
             session.update_file_with_meta(target, &text, saved.size, saved.mtime_ms);
             saves.push(ms(start));
+            if !session.search_commit_pending() {
+                return Err("a save did not leave a full-text commit pending".into());
+            }
+            let start = Instant::now();
+            session.flush_search();
+            commits.push(ms(start));
             if session.search(&format!("rocksyclisave{k}"), Some(1)).total != 1 {
-                return Err("a saved note was not searchable right away".into());
+                return Err("a saved note was not searchable after the commit".into());
             }
         }
         let start = Instant::now();
@@ -859,6 +868,7 @@ fn cmd_search_bench(vault: &Path, data_dir: Option<&str>, work_dir: Option<&str>
             "reconcileMs": stat(times),
             "rounds": rounds,
             "updateFileWithMetaMs": stat(saves),
+            "searchCommitMs": stat(commits),
             "reconcileAfterSaves": { "wallMs": after_saves_ms, "reread": after_saves.reread },
         }))
     })();

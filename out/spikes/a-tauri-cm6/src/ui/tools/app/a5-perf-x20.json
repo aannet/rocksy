@@ -1,0 +1,256 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-perf-x20",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{window.__t0=performance.now();T.addVault(T.it('settled-x20'));return 1})()"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 240000
+  },
+  {
+   "eval": "JSON.stringify({firstIndexingSinceAddVaultMs:Math.round(performance.now()-window.__t0), events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,files:e.files,searchDocs:e.searchDocs,reread:e.reread,pending:e.pending,ms:e.ms})), metrics:{openVaultMs:rocksy.metrics.openVaultMs}})",
+   "save": "P1_firstIndexing"
+  },
+  {
+   "sleep": 3500
+  },
+  {
+   "eval": "JSON.stringify(rocksy.indexEvents.map(e=>({fromCache:e.fromCache,searchReady:e.searchReady,searchDocs:e.searchDocs,reread:e.reread,pending:e.pending})).slice(-2))",
+   "save": "P1_lastEvents_3sLater"
+  },
+  {
+   "eval": "(async()=>{const r=await T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));if(rocksy.autosave)rocksy.toggleAutosave();return JSON.stringify({open:r, autosave:rocksy.autosave, bytes:T.view().state.doc.length, lines:T.view().state.doc.lines})})()",
+   "save": "P2_openBigNote"
+  },
+  {
+   "eval": "T.lineEnd(2185,true)"
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "(()=>{rocksy.latencyStart();return 1})()"
+  },
+  {
+   "type": "Le suivi du projet avance bien et les mesures restent stables pendant la saisie de ce texte de test qui contient environ deux cents caracteres afin de calculer une mediane et un p95 fiables sur la latence de frappe. ",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "P2_typingLatency_middle"
+  },
+  {
+   "eval": "T.lineEnd(40,true)"
+  },
+  {
+   "sleep": 1200
+  },
+  {
+   "eval": "(()=>{rocksy.latencyStart();return 1})()"
+  },
+  {
+   "type": "Le suivi du projet avance bien et les mesures restent stables pendant la saisie de ce texte de test qui contient environ deux cents caracteres afin de calculer une mediane et un p95 fiables sur la latence de frappe. ",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "P2_typingLatency_start"
+  },
+  {
+   "eval": "(async()=>{const p=T.vault('01_WORK','__DAILY NOTES SYNTH.md');let f=await T.inv('read_file',{path:p});let m=f.mtimeMs;const text=T.text();const ms=[];for(let i=0;i<7;i++){const t0=performance.now();const r=await T.inv('save_file',{path:p,text:text+'\\nsauvegarde '+i+'\\n',expectedMtimeMs:m});ms.push(+(performance.now()-t0).toFixed(1));m=r.mtimeMs;await new Promise(r=>setTimeout(r,350))}const r=await T.inv('save_file',{path:p,text:f.text,expectedMtimeMs:m});const s=[...ms].sort((a,b)=>a-b);return JSON.stringify({bytes:text.length, runs:ms, median:s[3], min:s[0], max:s[6]})})()",
+   "save": "P3_saveFile_318KB_fromPage"
+  },
+  {
+   "eval": "(async()=>{await rocksy.showSidebar('search');return T.wait(()=>rocksy.sidebar&&rocksy.sidebar.search&&!rocksy.sidebar.search.input.disabled,8000)})()"
+  },
+  {
+   "click": ".search-panel .tags-search input"
+  },
+  {
+   "eval": "(()=>{rocksy.sidebar.search.samples.length=0;return 1})()"
+  },
+  {
+   "type": "plan",
+   "delay": 150
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "key": "a",
+   "mods": "ctrl"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "kolueux",
+   "delay": 150
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "key": "a",
+   "mods": "ctrl"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "architec",
+   "delay": 150
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "key": "a",
+   "mods": "ctrl"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "\"plan décision\"",
+   "delay": 150
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "key": "a",
+   "mods": "ctrl"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "tag:projet budget",
+   "delay": 150
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "key": "a",
+   "mods": "ctrl"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "path:01_WORK audit",
+   "delay": 150
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "key": "a",
+   "mods": "ctrl"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "strategie reunion",
+   "delay": 150
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "key": "a",
+   "mods": "ctrl"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "eval": "(()=>{const a=rocksy.sidebar.search.samples;const stt=(k)=>{const s=a.map(x=>x[k]).sort((x,y)=>x-y);const q=p=>+s[Math.min(s.length-1,Math.floor(p*s.length))].toFixed(1);return {median:q(.5),p95:q(.95),max:q(1)}};return JSON.stringify({searches:a.length, keystrokeToPainted:stt('total'), callRoundTrip:stt('call'), backendMs:stt('backend'), filesMax:Math.max(...a.map(x=>x.files))})})()",
+   "save": "P4_searchLatency_realTyping"
+  },
+  {
+   "eval": "(()=>{window.__n0=rocksy.indexEvents.length;window.__w0=performance.now();return 1})()"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\settled-x20\\00_INBOX\\Note externe perf.md",
+   "text": "# Note externe\n\nMot unique : perfzygo.\n"
+  },
+  {
+   "eval": "(async()=>{const tree=await T.wait(()=>rocksy.tree.entries.some(e=>e.path.endsWith('Note externe perf.md')),15000);const t1=Math.round(performance.now()-window.__w0);let found=-1;const t0=performance.now();while(performance.now()-t0<15000){const r=await T.inv('search',{query:'perfzygo'});if(r.total>0){found=Math.round(performance.now()-window.__w0);break}await new Promise(r=>setTimeout(r,25))}return JSON.stringify({treeShowsFileAfterMs:t1, searchFindsFileAfterMs:found})})()",
+   "save": "P5_externalChange"
+  },
+  {
+   "py": "delete",
+   "path": "{IT}\\settled-x20\\00_INBOX\\Note externe perf.md"
+  },
+  {
+   "sleep": 2500
+  },
+  {
+   "eval": "(async()=>{rocksy.queueSession();await new Promise(r=>setTimeout(r,600));return JSON.stringify({dirty:rocksy.docs().filter(d=>d.dirty).map(d=>d.name), session:{vault:rocksy.vaultRoot, active:rocksy.activeDoc().name}})})()",
+   "save": "P6_sessionBeforeRestart"
+  },
+  {
+   "kill": true
+  },
+  {
+   "restart": {
+    "args": []
+   },
+   "save": "P6_relaunchAttachMs"
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "eval": "JSON.stringify({events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,files:e.files,searchDocs:e.searchDocs,reread:e.reread,pending:e.pending})), editorReadyMs:rocksy.metrics.editorReadyMs, treeReadyMs:rocksy.metrics.treeReadyMs})",
+   "save": "P6_relaunch_index"
+  },
+  {
+   "py": "jsonl",
+   "path": "{IT}\\data-a5-perf-x20\\timings.jsonl",
+   "save": "P6_relaunch_timings"
+  },
+  {
+   "py": "mem",
+   "save": "P6_memory"
+  }
+ ]
+}

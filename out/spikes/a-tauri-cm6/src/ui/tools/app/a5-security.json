@@ -1,0 +1,231 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-security",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\sv"
+  },
+  {
+   "py": "rmtree",
+   "path": "{IT}\\outside"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\x1",
+   "dst": "{IT}\\sv"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\sv\\00_INBOX\\piege.canvas",
+   "text": "{\"nodes\": [{\"id\": \"a\", \"type\": \"text\", \"text\": \"hello\", \"x\": \"0\\\"/><img src=x onerror=\\\"document.title='XSS';document.body.setAttribute('data-pwned','1');window.__pwned=1\\\">\", \"y\": 0, \"width\": 100, \"height\": 50}, {\"id\": \"b\", \"type\": \"text\", \"text\": \"b\", \"x\": 300, \"y\": 0, \"width\": 100, \"height\": 50}], \"edges\": [{\"id\": \"e\", \"fromNode\": \"a\", \"toNode\": \"b\", \"fromSide\": \"left\", \"toSide\": \"left\"}]}"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\sv\\00_INBOX\\redos.md",
+   "text": "# ReDoS\n\n| A | B |\n| --- | --- |\n| long | [a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]([a]( |\n| court | ok |\n\nfin\n"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\sv\\00_INBOX\\reseau.md",
+   "text": "# Réseau\n\n![reseau](//serveur-inexistant-rocksy/partage/a.png)\n\n![[\\\\serveur-inexistant-rocksy\\p\\b.png]]\n\n![distante](https://example.invalid/x.png)\n\n![ok](img-ok.png)\n\nfin\n"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\sv\\00_INBOX\\memo.txt",
+   "text": "ligne 1\nligne 2\n"
+  },
+  {
+   "py": "copyfile",
+   "src": "{IT}\\files\\img\\local.png",
+   "dst": "{IT}\\sv\\00_INBOX\\img-ok.png"
+  },
+  {
+   "py": "copyfile",
+   "src": "{IT}\\files\\img\\local.png",
+   "dst": "{IT}\\sv\\.obsidian\\secret.png"
+  },
+  {
+   "py": "copyfile",
+   "src": "{IT}\\files\\img\\local.png",
+   "dst": "{IT}\\outside\\img.png"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\outside\\priv.md",
+   "text": "# privé\n"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{window.__title0=document.title;return 1})()"
+  },
+  {
+   "eval": "T.addVault(T.it('sv'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "eval": "rocksy.openPath(T.vault('00_INBOX','piege.canvas')).then(()=>1)"
+  },
+  {
+   "wait": "document.querySelector('.canvas-view')",
+   "timeout": 10000
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "eval": "(()=>{const v=document.querySelector('.canvas-view');const all=[...v.querySelectorAll('*')];return JSON.stringify({titleUnchanged:document.title===window.__title0, pwnedAttr:document.body.getAttribute('data-pwned'), pwnedFlag:window.__pwned===undefined?null:window.__pwned, imgsInCanvas:v.querySelectorAll('img').length, scripts:v.querySelectorAll('script').length, handlerAttrs:all.reduce((n,e)=>n+[...e.attributes].filter(a=>/^on/i.test(a.name)).length,0), nodes:T.count('.cv-node'), paths:T.count('.canvas-world svg path'), message:(v.querySelector('h2')||{}).textContent||null, csp:window.rocksyCsp.length})})()",
+   "save": "S1_trappedCanvas"
+  },
+  {
+   "shot": "a5-sec-canvas.png"
+  },
+  {
+   "eval": "(async()=>{const t0=performance.now();await T.open(T.vault('00_INBOX','redos.md'));await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const openMs=Math.round(performance.now()-t0);const v=T.view();const t1=performance.now();v.dispatch({selection:{anchor:v.state.doc.length}});void v.dom.offsetHeight;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));return JSON.stringify({openAndPaintMs:openMs, moveCursorAndPaintMs:Math.round(performance.now()-t1), tables:T.count('.cm-lp-table'), docChars:v.state.doc.length})})()",
+   "save": "S2_bigCell_open"
+  },
+  {
+   "eval": "(()=>{T.view().focus();rocksy.latencyStart();return 1})()"
+  },
+  {
+   "type": "frappe dans la note au tableau piege",
+   "delay": 10
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "S2_bigCell_typingLatency"
+  },
+  {
+   "eval": "(async()=>{const v=T.view();const t0=performance.now();const i=T.idx('| long |');v.dispatch({selection:{anchor:i+3}});void v.dom.offsetHeight;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));const inMs=Math.round(performance.now()-t0);const t1=performance.now();v.dispatch({selection:{anchor:v.state.doc.length}});void v.dom.offsetHeight;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));return JSON.stringify({cursorIntoTableMs:inMs, cursorOutAndRerenderMs:Math.round(performance.now()-t1), tables:T.count('.cm-lp-table'), dirty:rocksy.activeDoc().dirty})})()",
+   "save": "S2_bigCell_rerender"
+  },
+  {
+   "shot": "a5-sec-table.png"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty",
+   "timeout": 8000
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','reseau.md')).then(()=>{const v=T.view();v.dispatch({selection:{anchor:0}});return 1})"
+  },
+  {
+   "sleep": 1200
+  },
+  {
+   "eval": "JSON.stringify({chips:[...document.querySelectorAll('.cm-lp-img-missing')].map(e=>e.textContent.trim().slice(0,90)), imgs:[...document.querySelectorAll('img.cm-lp-img')].map(i=>({src:i.src.slice(0,60),ok:i.naturalWidth>0})), imgsToNetwork:[...document.querySelectorAll('img')].filter(i=>/serveur|example/.test(i.src)).length, resourceEntries:performance.getEntriesByType('resource').filter(e=>/serveur|example/.test(e.name)).length, csp:window.rocksyCsp})",
+   "save": "S3_networkImage"
+  },
+  {
+   "shot": "a5-sec-network-image.png"
+  },
+  {
+   "eval": "(async()=>{const V=T.it('sv'),O=T.it('outside');const out={};const tryIt=async(name,cmd,args)=>{try{const r=await T.inv(cmd,args);out[name]={ok:true,keys:r&&typeof r==='object'?Object.keys(r).slice(0,4):r}}catch(e){out[name]={ok:false,kind:e.kind,code:e.code||null}}};\nawait tryIt('read win.ini','read_file',{path:'C:\\\\Windows\\\\win.ini'});\nawait tryIt('read outside/priv.md','read_file',{path:O+'\\\\priv.md'});\nawait tryIt('read network','read_file',{path:'\\\\\\\\serveur-inexistant-rocksy\\\\p\\\\x.md'});\nawait tryIt('read device','read_file',{path:'\\\\\\\\.\\\\PhysicalDrive0'});\nawait tryIt('read relative','read_file',{path:'..\\\\x.md'});\nawait tryIt('read vault note (allowed)','read_file',{path:V+'\\\\00_INBOX\\\\memo.txt'});\nawait tryIt('save outside/new.md','save_file',{path:O+'\\\\new.md',text:'x'});\nawait tryIt('save outside/priv.md','save_file',{path:O+'\\\\priv.md',text:'x'});\nawait tryIt('save outside/x.cmd','save_file',{path:O+'\\\\x.cmd',text:'rem'});\nawait tryIt('save vault .obsidian/x.md','save_file',{path:V+'\\\\.obsidian\\\\x.md',text:'x'});\nawait tryIt('save vault x.cmd','save_file',{path:V+'\\\\00_INBOX\\\\x.cmd',text:'rem'});\nawait tryIt('save vault piege.canvas','save_file',{path:V+'\\\\00_INBOX\\\\piege.canvas',text:'{}'});\nawait tryIt('save vault memo.txt','save_file',{path:V+'\\\\00_INBOX\\\\memo.txt',text:'x'});\nawait tryIt('save vault note.md:stream','save_file',{path:V+'\\\\00_INBOX\\\\n.md:payload.cmd',text:'x'});\nawait tryIt('open_vault outside','open_vault',{path:O});\nawait tryIt('build_tags outside','build_tags',{vaultPath:O});\nawait tryIt('open_external file:','open_external',{url:'file:///C:/Windows/System32/calc.exe'});\nawait tryIt('open_external javascript:','open_external',{url:'javascript:alert(1)'});\nconst before=await T.inv('startup_info');await T.inv('set_session',{session:{activeVault:O,tabs:['C:\\\\Windows\\\\win.ini',O+'\\\\priv.md'],activeTab:'C:\\\\Windows\\\\win.ini'}});\nreturn JSON.stringify(out)})()",
+   "save": "S4_commandsOutOfScope"
+  },
+  {
+   "py": "exists",
+   "path": "{IT}\\outside\\new.md",
+   "save": "S4_exists_outside_new.md"
+  },
+  {
+   "py": "exists",
+   "path": "{IT}\\outside\\x.cmd",
+   "save": "S4_exists_outside_x.cmd"
+  },
+  {
+   "py": "exists",
+   "path": "{IT}\\sv\\.obsidian\\x.md",
+   "save": "S4_exists_vault_.obsidian_x.md"
+  },
+  {
+   "py": "exists",
+   "path": "{IT}\\sv\\00_INBOX\\x.cmd",
+   "save": "S4_exists_vault_x.cmd"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\outside\\priv.md",
+   "save": "S4_outside_priv.md_content"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\sv\\00_INBOX\\piege.canvas",
+   "max": 60,
+   "save": "S4_canvas_head"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\data-a5-security\\session.json",
+   "save": "S4_sessionAfterHostileSetSession"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\sv\\00_INBOX\\memo.txt",
+   "save": "memo"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','memo.txt')).then(()=>{T.view().focus();return JSON.stringify({readOnly:rocksy.activeDoc().readOnly, badge:!!document.querySelector('.tab.is-active .tab-badge.is-readonly')})})",
+   "save": "S5_txt_open"
+  },
+  {
+   "type": "zzz"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "key": "Backspace"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 2600
+  },
+  {
+   "eval": "JSON.stringify({text:T.text(), dirty:rocksy.activeDoc().dirty, status:document.querySelector('.st-save').textContent, toast:document.querySelector('.st-toast').textContent})",
+   "save": "S5_txt_afterTyping"
+  },
+  {
+   "py": "linediff",
+   "snap": "memo",
+   "path": "{IT}\\sv\\00_INBOX\\memo.txt",
+   "save": "S5_txt_bytes"
+  },
+  {
+   "shot": "a5-sec-txt-readonly.png"
+  },
+  {
+   "eval": "(async()=>{const V=T.it('sv'),O=T.it('outside');const conv=window.__TAURI__.core.convertFileSrc;const load=(p)=>new Promise(res=>{const i=new Image();const t0=performance.now();const ms=()=>' after '+Math.round(performance.now()-t0)+' ms';const t=setTimeout(()=>res('timeout'+ms()),15000);i.onload=()=>{clearTimeout(t);res('load '+i.naturalWidth+'x'+i.naturalHeight+ms())};i.onerror=()=>{clearTimeout(t);res('error'+ms())};i.src=conv(p)});const out={};\nout['vault image']=await load(V+'\\\\00_INBOX\\\\img-ok.png');\nout['vault .obsidian image']=await load(V+'\\\\.obsidian\\\\secret.png');\nout['outside image']=await load(O+'\\\\img.png');\nout['windows wallpaper']=await load('C:\\\\Windows\\\\Web\\\\Wallpaper\\\\Windows\\\\img0.jpg');\nout['network image']=await load('\\\\\\\\serveur-inexistant-rocksy\\\\p\\\\b.png');\nreturn JSON.stringify(out)})()",
+   "save": "S6_assetProtocol"
+  },
+  {
+   "eval": "JSON.stringify(window.rocksyCsp)",
+   "save": "cspViolations"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "closed"
+  }
+ ]
+}

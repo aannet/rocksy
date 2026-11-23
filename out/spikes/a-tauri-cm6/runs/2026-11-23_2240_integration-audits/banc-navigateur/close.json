@@ -1,0 +1,22 @@
+{
+ "scenario": "close",
+ "saved": {
+  "A1_ackImmediately": "{\"ackSentAtOnce\":\"close_ack\",\"quitYet\":0}",
+  "A2_savedThenQuit": "{\"calls\":[\"close_ack\",\"save_file\",\"quit\"],\"savesDoneAndStartedAtQuit\":[1,1],\"diskEndsWithTyped\":true,\"dialog\":false,\"dirty\":false}",
+  "B1_dialogOnFailure": "{\"dialogs\":1,\"closeAcks\":4,\"quits\":1,\"title\":\"Un document n'est pas enregistré\",\"items\":[\"Journal — Échec de l'enregistrement : le fichier est verrouillé\"],\"buttons\":[\"Annuler\",\"Quitter sans enregistrer\",\"Enregistrer et quitter\"],\"focus\":\"Enregistrer et quitter\"}",
+  "B1b_shortcutsSuspendedDuringDialog": "{\"paletteOpened\":false,\"dialogStillThere\":true}",
+  "B2_cancelKeepsAppOpen": "{\"dialog\":false,\"quits\":1,\"tabs\":1,\"dirty\":true,\"textKept\":true,\"banner\":\"Échec de l'enregistrement : le fichier est verrouillé Nouvel essai automatique tant que le document reste modifié.Réessayer maintenant\",\"status\":\"Échec de l'enregistrement · nouvel essai\"}",
+  "B3_secondRequestSavesAndQuits": "{\"quits\":2,\"dialog\":false,\"onDisk\":true,\"dirty\":false}",
+  "C0_autosave": false,
+  "C1_dialogWhenAutosaveOff": "{\"items\":[\"Journal — modifications non enregistrées (enregistrement automatique désactivé)\"],\"buttons\":[\"Annuler\",\"Quitter sans enregistrer\",\"Enregistrer et quitter\"],\"quits\":2}",
+  "C2_quitWithoutSaving": "{\"quits\":3,\"savesSince\":0,\"onDisk\":false}",
+  "D0_conflict": "external",
+  "D1_conflictOffersNoSave": "{\"buttons\":[\"Annuler\",\"Quitter sans enregistrer\"],\"items\":[\"Journal — conflit avec la version du disque\"]}",
+  "E0_closeDuringSave": "{\"saving\":true}",
+  "E1_tabKeptAndAsked": "{\"tabStillOpen\":true,\"title\":\"« Journal » a des modifications non enregistrées\",\"reason\":\"Échec de l'enregistrement : disque plein\",\"buttons\":[\"Annuler\",\"Fermer sans enregistrer\",\"Enregistrer et fermer\"]}",
+  "E2_textKept_errorVisible": "{\"text\":true,\"dirty\":true,\"saveError\":\"io\",\"retries\":2,\"banner\":\"Échec de l'enregistrement : disque plein Nouvel essai automatique tant que le document reste modifié.Réessayer maintenant\",\"status\":\"Échec de l'enregistrement · nouvel essai\"}",
+  "F1_retrySavedByItself": "{\"saveError\":null,\"error\":null,\"bannerHidden\":true,\"status\":\"Enregistré\",\"onDisk\":true}"
+ },
+ "errors": [],
+ "csp": []
+}

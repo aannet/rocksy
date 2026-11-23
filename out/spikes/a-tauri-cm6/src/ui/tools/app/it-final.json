@@ -1,7 +1,10 @@
 {
  "app": {
   "dataDir": "{IT}\\data-final",
-  "args": []
+  "args": [
+   "{IT}\\files\\longue20k.md",
+   "{IT}\\files\\longue.md"
+  ]
  },
  "steps": [
   {

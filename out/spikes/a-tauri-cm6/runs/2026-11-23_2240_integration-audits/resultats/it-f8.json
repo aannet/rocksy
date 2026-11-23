@@ -1,0 +1,103 @@
+{
+ "scenario": "it-f8",
+ "saved": {
+  "filesDirBefore": [
+   "a-supprimer.md",
+   "fauxvault",
+   "hors-vault.md",
+   "img",
+   "latin1.md",
+   "longue.md",
+   "longue20k.md",
+   "second.md",
+   "vide.md",
+   "été à la plage"
+  ],
+  "attachMs": 600,
+  "F8_start": "{\"metrics\":{\"mark:script-start\":136,\"mark:backend-ready\":137,\"mark:startup-info\":156,\"mark:file-read\":185,\"firstFilePrefetched\":1,\"mark:state-created\":202,\"editorReadyMs\":347,\"mark:events-wired\":359,\"mark:vault-requested\":359,\"mark:first-frame\":416,\"editorPaintedMs\":430,\"mark:nav-response-end\":36,\"mark:nav-dom-content-loaded\":141,\"mark:first-file-prefetched\":1},\"vault\":null,\"dormant\":null,\"sidebarHidden\":true,\"tabs\":[[\"hors-vault\",true],[\"vide\",true],[\"longue\",true],[\"a-supprimer\",true]],\"badge\":4}",
+  "F8_dataDir": [
+   "opened.json",
+   "timings.jsonl",
+   "webview"
+  ],
+  "F8_openedJson": "{\n  \"version\": 1,\n  \"files\": [\n    \"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\files\\\\hors-vault.md\",\n    \"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\files\\\\vide.md\",\n    \"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\files\\\\longue.md\",\n    \"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\files\\\\a-supprimer.md\"\n  ]\n}",
+  "timings": "{\"ms\":904.0,\"name\":\"editor-ready\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":908}\n{\"ms\":347.0,\"name\":\"editor-ready-since-navigation\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":909}\n{\"ms\":430.0,\"name\":\"editor-painted-since-navigation\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":990}\n{\"ms\":136.0,\"name\":\"ui-script-start\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":993}\n{\"ms\":137.0,\"name\":\"ui-backend-ready\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":994}\n{\"ms\":156.0,\"name\":\"ui-startup-info\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":996}\n{\"ms\":185.0,\"name\":\"ui-file-read\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":997}\n{\"ms\":202.0,\"name\":\"ui-state-created\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":997}\n{\"ms\":359.0,\"name\":\"ui-events-wired\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":998}\n{\"ms\":359.0,\"name\":\"ui-vault-requested\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":999}\n{\"ms\":416.0,\"name\":\"ui-first-frame\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":1001}\n{\"ms\":36.0,\"name\":\"ui-nav-response-end\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":1002}\n{\"ms\":141.0,\"name\":\"ui-nav-dom-content-loaded\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":1004}\n{\"ms\":1.0,\"name\":\"ui-first-file-prefetched\",\"processStartMs\":1795470459781,\"sinceProcessStartMs\":1004}\n",
+  "F8_relativeImage": "{\"imgs\":[{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cfile\"}],\"code\":[\"Python\"]}",
+  "F1_cursorInBold_lineText": "{\"line\":3,\"txt\":\"Du **gras**, de l'italique, du barré, du surligné et du code.\"}",
+  "F1_cursorAway_lineText": "Du gras, de l'italique, du barré, du surligné et du code.",
+  "checkboxClick": "- [x] tâche",
+  "checkboxUndo": "{\"text\":\"- [ ] tâche\",\"dirty\":true}",
+  "F8_neighbourOpenedByPath_isReadOnly": "{\"open\":{\"loaded\":true,\"error\":null,\"ms\":11,\"name\":\"second\"},\"readOnly\":true,\"outside\":true,\"badge\":true}",
+  "F8_neighbourSaveRefused": "{\"kind\":\"invalid\",\"code\":\"not_allowed\"}",
+  "F8_fileInUnregisteredVaultFolder_open": "{\"loaded\":true,\"error\":null,\"ms\":8,\"name\":\"note isolée\"}",
+  "F8_obsidianFolderIsolated": "{\"vault\":null,\"sidebarHidden\":true,\"outside\":true,\"tabs\":6}",
+  "fauxvaultAfter": [
+   ".obsidian",
+   "note isolée.md"
+  ],
+  "fauxvaultObsidianAfter": [
+   "app.json"
+  ],
+  "outsideTags": "{\"rows\":[\"#isole1\"]}",
+  "R_latin1": "{\"loaded\":false,\"error\":\"Ce fichier n'est pas en UTF-8 : il n'est pas ouvert (aucune conversion silencieuse) (C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\files\\\\latin1.md is not valid UTF-8 (first invalid byte at offset 5))\",\"ms\":44,\"name\":\"latin1\"}",
+  "R_latin1_message": "{\"empty\":\"Impossible d'ouvrir ce fichierCe fichier n'est pas en UTF-8 : il n'est pas ouvert (aucune conversion silencieuse) (C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\files\\\\latin1.md is not valid UTF-8 (first invalid byte\"}",
+  "R_empty": "{\"loaded\":true,\"error\":null,\"ms\":7,\"name\":\"vide\"}",
+  "R_empty_saveMs": 16,
+  "R_empty_onDisk": {
+   "size": 6,
+   "sha1": "f8c1d87006fbf7e5cc4b026c3138bc046883dc71",
+   "bom": false,
+   "crlf": 0,
+   "lf": 0,
+   "endsWithNewline": false,
+   "tailHex": "616263616263"
+  },
+  "R_accents": "{\"loaded\":true,\"error\":null,\"ms\":9,\"name\":\"note d'été & co\"}",
+  "R_accents_state": "{\"h\":1,\"status\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\files\\\\été à la plage\\\\note d'été & co.md\"}",
+  "R_longLine": "{\"loaded\":true,\"error\":null,\"ms\":138,\"name\":\"longue\"}",
+  "R_longLine_length": 216000,
+  "R_longLine_latency": "{\"n\":45,\"update\":{\"median\":71.8,\"p95\":79.1,\"max\":96.7},\"withLayout\":{\"median\":71.9,\"p95\":79.2,\"max\":96.8}}",
+  "R_delete_open": "{\"loaded\":true,\"error\":null,\"ms\":18,\"name\":\"a-supprimer\"}",
+  "R_delete_afterWatcher": "{\"state\":{\"name\":\"a-supprimer\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795432370775,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null},\"toast\":\"Enregistrement automatique désactivé\"}",
+  "R_delete_saveState": "{\"name\":\"a-supprimer\",\"dirty\":true,\"saving\":false,\"conflict\":\"deleted\",\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795432370775,\"eol\":\"lf\",\"bom\":false,\"status\":\"Fichier supprimé\",\"banner\":\"Ce fichier a été supprimé ou déplacé sur le disque. Vos modifications ne sont pas enregistrées.Enregistrer quand même à \"}",
+  "R_delete_afterOverwrite": "{\"name\":\"a-supprimer\",\"dirty\":false,\"saving\":false,\"conflict\":null,\"error\":null,\"saveError\":null,\"readOnly\":false,\"mtime\":1795470472814,\"eol\":\"lf\",\"bom\":false,\"status\":\"Enregistré\",\"banner\":null}",
+  "R_delete_fileRecreated": true,
+  "targetsBeforeLink": [
+   {
+    "type": "page",
+    "url": "http://tauri.localhost/"
+   }
+  ],
+  "targetsAfterLink": [
+   {
+    "type": "page",
+    "url": "http://tauri.localhost/"
+   }
+  ],
+  "afterLinkClick": "{\"href\":\"http://tauri.localhost/\",\"active\":\"hors-vault\",\"openExternalCalledWith\":[\"https://example.org\"]}",
+  "filesDirAfter": [
+   "a-supprimer.md",
+   "fauxvault",
+   "hors-vault.md",
+   "img",
+   "latin1.md",
+   "longue.md",
+   "longue20k.md",
+   "second.md",
+   "vide.md",
+   "été à la plage"
+  ],
+  "imgDirAfter": [
+   "local.png"
+  ],
+  "tabsBeforeCtrlW": 8,
+  "tabsAfterCtrlW": "{\"tabs\":7}"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  15624
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

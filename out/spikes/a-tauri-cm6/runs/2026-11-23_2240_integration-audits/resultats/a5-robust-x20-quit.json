@@ -1,0 +1,42 @@
+{
+ "scenario": "a5-robust-x20-quit",
+ "saved": {
+  "attachMs": 696,
+  "R2_exitAfterQuitDuringFirstIndexing_ms(includes the wait for progress>=1000)": 953,
+  "R2_aliveAfterClose": false,
+  "R2_dataDirAfterClose": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ],
+  "R2_relaunchAttachMs": 538,
+  "R2_afterRelaunch": "{\"sessionRestoredVault\":true,\"indexWaitMs\":1573}",
+  "R2_afterRelaunch_index": "{\"events\":[{\"atMs\":232,\"fromCache\":true,\"searchReady\":false,\"files\":1901,\"searchDocs\":0,\"ms\":19},{\"atMs\":2048,\"fromCache\":false,\"searchReady\":true,\"reread\":7859,\"files\":9760,\"searchDocs\":9760,\"pending\":0,\"ms\":1817}],\"search\":{\"total\":3685,\"ready\":true},\"tags\":4199}",
+  "R2_pendingLog": [],
+  "R2_secondClose": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 69
+  },
+  "R3x20_tagsRightAway": "{\"sinceNavigationMs\":258,\"tagsAvailable\":4199,\"tagsInfo\":{\"files\":9760,\"fromCache\":true,\"ms\":73,\"occurrences\":46208,\"tags\":4199,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\settled-x20\"}}",
+  "R3x20_thirdLaunch_index": "[{\"atMs\":248,\"fromCache\":true,\"searchReady\":false,\"files\":9760,\"searchDocs\":0},{\"atMs\":288,\"fromCache\":true,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760},{\"atMs\":352,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"files\":9760,\"searchDocs\":9760,\"pending\":0}]",
+  "closed": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 53
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  12816,
+  16428,
+  33084
+ ],
+ "csp": null,
+ "ourPidsStillAlive": []
+}

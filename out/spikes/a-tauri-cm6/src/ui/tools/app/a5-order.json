@@ -1,0 +1,206 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-order",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{window.__ev=[];const t0=performance.now();for(const n of ['tree-updated','tags-progress','tags-ready','index-ready'])window.__TAURI__.event.listen(n,e=>{const p=e.payload||{};window.__ev.push({n,t:Math.round(performance.now()-t0),vault:p.vault||p.root,fromCache:p.fromCache,files:p.files,searchReady:p.searchReady,searchDocs:p.searchDocs,reread:p.reread,pending:p.pending,done:p.done,total:p.total})});window.__evOf=(v,since=0)=>window.__ev.slice(since).filter(e=>e.n!=='tags-progress'&&(e.vault||'').toLowerCase()===v.toLowerCase());window.__done=(v,since=0)=>window.__evOf(v,since).some(e=>e.n==='index-ready'&&e.fromCache===false&&e.searchReady);return 1})()"
+  },
+  {
+   "eval": "T.addVault(T.ref('x1'))",
+   "save": "A1_firstOpen_treeEntries"
+  },
+  {
+   "wait": "window.__done(T.ref('x1'))",
+   "timeout": 60000,
+   "save": "A1_firstOpen_indexWaitMs"
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const ev=window.__evOf(T.ref('x1'),0);const ir=ev.filter(e=>e.n==='index-ready');return {events:ev.map(e=>e.n+(e.fromCache?':cache':'')+(e.n==='index-ready'?(e.searchReady?':search':':nosearch'):'')), last:ir[ir.length-1]||null, status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,160)}})())",
+   "save": "A1_firstOpen_events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_firstOpen_listings"
+  },
+  {
+   "eval": "(()=>{window.__m=window.__ev.length;return T.addVault(T.it('v1'))})()",
+   "save": "A1_switch_treeEntries"
+  },
+  {
+   "wait": "window.__done(T.it('v1'),window.__m)",
+   "timeout": 60000,
+   "save": "A1_switch_indexWaitMs"
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const ev=window.__evOf(T.it('v1'),window.__m);const ir=ev.filter(e=>e.n==='index-ready');return {events:ev.map(e=>e.n+(e.fromCache?':cache':'')+(e.n==='index-ready'?(e.searchReady?':search':':nosearch'):'')), last:ir[ir.length-1]||null, status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,160)}})())",
+   "save": "A1_switch_events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_switch_listings"
+  },
+  {
+   "eval": "(async()=>{window.__m=window.__ev.length;await rocksy.openVault(T.ref('x1'));return rocksy.tree.fromSnapshot})()",
+   "save": "A1_back_fromSnapshot"
+  },
+  {
+   "wait": "window.__done(T.ref('x1'),window.__m)",
+   "timeout": 60000,
+   "save": "A1_back_indexWaitMs"
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const ev=window.__evOf(T.ref('x1'),window.__m);const ir=ev.filter(e=>e.n==='index-ready');return {events:ev.map(e=>e.n+(e.fromCache?':cache':'')+(e.n==='index-ready'?(e.searchReady?':search':':nosearch'):'')), last:ir[ir.length-1]||null, status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,160)}})())",
+   "save": "A1_back_events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_back_listings"
+  },
+  {
+   "eval": "(async()=>{window.__m=window.__ev.length;const v=T.it('v1');rocksy.closeVault();await new Promise(r=>setTimeout(r,300));rocksy.vaultRoot=v;const b=T.inv('build_tags',{vaultPath:v});await new Promise(r=>setTimeout(r,40));await T.inv('open_vault',{path:v});await b;return 1})()",
+   "save": "A1_raw_buildThenOpen40ms"
+  },
+  {
+   "wait": "window.__done(T.it('v1'),window.__m)",
+   "timeout": 60000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const ev=window.__evOf(T.it('v1'),window.__m);const ir=ev.filter(e=>e.n==='index-ready');return {events:ev.map(e=>e.n+(e.fromCache?':cache':'')+(e.n==='index-ready'?(e.searchReady?':search':':nosearch'):'')), last:ir[ir.length-1]||null, status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,160)}})())",
+   "save": "A1_raw_buildThenOpen40ms_events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_raw_buildThenOpen40ms_listings"
+  },
+  {
+   "eval": "(async()=>{window.__m=window.__ev.length;const v=T.ref('x1');await T.inv('close_vault',{path:T.it('v1')});await new Promise(r=>setTimeout(r,300));const b=T.inv('build_tags',{vaultPath:v});await new Promise(r=>setTimeout(r,900));await T.inv('open_vault',{path:v});await b;return 1})()",
+   "save": "A1_raw_buildThenOpen900ms"
+  },
+  {
+   "wait": "window.__done(T.ref('x1'),window.__m)",
+   "timeout": 60000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const ev=window.__evOf(T.ref('x1'),window.__m);const ir=ev.filter(e=>e.n==='index-ready');return {events:ev.map(e=>e.n+(e.fromCache?':cache':'')+(e.n==='index-ready'?(e.searchReady?':search':':nosearch'):'')), last:ir[ir.length-1]||null, status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,160)}})())",
+   "save": "A1_raw_buildThenOpen900ms_events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_raw_buildThenOpen900ms_listings"
+  },
+  {
+   "eval": "(async()=>{window.__m=window.__ev.length;const v=T.it('v1');await T.inv('close_vault',{path:T.ref('x1')});await new Promise(r=>setTimeout(r,300));await T.inv('open_vault',{path:v});await T.inv('build_tags',{vaultPath:v});return 1})()",
+   "save": "A1_raw_openThenBuild"
+  },
+  {
+   "wait": "window.__done(T.it('v1'),window.__m)",
+   "timeout": 60000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const ev=window.__evOf(T.it('v1'),window.__m);const ir=ev.filter(e=>e.n==='index-ready');return {events:ev.map(e=>e.n+(e.fromCache?':cache':'')+(e.n==='index-ready'?(e.searchReady?':search':':nosearch'):'')), last:ir[ir.length-1]||null, status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,160)}})())",
+   "save": "A1_raw_openThenBuild_events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_raw_openThenBuild_listings"
+  },
+  {
+   "eval": "(async()=>{window.__m=window.__ev.length;const v=T.ref('x1'),old=T.it('v1');const b=T.inv('build_tags',{vaultPath:v});const o=T.inv('open_vault',{path:v});const c=T.inv('close_vault',{path:old});await Promise.all([b,o,c]);return 1})()",
+   "save": "A1_raw_switchSameTick"
+  },
+  {
+   "wait": "window.__done(T.ref('x1'),window.__m)",
+   "timeout": 60000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const ev=window.__evOf(T.ref('x1'),window.__m);const ir=ev.filter(e=>e.n==='index-ready');return {events:ev.map(e=>e.n+(e.fromCache?':cache':'')+(e.n==='index-ready'?(e.searchReady?':search':':nosearch'):'')), last:ir[ir.length-1]||null, status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,160)}})())",
+   "save": "A1_raw_switchSameTick_events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_raw_switchSameTick_listings"
+  },
+  {
+   "eval": "(async()=>{rocksy.vaultRoot=T.ref('x1');await rocksy.openVault(T.ref('x1'));await T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));rocksy.queueSession();await new Promise(r=>setTimeout(r,600));return 1})()"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_beforeRestart_listings"
+  },
+  {
+   "restart": {
+    "args": []
+   },
+   "save": "A1_restart_attachMs"
+  },
+  {
+   "wait": "window.rocksyReady && window.rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 30000,
+   "save": "A1_restart_indexWaitMs"
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "JSON.stringify({events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,files:e.files,searchDocs:e.searchDocs,reread:e.reread,pending:e.pending})), tree:rocksy.tree&&rocksy.tree.entries.length, status:document.querySelector('#statusbar').textContent.replace(/\\s+/g,' ').slice(0,160)})",
+   "save": "A1_restart_events"
+  },
+  {
+   "py": "jsonlall",
+   "path": "{IT}\\data-a5-order\\timings.jsonl",
+   "name": "vault-listing",
+   "save": "A1_restart_listings"
+  },
+  {
+   "py": "close",
+   "waitMs": 8000,
+   "save": "closed"
+  }
+ ]
+}

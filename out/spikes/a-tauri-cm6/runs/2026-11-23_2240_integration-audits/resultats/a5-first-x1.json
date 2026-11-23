@@ -1,0 +1,30 @@
+{
+ "scenario": "a5-first-x1",
+ "saved": {
+  "copy": {
+   "robocopy": 1
+  },
+  "attachMs": 589,
+  "firstIndexWaitMs": 585,
+  "atFirstReady": "{\"afterMs\":588,\"status\":\"Index ✓Auto ✓Live Previewfresh-x1\"}",
+  "search": "{\"total\":188,\"searchReady\":true}",
+  "events": "[{\"n\":\"tags-ready\",\"t\":573,\"fromCache\":false,\"files\":488,\"reread\":488,\"ms\":545},{\"n\":\"index-ready\",\"t\":575,\"fromCache\":false,\"files\":488,\"searchReady\":true,\"searchDocs\":488,\"reread\":488,\"pending\":0,\"ms\":545}]",
+  "pendingLog": [],
+  "all_listings": [
+   {
+    "by": "open",
+    "ms": 7,
+    "name": "vault-listing",
+    "sinceProcessStartMs": 878
+   }
+  ],
+  "closed": "True True"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  16648
+ ],
+ "csp": null,
+ "ourPidsStillAlive": []
+}

@@ -8,6 +8,15 @@ use super::parse::{Parsed, RawLink};
 use super::TagSource;
 use crate::paths::{key_rel, path_key};
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
+
+/// Source of `Inner::epoch` and `Inner::links_generation` values: never the
+/// same value twice in the life of the process.
+static STAMP: AtomicU64 = AtomicU64::new(1);
+
+pub(super) fn next_stamp() -> u64 {
+    STAMP.fetch_add(1, Ordering::Relaxed)
+}
 
 pub(super) struct Occ {
     /// Tag node id (or, in a `FileParsed`, index into its `tags`).
@@ -124,6 +133,15 @@ pub(super) struct Inner {
     pub occurrences: usize,
     /// Incremented by every change.
     pub generation: u64,
+    /// Incremented when what the link graph is built from changes: the
+    /// targets of the links of a note, the set of notes, the other files.
+    /// A save that leaves the links of the note alone does not change it,
+    /// so the graph is not rebuilt.
+    pub graph_generation: u64,
+    /// Changes (to a value never used before) whenever anything a list of
+    /// links can show changes: the above, plus the position and the line of
+    /// each link. Lets a caller skip refreshing such a list.
+    pub links_generation: u64,
     /// Generation that is on disk, if any.
     pub saved_generation: Option<u64>,
     /// Identity of this content; changes whenever the content is replaced
@@ -235,6 +253,7 @@ impl Inner {
         unreadable: bool,
         parsed: FileParsed,
     ) {
+        let known = self.by_path.get(&path_key(path)).is_some_and(|&id| self.files[id as usize].present);
         let file = self.file_id(path, rel);
         self.clear_occs(file);
         let ids: Vec<u32> = parsed.tags.iter().map(|t| self.intern(t)).collect();
@@ -244,10 +263,30 @@ impl Inner {
         }
         self.attach(file, occs, parsed.excerpts);
         let data = &mut self.files[file as usize];
+        // A new note changes what links resolve to, whatever it contains.
+        let same_links = known && data.links == parsed.links;
+        let same_targets = same_links
+            || (known
+                && data.links.len() == parsed.links.len()
+                && data.links.iter().zip(&parsed.links).all(|(a, b)| a.markdown == b.markdown && a.target == b.target));
         data.links = parsed.links;
         data.meta = meta;
         data.unreadable = unreadable;
         self.generation += 1;
+        if !same_targets {
+            self.graph_generation += 1;
+        }
+        if !same_links {
+            self.links_generation = next_stamp();
+        }
+    }
+
+    /// Marks the content as another one than before (replaced wholesale, or
+    /// its file ids renumbered): nothing prepared against the previous one
+    /// applies any more.
+    pub fn renew(&mut self) {
+        self.epoch = next_stamp();
+        self.links_generation = next_stamp();
     }
 
     /// Moves a file out of `old` into `self`, keeping its metadata. Tag ids
@@ -281,6 +320,8 @@ impl Inner {
         }
         self.others = others;
         self.generation += 1;
+        self.graph_generation += 1;
+        self.links_generation = next_stamp();
         true
     }
 
@@ -297,6 +338,8 @@ impl Inner {
         data.meta = None;
         data.unreadable = false;
         self.generation += 1;
+        self.graph_generation += 1;
+        self.links_generation = next_stamp();
         true
     }
 

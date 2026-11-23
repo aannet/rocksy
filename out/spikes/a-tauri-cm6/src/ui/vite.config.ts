@@ -11,5 +11,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 900,
     reportCompressedSize: true,
   },
+  // The tests read the cases shared with the core (../testdata); nothing else outside this folder is served.
+  server: { fs: { allow: [".", "../testdata"] } },
   test: { environment: "node", include: ["tests/**/*.test.ts"] },
 } as any);

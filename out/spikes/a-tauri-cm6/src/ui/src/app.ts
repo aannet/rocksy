@@ -1,13 +1,18 @@
 // Application shell: panes, tabs, saving, vault state, status bar, commands.
 // Panels that are not needed for the first paint (sidebar, pickers, canvas viewer, editor extras) are
 // loaded with dynamic imports after the editor is usable.
-import { Annotation, type EditorState, type Text, Transaction } from "@codemirror/state";
+import { Annotation, type EditorState, Text, Transaction } from "@codemirror/state";
 import { EditorView, type ViewUpdate } from "@codemirror/view";
 import type { Backend } from "./backend";
 import { toApiError } from "./backend";
-import type { Fragment, IndexReady, Session, StartupInfo, TagCount, Tree, VaultRef } from "./types";
+import type { FileContent, Fragment, IndexReady, Session, StartupInfo, TagCount, Tree, VaultRef } from "./types";
 import { basename, dirname, extname, isAbsolute, isImagePath, isMarkdownPath, joinAbs, samePath, stripExt, toRel } from "./paths";
-import { FileIndex, linkTextFor, parseWikilink, resolveImage, resolveLink } from "./resolve";
+import { FileIndex, isNetworkSource, linkTextFor, parseWikilink, resolveCanvasFile, resolveImage, resolveLink, sameTreePaths, stripFileScheme } from "./resolve";
+import { type CloseIssue, DocSync, openErrorMessage, type SyncDoc } from "./docsync";
+import { decodeText } from "./eol";
+import { askChoice, dialogOpen } from "./dialog";
+import { isForVault } from "./vaultevents";
+import { filterTagLibrary, makeTagLibrary, type TagLibrary } from "./tagtree";
 import { type FuzzyItem, fuzzySearch, makeItem } from "./fuzzy";
 import {
   createEditorState,
@@ -15,6 +20,7 @@ import {
   type EditorHost,
   findHeadingLine,
   isPreviewOn,
+  lockEffect,
   refreshPreview,
   revealLines,
   setExtras,
@@ -29,24 +35,13 @@ import type { PickerItem } from "./picker";
 
 export type DocKind = "md" | "canvas" | "image";
 
-export interface Doc {
-  path: string;
-  name: string;
+/** Saving state (dirty, conflict, line endings…) is in `SyncDoc` and handled by `DocSync`. */
+export interface Doc extends SyncDoc {
   kind: DocKind;
   pane: Pane;
   state: EditorState | null;
-  loaded: boolean;
   loading: Promise<void> | null;
-  error: string | null;
-  mtimeMs: number;
-  eol: "\n" | "\r\n";
-  bom: boolean;
-  dirty: boolean;
-  saving: boolean;
-  conflict: null | "save" | "external";
-  pendingExternal: number | null;
   scrollTop: number;
-  timer: number;
   outside: boolean;
   /** Raw text for non-Markdown viewers (canvas). */
   raw: string | null;
@@ -67,7 +62,8 @@ export interface Command {
 }
 
 const externalChange = Annotation.define<boolean>();
-const UNRESOLVED_LIMIT = 5000;
+/** The backend caps `limit` at 1000 (contract). */
+const UNRESOLVED_LIMIT = 1000;
 
 function loadPref(key: string, fallback: string): string {
   try {
@@ -96,6 +92,9 @@ class Pane {
   tabs: Doc[] = [];
   active: Doc | null = null;
   private viewerDispose: (() => void) | null = null;
+  private disposed = false;
+  private tabsHtml = "";
+  private bannerHtml = "";
 
   constructor(readonly app: App) {
     this.el.className = "pane";
@@ -135,11 +134,15 @@ class Pane {
       const doc = this.active;
       if (!act || !doc) return;
       if (act === "reload") void app.reload(doc);
-      else if (act === "overwrite") void app.save(doc, true);
+      else if (act === "overwrite" || act === "recreate") void app.save(doc, true);
+      else if (act === "retry") void app.save(doc);
+      else if (act === "close") void app.closeDoc(doc);
       else if (act === "dismiss") {
         doc.error = null;
         this.renderBanner();
       }
+      // The button is about to disappear with the banner: give the keyboard back to the editor.
+      if (act !== "close") this.focusEditor();
     });
   }
 
@@ -148,10 +151,16 @@ class Pane {
     for (let i = 0; i < this.tabs.length; i++) {
       const d = this.tabs[i];
       const cls = "tab" + (d === this.active ? " is-active" : "") + (d.dirty ? " is-dirty" : "") + (d.conflict ? " is-conflict" : "");
-      const badge = d.outside ? `<span class="tab-badge" title="Fichier hors vault">${iconSvg("external", 12)}</span>` : "";
+      const badge =
+        (d.outside ? `<span class="tab-badge" title="Fichier hors vault">${iconSvg("external", 12)}</span>` : "") +
+        (d.readOnly && d.kind === "md" ? `<span class="tab-badge is-readonly" title="Lecture seule">${iconSvg("lock", 12)}</span>` : "");
       html += `<div class="${cls}" data-i="${i}" title="${escapeAttr(d.path)}">${badge}<span class="tab-name">${escapeText(d.name)}</span><button class="tab-close" tabindex="-1" title="Fermer">${iconSvg("x", 13)}</button></div>`;
     }
-    this.tabbar.innerHTML = html;
+    // Saves repaint the tabs often: leave the DOM alone when nothing changed (a click in progress keeps its target).
+    if (html !== this.tabsHtml) {
+      this.tabsHtml = html;
+      this.tabbar.innerHTML = html;
+    }
     const act = this.tabbar.querySelector(".tab.is-active") as HTMLElement | null;
     if (act && (act.offsetLeft < this.tabbar.scrollLeft || act.offsetLeft + act.offsetWidth > this.tabbar.scrollLeft + this.tabbar.clientWidth)) {
       this.tabbar.scrollLeft = act.offsetLeft - 20;
@@ -160,18 +169,29 @@ class Pane {
 
   renderBanner(): void {
     const d = this.active;
-    if (d && d.conflict) {
-      this.banner.hidden = false;
+    let html = "";
+    if (d && d.conflict === "deleted") {
+      // The file is gone (deleted or moved by another tool): never recreate it silently at the old place.
+      const editable = d.kind === "md" && !d.readOnly;
+      html =
+        `<span class="banner-text">Ce fichier a été supprimé ou déplacé sur le disque.${editable && d.dirty ? " Vos modifications ne sont pas enregistrées." : ""}</span>` +
+        (editable ? `<button data-act="recreate">Enregistrer quand même à cet emplacement</button>` : "") +
+        `<button class="primary" data-act="close">Fermer l'onglet</button>`;
+    } else if (d && d.conflict) {
       const msg =
         d.conflict === "save"
           ? "Enregistrement refusé : ce fichier a changé sur le disque depuis son ouverture."
           : "Ce fichier a été modifié sur le disque alors que vous avez des changements non enregistrés.";
-      this.banner.innerHTML = `<span class="banner-text">${msg}</span><button data-act="reload">Recharger depuis le disque</button><button class="primary" data-act="overwrite">Écraser avec ma version</button>`;
+      html = `<span class="banner-text">${msg}</span><button data-act="reload">Recharger depuis le disque</button><button class="primary" data-act="overwrite">Écraser avec ma version</button>`;
     } else if (d && d.error && d.loaded) {
-      this.banner.hidden = false;
-      this.banner.innerHTML = `<span class="banner-text">${escapeText(d.error)}</span><button data-act="dismiss">Fermer</button>`;
-    } else {
-      this.banner.hidden = true;
+      // A failed save stays shown until a save succeeds; `io` failures are retried automatically.
+      const tail = d.saveError === "io" ? " Nouvel essai automatique tant que le document reste modifié." : "";
+      html = `<span class="banner-text">${escapeText(d.error)}${tail}</span>` + (d.saveError ? `<button data-act="retry">Réessayer maintenant</button>` : `<button data-act="dismiss">Fermer</button>`);
+    }
+    if (html !== this.bannerHtml) {
+      this.bannerHtml = html;
+      this.banner.innerHTML = html;
+      this.banner.hidden = !html;
     }
   }
 
@@ -191,6 +211,16 @@ class Pane {
       this.viewerDispose = null;
       this.viewer.textContent = "";
     }
+  }
+
+  /** Releases what the pane holds outside its own DOM: the viewer's global listeners and timers, the editor view. */
+  dispose(): void {
+    this.disposed = true;
+    this.viewerDispose?.();
+    this.viewerDispose = null;
+    this.viewer.textContent = "";
+    this.view?.destroy();
+    this.view = null;
   }
 
   showEmpty(html: string, error = false): void {
@@ -244,7 +274,10 @@ class Pane {
       this.viewer.className = "canvas-view";
       const host = this.viewer;
       void import("./canvas").then((m) => {
-        if (this.active !== d) return;
+        // The pane may have been closed, or the tab changed, while the module loaded: mount nothing (no listener left behind).
+        if (this.disposed || this.active !== d || host.hidden) return;
+        this.viewerDispose?.();
+        host.textContent = "";
         const t0 = performance.now();
         this.viewerDispose = m.mountCanvas(host, d.raw ?? "", this.app.canvasHost(d));
         this.app.metrics.canvasMs = Math.round((performance.now() - t0) * 10) / 10;
@@ -290,6 +323,14 @@ export class App implements EditorHost {
   metrics: Record<string, number> = {};
   commands: Command[] = [];
 
+  /** Saving, reloading, conflicts and the closing sequence (logic without DOM, see docsync.ts). */
+  readonly sync: DocSync<Doc>;
+  /** `StartupInfo.firstFile`, consumed by the first load of that path. */
+  private primed: FileContent | null = null;
+  private tagGen = 0;
+  private tagLib: Promise<TagLibrary> | null = null;
+  private marksSent = false;
+  private pendingMarks: [string, number][] = [];
   private epochN = 0;
   private sessionTimer = 0;
   private statusTimer = 0;
@@ -316,13 +357,41 @@ export class App implements EditorHost {
     readonly info: StartupInfo,
   ) {
     this.vaults = info.vaults;
+    this.sync = new DocSync<Doc>({
+      backend,
+      autosave: () => this.autosave,
+      textOf: (d) => (d.kind === "md" ? (this.stateOf(d)?.doc ?? null) : null),
+      applyDisk: (d, text) => this.applyDisk(d, text),
+      refresh: (d) => this.refreshDoc(d),
+      saved: () => {
+        // Tags are up to date when save_file returns; no event says so. Links: `index-ready` follows when they changed.
+        this.invalidateTags();
+      },
+      toast: (m) => this.toast(m),
+    });
     this.focused = this.addPane();
     this.buildStatusBar();
     this.buildCommands();
     window.addEventListener("keydown", (e) => this.onKey(e), true);
-    window.addEventListener("beforeunload", () => {
-      for (const d of this.docs()) if (d.dirty && this.autosave && !d.conflict) void this.save(d);
-    });
+    // No `beforeunload` save: it was not awaited. Closing goes through `close-requested` (see requestClose).
+  }
+
+  /** Startup milestone, in ms since navigation; sent to `log_timing` in one batch once the editor is painted. */
+  mark(name: string, at = performance.now()): void {
+    const ms = Math.round(at);
+    this.metrics["mark:" + name] = ms;
+    if (this.marksSent) void this.backend.logTiming("ui-" + name, ms).catch(() => undefined);
+    else this.pendingMarks.push([name, ms]);
+  }
+
+  flushMarks(): void {
+    this.marksSent = true;
+    for (const [name, ms] of this.pendingMarks.splice(0)) void this.backend.logTiming("ui-" + name, ms).catch(() => undefined);
+  }
+
+  /** Hands over the file read by the backend during startup (`StartupInfo.firstFile`). */
+  primeFile(fc: FileContent): void {
+    this.primed = fc;
   }
 
   // ------------------------------------------------------------ panes & docs
@@ -403,11 +472,15 @@ export class App implements EditorHost {
       loaded: false,
       loading: null,
       error: null,
+      readOnly: false,
+      saveError: null,
+      retries: 0,
       mtimeMs: 0,
       eol: "\n",
+      eolMixed: null,
       bom: false,
       dirty: false,
-      saving: false,
+      saving: null,
       conflict: null,
       pendingExternal: null,
       scrollTop: 0,
@@ -457,18 +530,29 @@ export class App implements EditorHost {
           doc.loaded = true;
           return;
         }
-        const fc = await this.backend.readFile(doc.path);
-        let text = fc.text;
-        doc.bom = text.charCodeAt(0) === 0xfeff;
-        if (doc.bom) text = text.slice(1);
-        doc.eol = /\r\n/.test(text) ? "\r\n" : "\n";
+        // The backend may have read the first note while the WebView was starting: no second round trip then.
+        let fc = this.primed;
+        this.primed = null;
+        const prefetched = !!fc && samePath(fc.path, doc.path);
+        if (!fc || !prefetched) fc = await this.backend.readFile(doc.path);
+        const first = this.metrics["mark:file-read"] === undefined;
+        if (first) {
+          this.mark("file-read");
+          this.metrics.firstFilePrefetched = prefetched ? 1 : 0;
+        }
+        const dec = decodeText(fc.text);
+        doc.bom = dec.bom;
+        doc.eol = dec.eol;
+        doc.eolMixed = dec.mixed;
         doc.mtimeMs = fc.mtimeMs;
-        if (doc.kind === "md") doc.state = createEditorState(text, doc.path, this);
-        else doc.raw = text;
+        doc.readOnly = !!fc.readOnly;
+        if (doc.kind === "md") doc.state = createEditorState(dec.text, doc.path, this, doc.readOnly);
+        else doc.raw = dec.text;
+        if (first) this.mark("state-created");
         doc.dirty = false;
         doc.loaded = true;
       } catch (e) {
-        doc.error = toApiError(e).message || "Erreur de lecture";
+        doc.error = openErrorMessage(toApiError(e));
       } finally {
         doc.loading = null;
       }
@@ -507,6 +591,8 @@ export class App implements EditorHost {
       await pending;
       clearTimeout(timer);
       void shown;
+      // What the tab shows may come with the content (read-only badge).
+      pane.renderTabs();
     }
     if (pane.active !== doc) return;
     pane.show();
@@ -518,11 +604,32 @@ export class App implements EditorHost {
   }
 
   async closeDoc(doc: Doc): Promise<void> {
-    if (doc.dirty && doc.loaded) {
-      if (this.autosave && !doc.conflict) await this.save(doc);
-      if (doc.dirty && !window.confirm(`« ${doc.name} » a des modifications non enregistrées. Fermer quand même ?`)) return;
+    // A save in flight is awaited before deciding: if it fails, the text is still here and the tab stays.
+    if (this.autosave) await this.sync.flush(doc);
+    else await this.sync.settle(doc);
+    if (this.sync.unsaved(doc)) {
+      const why = doc.conflict === "deleted" ? "Le fichier a été supprimé ou déplacé sur le disque." : doc.conflict ? "Le fichier a changé sur le disque (conflit)." : doc.saveError ? (doc.error ?? "L'enregistrement a échoué.") : "L'enregistrement automatique est désactivé.";
+      const canSave = !doc.conflict;
+      const choice = await askChoice({
+        title: `« ${doc.name} » a des modifications non enregistrées`,
+        lines: [why],
+        buttons: [
+          { id: "cancel", label: "Annuler" },
+          { id: "discard", label: "Fermer sans enregistrer", kind: "danger" },
+          ...(canSave ? [{ id: "save", label: "Enregistrer et fermer", kind: "primary" as const }] : []),
+        ],
+        cancelId: "cancel",
+      });
+      if (choice === "cancel") return;
+      if (choice === "save") {
+        await this.sync.save(doc);
+        if (this.sync.unsaved(doc)) {
+          this.toast(`« ${doc.name} » n'a pas pu être enregistré : l'onglet reste ouvert`);
+          return;
+        }
+      }
     }
-    clearTimeout(doc.timer);
+    this.sync.cancelTimer(doc);
     const pane = doc.pane;
     const i = pane.tabs.indexOf(doc);
     if (i < 0) return;
@@ -551,7 +658,7 @@ export class App implements EditorHost {
   private removePane(pane: Pane): void {
     const i = this.panes.indexOf(pane);
     if (i < 0 || this.panes.length === 1) return;
-    pane.view?.destroy();
+    pane.dispose();
     pane.el.remove();
     this.panes.splice(i, 1);
     if (this.focused === pane) this.focused = this.panes[Math.max(0, i - 1)];
@@ -594,96 +701,90 @@ export class App implements EditorHost {
 
   // ------------------------------------------------------------ saving
 
-  private scheduleAutosave(doc: Doc): void {
-    clearTimeout(doc.timer);
-    if (!this.autosave || doc.conflict) return;
-    doc.timer = window.setTimeout(() => void this.save(doc), 2000);
-  }
-
-  async save(doc: Doc, force = false): Promise<void> {
-    if (!doc.loaded || doc.kind !== "md" || doc.saving) return;
-    if (!doc.dirty && !force) return;
-    const state = this.stateOf(doc);
-    if (!state) return;
-    clearTimeout(doc.timer);
-    const snapshot: Text = state.doc;
-    const text = (doc.bom ? "﻿" : "") + snapshot.sliceString(0, undefined, doc.eol);
-    doc.saving = true;
-    this.updateSaveState();
-    try {
-      const r = await this.backend.saveFile(doc.path, text, force ? undefined : doc.mtimeMs);
-      doc.mtimeMs = r.mtimeMs;
-      doc.conflict = null;
-      doc.error = null;
-      const now = this.stateOf(doc);
-      doc.dirty = !!now && now.doc !== snapshot;
-    } catch (e) {
-      const err = toApiError(e);
-      if (err.kind === "conflict") doc.conflict = "save";
-      else doc.error = `Échec de l'enregistrement : ${err.message}`;
-    } finally {
-      doc.saving = false;
-    }
-    if (doc.pendingExternal != null) {
-      const m = doc.pendingExternal;
-      doc.pendingExternal = null;
-      if (m !== doc.mtimeMs && !doc.conflict) this.onFileChanged(doc.path, m);
-    }
-    doc.pane.renderTabs();
-    if (doc.pane.active === doc) doc.pane.renderBanner();
-    this.updateSaveState();
-    if (doc.dirty && !doc.conflict && !doc.error) this.scheduleAutosave(doc);
-    else if (!doc.conflict && !doc.error && doc === this.activeDoc()) this.sidebar?.onDocSaved();
+  /** Saves a document; resolves when the backend has answered (see DocSync.save). `force`: without the mtime check. */
+  save(doc: Doc, force = false): Promise<void> {
+    return this.sync.save(doc, force);
   }
 
   async reload(doc: Doc): Promise<void> {
-    try {
-      const fc = await this.backend.readFile(doc.path);
-      let text = fc.text;
-      doc.bom = text.charCodeAt(0) === 0xfeff;
-      if (doc.bom) text = text.slice(1);
-      doc.eol = /\r\n/.test(text) ? "\r\n" : "\n";
-      doc.mtimeMs = fc.mtimeMs;
-      if (doc.kind === "md") {
-        const state = this.stateOf(doc)!;
-        const fresh = createEditorState(text, doc.path, this).doc;
-        const head = Math.min(state.selection.main.head, fresh.length);
-        const tr = { changes: { from: 0, to: state.doc.length, insert: fresh }, selection: { anchor: head }, annotations: [externalChange.of(true), Transaction.addToHistory.of(false)] };
-        const view = this.viewOf(doc);
-        if (view) view.dispatch(tr);
-        else doc.state = state.update(tr).state;
-      } else doc.raw = text;
-      doc.dirty = false;
-      doc.conflict = null;
-      doc.error = null;
-      clearTimeout(doc.timer);
-    } catch (e) {
-      doc.error = `Rechargement impossible : ${toApiError(e).message}`;
-    }
-    doc.pane.renderTabs();
-    if (doc.pane.active === doc) {
-      doc.pane.renderBanner();
-      if (doc.kind !== "md") doc.pane.show();
-    }
-    this.updateStatus();
+    await this.sync.reload(doc);
   }
 
-  onFileChanged(path: string, mtimeMs: number): void {
+  onFileChanged(path: string, mtimeMs: number, deleted = false): void {
     const doc = this.findDoc(path);
-    if (!doc || !doc.loaded || mtimeMs === doc.mtimeMs) return;
-    if (doc.saving) {
-      doc.pendingExternal = mtimeMs;
-      return;
-    }
-    if (!doc.dirty) {
-      void this.reload(doc).then(() => this.toast(`« ${doc.name} » rechargé (modifié sur le disque)`));
+    if (doc) this.sync.onFileChanged(doc, mtimeMs, deleted);
+  }
+
+  /** Puts the content read from disk in the editor (reload). Not an edit: no history entry, not dirty. */
+  private applyDisk(doc: Doc, text: string): void {
+    if (doc.kind === "md") {
+      const state = this.stateOf(doc);
+      if (!state) return;
+      const fresh = Text.of(text.split(/\r\n?|\n/));
+      const lock = lockEffect(state, doc.readOnly);
+      const tr = {
+        changes: { from: 0, to: state.doc.length, insert: fresh },
+        selection: { anchor: Math.min(state.selection.main.head, fresh.length) },
+        effects: lock ? [lock] : [],
+        annotations: [externalChange.of(true), Transaction.addToHistory.of(false)],
+        // A read-only document refuses every change through a filter; this one comes from the disk.
+        filter: false,
+      };
+      const view = this.viewOf(doc);
+      if (view) view.dispatch(tr);
+      else doc.state = state.update(tr).state;
+      this.queueStatus();
     } else {
-      doc.conflict = "external";
-      clearTimeout(doc.timer);
-      doc.pane.renderTabs();
-      if (doc.pane.active === doc) doc.pane.renderBanner();
-      this.updateSaveState();
+      doc.raw = text;
+      if (doc.pane.active === doc) doc.pane.show();
     }
+  }
+
+  private refreshDoc(doc: Doc): void {
+    if (!doc.pane.tabs.includes(doc)) return;
+    doc.pane.renderTabs();
+    if (doc.pane.active === doc) doc.pane.renderBanner();
+    this.updateSaveState();
+  }
+
+  /**
+   * `close-requested`: acknowledge, save everything and wait, ask in an application dialog when something
+   * cannot be saved silently, then `quit`. Requests received meanwhile are acknowledged and do not stack dialogs.
+   */
+  async requestClose(): Promise<"quit" | "cancelled" | "busy"> {
+    try {
+      return await this.sync.requestClose({
+        docs: () => this.docs(),
+        closeAck: () => this.backend.closeAck(),
+        quit: () => this.backend.quit(),
+        ask: (issues, canSave) => this.askBeforeQuit(issues, canSave),
+      });
+    } catch (e) {
+      this.toast(`Fermeture impossible : ${toApiError(e).message}`);
+      return "cancelled";
+    }
+  }
+
+  private async askBeforeQuit(issues: CloseIssue<Doc>[], canSave: boolean): Promise<"save" | "discard" | "cancel"> {
+    const label = (i: CloseIssue<Doc>) =>
+      `${i.doc.name} — ${i.reason === "conflict" ? (i.doc.conflict === "deleted" ? "fichier supprimé ou déplacé sur le disque" : "conflit avec la version du disque") : i.reason === "failed" ? (i.doc.error ?? "échec de l'enregistrement") : "modifications non enregistrées (enregistrement automatique désactivé)"}`;
+    const onlyConflicts = !canSave;
+    const choice = await askChoice({
+      title: issues.length > 1 ? `${issues.length} documents ne sont pas enregistrés` : "Un document n'est pas enregistré",
+      lines: [
+        onlyConflicts
+          ? "Ces documents sont en conflit avec le disque : ils ne peuvent pas être enregistrés automatiquement. Annulez pour choisir dans le bandeau de chaque document, ou quittez sans les enregistrer."
+          : "Quitter maintenant perdrait ces modifications." + (issues.some((i) => i.reason === "conflict") ? " Les documents en conflit ne seront pas écrasés par « Enregistrer et quitter »." : ""),
+      ],
+      items: issues.map(label),
+      buttons: [
+        { id: "cancel", label: "Annuler" },
+        { id: "discard", label: "Quitter sans enregistrer", kind: "danger" },
+        ...(canSave ? [{ id: "save", label: "Enregistrer et quitter", kind: "primary" as const }] : []),
+      ],
+      cancelId: "cancel",
+    });
+    return choice as "save" | "discard" | "cancel";
   }
 
   // ------------------------------------------------------------ editor host
@@ -702,7 +803,7 @@ export class App implements EditorHost {
           pane.renderTabs();
           this.updateSaveState();
         }
-        this.scheduleAutosave(doc);
+        this.sync.scheduleAutosave(doc);
       }
       this.queueStatus();
       if (this.lat.active && this.lat.t0) {
@@ -728,7 +829,8 @@ export class App implements EditorHost {
     const t = resolveImage(src, { fileAbs: fromPath, vaultRoot: this.isOutside(fromPath) ? null : this.vaultRoot, index: this.index });
     if (t.kind === "local") return { kind: "url", url: this.backend.assetUrl(t.abs) };
     if (t.kind === "remote") return /^data:/i.test(t.url) ? { kind: "url", url: t.url } : { kind: "remote", url: t.url };
-    return { kind: "missing" };
+    // A network source is refused, not missing: say so (nothing was looked up, no connection was opened).
+    return isNetworkSource(src) ? { kind: "network" } : { kind: "missing" };
   }
 
   linkExists(inner: string, fromPath: string): boolean | null {
@@ -743,7 +845,13 @@ export class App implements EditorHost {
   openLink(link: LinkRef, fromPath: string, newTab: boolean): void {
     void newTab;
     if (link.kind === "url") {
-      const href = link.href.replace(/^<|>$/g, "");
+      let href = link.href.replace(/^<|>$/g, "");
+      if (isNetworkSource(href)) {
+        this.toastNetwork(href);
+        return;
+      }
+      // A `file:` URL to a local path is a local link (network ones were refused above).
+      if (/^file:/i.test(href)) href = stripFileScheme(href) ?? href;
       if (/^[a-z][a-z0-9+.-]*:/i.test(href) && !/^[a-zA-Z]:[\\/]/.test(href)) {
         this.backend.openExternal(href).catch((e) => this.toast(`Lien non ouvert : ${toApiError(e).message || href}`));
         return;
@@ -756,9 +864,17 @@ export class App implements EditorHost {
     this.openTarget(l.target, l.heading, fromPath);
   }
 
+  private toastNetwork(target: string): void {
+    this.toast(`Lien vers un chemin réseau : non ouvert (${target.slice(0, 120)})`);
+  }
+
   private openTarget(target: string, heading: string | null, fromPath: string): void {
     if (!target) {
       void this.openPath(fromPath, { heading });
+      return;
+    }
+    if (isNetworkSource(target)) {
+      this.toastNetwork(target);
       return;
     }
     const rel = this.vaultRoot ? toRel(this.vaultRoot, fromPath) : null;
@@ -772,7 +888,7 @@ export class App implements EditorHost {
     const abs = isAbsolute(target) ? target : joinAbs(dirname(fromPath), /\.[a-z0-9]{1,8}$/i.test(target) ? target : target + ".md");
     void this.openPath(abs, { heading }).then((d) => {
       if (d && d.error && !d.loaded) {
-        this.toast(`Fichier introuvable : ${target}`);
+        this.toast(`Lien non ouvert : ${d.error}`);
         void this.closeDoc(d);
       }
     });
@@ -782,15 +898,30 @@ export class App implements EditorHost {
     void this.showSidebar("tags").then(() => this.sidebar?.selectTag(tag));
   }
 
+  /** A file referenced by a canvas: resolved by the vault index and kept under the vault root (see resolveCanvasFile). */
+  private canvasFile(doc: Doc, ref: string): string | null {
+    return resolveCanvasFile(ref, { fileAbs: doc.path, vaultRoot: doc.outside ? null : this.vaultRoot, index: this.index });
+  }
+
   canvasHost(doc: Doc) {
     return {
-      assetUrl: (rel: string) => (this.vaultRoot && !doc.outside ? this.backend.assetUrl(joinAbs(this.vaultRoot, rel)) : this.backend.assetUrl(joinAbs(dirname(doc.path), rel))),
-      open: (rel: string) => void this.openPath(this.vaultRoot && !doc.outside ? joinAbs(this.vaultRoot, rel) : joinAbs(dirname(doc.path), rel)),
-      readText: (rel: string) =>
-        this.backend.readFile(this.vaultRoot && !doc.outside ? joinAbs(this.vaultRoot, rel) : joinAbs(dirname(doc.path), rel)).then(
+      assetUrl: (rel: string) => {
+        const abs = this.canvasFile(doc, rel);
+        return abs ? this.backend.assetUrl(abs) : null;
+      },
+      open: (rel: string) => {
+        const abs = this.canvasFile(doc, rel);
+        if (abs) void this.openPath(abs);
+        else this.toast(`Fichier du canvas introuvable dans ${this.vaultRoot && !doc.outside ? "le vault" : "son dossier"} : ${rel.slice(0, 120)}`);
+      },
+      readText: (rel: string) => {
+        const abs = this.canvasFile(doc, rel);
+        if (!abs) return Promise.resolve(null);
+        return this.backend.readFile(abs).then(
           (f) => f.text,
           () => null,
-        ),
+        );
+      },
     };
   }
 
@@ -810,7 +941,7 @@ export class App implements EditorHost {
   }
 
   async completeTags(query: string): Promise<TagCount[]> {
-    if (this.vaultRoot) return this.backend.tagsList(query);
+    if (this.vaultRoot) return filterTagLibrary(await this.allTags(), query);
     const doc = this.activeDoc();
     const state = doc && this.stateOf(doc);
     if (!doc || !state) return [];
@@ -886,6 +1017,9 @@ export class App implements EditorHost {
 
   async openVault(path: string): Promise<void> {
     const t0 = performance.now();
+    const previous = this.vaultRoot;
+    // Changing vault: the backend stops following the previous one and releases its index.
+    if (previous && !samePath(previous, path)) void this.backend.closeVault(previous).catch(() => undefined);
     this.vaultRoot = path;
     this.dormantVault = null;
     this.tree = null;
@@ -895,34 +1029,53 @@ export class App implements EditorHost {
     this.tagsInfo = null;
     this.tagsProgress = null;
     this.indexInfo = null;
+    this.invalidateTags();
     this.refreshOutside();
     this.reserveSidebar();
     this.updateStatus();
+    // The index is requested at the same time as the tree, in either order: the backend makes one listing serve
+    // both and never drops the index pass of the vault being opened (see CONTRACT.md, `build_tags`).
+    const opening = this.backend.openVault(path);
+    const building = this.backend.buildTags(path).then(
+      () => null,
+      (e: unknown) => toApiError(e),
+    );
     try {
-      const tree = await this.backend.openVault(path);
+      const tree = await opening;
       if (!this.vaultRoot || !samePath(this.vaultRoot, path)) return;
       this.metrics.openVaultMs = Math.round(performance.now() - t0);
+      this.mark("tree-received");
       this.setTree(tree);
+      this.mark("tree-applied");
       if (this.sidebarOpen) await this.showSidebar();
       this.metrics.treeReadyMs = Math.round(performance.now());
       void this.backend.logTiming("tree-ready", Date.now() - this.info.processStartMs);
-      await this.backend.buildTags(path);
+      const failed = await building;
+      if (failed && this.vaultRoot && samePath(this.vaultRoot, path)) this.toast(`Index du vault indisponible : ${failed.message}`);
     } catch (e) {
-      this.toast(`Impossible d'ouvrir le vault : ${toApiError(e).message}`);
-      this.vaultRoot = null;
-      this.reserveSidebar();
-      this.refreshOutside();
+      if (this.vaultRoot && samePath(this.vaultRoot, path)) {
+        this.toast(`Impossible d'ouvrir le vault : ${toApiError(e).message}`);
+        this.vaultRoot = null;
+        this.reserveSidebar();
+        this.refreshOutside();
+        void this.backend.closeVault(path).catch(() => undefined);
+      }
     }
     this.queueSession();
   }
 
   closeVault(): void {
+    const closed = this.vaultRoot;
     this.vaultRoot = null;
     this.dormantVault = null;
     this.tree = null;
     this.index = null;
     this.quickItems = null;
     this.linkItems = null;
+    this.tagsInfo = null;
+    this.tagsProgress = null;
+    this.indexInfo = null;
+    this.invalidateTags();
     this.epochN++;
     this.refreshOutside();
     this.reserveSidebar();
@@ -930,16 +1083,47 @@ export class App implements EditorHost {
     this.sidebar?.setTree(null);
     this.updateStatus();
     this.queueSession();
+    // The backend stops the watcher and the reconciliations of this vault, persists and releases its index.
+    if (closed) void this.backend.closeVault(closed).catch(() => undefined);
   }
 
   setTree(tree: Tree): void {
+    const previous = this.tree;
+    const samePaths = !!previous && !!this.index && samePath(previous.root, tree.root) && sameTreePaths(previous.entries, tree.entries);
     this.tree = tree;
+    if (samePaths) {
+      // Same set of files: links and images resolve as before. Nothing is rebuilt, images are not recreated.
+      this.sidebar?.setTree(tree, true);
+      return;
+    }
+    const hadIndex = !!this.index;
     this.index = new FileIndex(tree.entries);
     this.quickItems = null;
     this.linkItems = null;
     this.epochN++;
     this.sidebar?.setTree(tree);
     this.refreshPreviews();
+    // A canvas shown before the tree was known could not resolve its files: mount it again, once.
+    if (!hadIndex) for (const p of this.panes) if (p.active?.kind === "canvas" && p.active.loaded && !p.active.outside) p.show();
+  }
+
+  /** Forgets the cached tag list (`tags-ready`, `index-ready`, a save, a vault change): the next use asks the backend once. */
+  invalidateTags(): void {
+    this.tagGen++;
+    this.tagLib = null;
+  }
+
+  /** Whole tag list of the open vault, fetched once and filtered in memory (no backend call per keystroke). */
+  allTags(): Promise<TagLibrary> {
+    if (!this.tagLib) {
+      const gen = this.tagGen;
+      const p = this.backend.tagsList("").then(makeTagLibrary);
+      p.catch(() => {
+        if (this.tagGen === gen) this.tagLib = null;
+      });
+      this.tagLib = p;
+    }
+    return this.tagLib;
   }
 
   private refreshPreviews(): void {
@@ -966,8 +1150,9 @@ export class App implements EditorHost {
   }
 
   async removeVault(path: string): Promise<void> {
-    this.vaults = await this.backend.removeVault(path);
+    // Close first: `remove_vault` also deletes the derived data of the vault.
     if (this.vaultRoot && samePath(this.vaultRoot, path)) this.closeVault();
+    this.vaults = await this.backend.removeVault(path);
     this.toast("Vault retiré de la liste (aucun fichier modifié)");
   }
 
@@ -1117,6 +1302,18 @@ export class App implements EditorHost {
   private saveActive(): void {
     const d = this.activeDoc();
     if (!d) return;
+    if (d.kind !== "md") {
+      this.toast("Lecture seule : ce type de fichier ne s'enregistre pas dans Rocksy");
+      return;
+    }
+    if (d.readOnly) {
+      this.toast(`Lecture seule : ${this.readOnlyReason(d)}`);
+      return;
+    }
+    if (d.conflict === "deleted") {
+      this.toast("Fichier supprimé ou déplacé sur le disque : choisissez dans le bandeau");
+      return;
+    }
     if (d.conflict) {
       this.toast("Conflit : choisissez « Recharger » ou « Écraser » dans le bandeau");
       return;
@@ -1124,11 +1321,22 @@ export class App implements EditorHost {
     void this.save(d);
   }
 
+  /** Why a read-only document cannot be saved (`FileContent.readOnly`). */
+  readOnlyReason(d: Doc): string {
+    return isMarkdownPath(d.path)
+      ? "fichier atteint par un lien depuis une note hors vault (Rocksy n'écrit que dans un vault ou dans un fichier ouvert par vous)"
+      : "Rocksy n'enregistre que les fichiers .md et .markdown";
+  }
+
   toggleAutosave(): void {
     this.autosave = !this.autosave;
     savePref("autosave", this.autosave ? "1" : "0");
-    if (this.autosave) for (const d of this.docs()) if (d.dirty) this.scheduleAutosave(d);
-    else for (const d of this.docs()) clearTimeout(d.timer);
+    if (this.autosave) {
+      for (const d of this.docs()) if (d.dirty && !d.saveError) this.sync.scheduleAutosave(d);
+    } else {
+      // A pending retry of a failed save is kept: that save was asked for.
+      for (const d of this.docs()) if (!d.saveError) this.sync.cancelTimer(d);
+    }
     this.updateStatus();
     this.toast(this.autosave ? "Enregistrement automatique activé" : "Enregistrement automatique désactivé");
   }
@@ -1150,6 +1358,7 @@ export class App implements EditorHost {
   }
 
   private onKey(e: KeyboardEvent): void {
+    if (dialogOpen()) return;
     if (!(e.ctrlKey || e.metaKey) || e.altKey) {
       if (this.lat.active && !e.ctrlKey && !e.metaKey && (e.key.length === 1 || e.key === "Enter" || e.key === "Backspace")) this.lat.t0 = performance.now();
       return;
@@ -1234,19 +1443,28 @@ export class App implements EditorHost {
     if (!d || d.kind !== "md" || !d.loaded) {
       el.textContent = d && d.kind !== "md" ? "Lecture seule" : "";
       el.className = "st-save";
+      el.title = "";
       return;
     }
-    const [text, cls] = d.conflict
-      ? ["Conflit", "is-conflict"]
-      : d.saving
-        ? ["Enregistrement…", "is-dirty"]
-        : d.error
-          ? ["Erreur d'enregistrement", "is-conflict"]
-          : d.dirty
-            ? ["Modifié", "is-dirty"]
-            : ["Enregistré", "is-saved"];
+    const [text, cls] =
+      d.conflict === "deleted"
+        ? ["Fichier supprimé", "is-conflict"]
+        : d.conflict
+          ? ["Conflit", "is-conflict"]
+          : d.readOnly
+            ? ["Lecture seule", "is-readonly"]
+            : d.saving
+              ? ["Enregistrement…", "is-dirty"]
+              : d.saveError === "io"
+                ? ["Échec de l'enregistrement · nouvel essai", "is-conflict"]
+                : d.error
+                  ? ["Erreur d'enregistrement", "is-conflict"]
+                  : d.dirty
+                    ? ["Modifié", "is-dirty"]
+                    : ["Enregistré", "is-saved"];
     el.textContent = text;
     el.className = "st-save " + cls;
+    el.title = d.readOnly ? `Lecture seule : ${this.readOnlyReason(d)}` : d.error ? d.error : d.eolMixed ? "Fins de ligne mixtes : conservées telles quelles" : "";
   }
 
   updateStatus(): void {
@@ -1290,8 +1508,10 @@ export class App implements EditorHost {
       el.textContent = this.tagsInfo ? "Index : tags ✓ · liens et recherche…" : this.tree ? "Index : en préparation…" : "";
       el.title = "Tags, liens et recherche plein texte du vault";
     } else {
-      el.textContent = info.searchReady ? (info.fromCache ? "Index : vérification…" : "Index ✓") : "Index : tags ✓ liens ✓ · recherche…";
-      el.title = `${n(info.files)} notes · ${n(info.tags)} tags · ${n(info.links)} liens (${n(info.unresolvedLinks)} non résolus) · recherche : ${info.searchReady ? n(info.searchDocs) + " notes" : "en préparation"}`;
+      const pending = info.pending ?? 0;
+      el.textContent = pending ? `Index : ${n(pending)} note${pending > 1 ? "s" : ""} à relire…` : info.searchReady ? (info.fromCache ? "Index : vérification…" : "Index ✓") : "Index : tags ✓ liens ✓ · recherche…";
+      const retry = pending ? `${n(pending)} note${pending > 1 ? "s n'ont pas pu être lues" : " n'a pas pu être lue"} (fichier occupé ou indisponible) : nouvelle tentative automatique · ` : "";
+      el.title = `${retry}${n(info.files)} notes · ${n(info.tags)} tags · ${n(info.links)} liens (${n(info.unresolvedLinks)} non résolus) · recherche : ${info.searchReady ? n(info.searchDocs) + " notes" : "en préparation"}`;
     }
   }
 
@@ -1319,20 +1539,30 @@ export class App implements EditorHost {
     b.on("tree-updated", (tree) => {
       if (this.vaultRoot && samePath(tree.root, this.vaultRoot)) this.setTree(tree);
     });
-    b.on("file-changed", (p) => this.onFileChanged(p.path, p.mtimeMs));
+    b.on("file-changed", (p) => this.onFileChanged(p.path, p.mtimeMs, p.deleted === true));
+    b.on("close-requested", () => void this.requestClose());
+    // Index events name their vault: the end of a pass on a vault that was just left must not touch this one.
+    const mine = (p: { vault: string }) => isForVault(this.vaultRoot, p);
     b.on("tags-progress", (p) => {
+      if (!mine(p)) return;
       this.tagsProgress = p;
       this.updateTagsStatus();
       this.sidebar?.onTagsProgress(p);
     });
     b.on("tags-ready", (p) => {
+      if (!mine(p)) return;
       this.tagsProgress = null;
       this.tagsInfo = p;
+      this.invalidateTags();
       this.updateTagsStatus();
       this.sidebar?.onTagsReady();
     });
     b.on("index-ready", (p) => {
+      if (!mine(p)) return;
+      // Only a pass knows what it could not read: the event that follows a save (links changed) keeps the count.
+      if (p.pending == null && !p.fromCache && this.indexInfo?.pending) p = { ...p, pending: this.indexInfo.pending };
       this.indexInfo = p;
+      this.invalidateTags();
       if (this.indexEvents.length < 50) this.indexEvents.push({ ...p, atMs: Math.round(performance.now()) });
       this.updateTagsStatus();
       this.sidebar?.onIndexReady();

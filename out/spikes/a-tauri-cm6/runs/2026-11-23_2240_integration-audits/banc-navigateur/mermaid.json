@@ -1,0 +1,9 @@
+{
+ "scenario": "mermaid",
+ "saved": {
+  "mermaid": "{\"svgs\":2,\"errors\":[\"Diagramme Mermaid invalide (ligne 2, colonne 22) : Parse error on line 2:\\n  A[Bloc invalide --> \\n---------------------^\\n\"],\"requests\":[]}",
+  "lineAfterClick": "flowchart LR"
+ },
+ "errors": [],
+ "csp": []
+}

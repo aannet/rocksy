@@ -1,6 +1,9 @@
 {"steps":[
  {"nav":"{DIST}?open=00__DEMO/Tableaux%20et%20code.md"},
  {"wait":"window.rocksyReady && window.rocksy.tree","timeout":15000},
+ {"eval":"(()=>{const was=localStorage.getItem('rocksy.fmFolded');localStorage.setItem('rocksy.fmFolded','0');return was})()","save":"fmFoldedPreferenceBefore"},
+ {"nav":"{DIST}?open=00__DEMO/Tableaux%20et%20code.md&fm=open"},
+ {"wait":"window.rocksyReady && window.rocksy.tree","timeout":15000},
  {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.scrollDOM.scrollTop=0;return 1})()"},
  {"sleep":700},
  {"shot":"f2-blocks.png"},
@@ -14,10 +17,17 @@
  {"shot":"f3-images.png"},
  {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.scrollDOM.scrollTop=0;return 1})()"},
  {"sleep":250},
+ {"eval":"JSON.stringify({folded:document.querySelectorAll('.cm-lp-fm-folded').length, head:document.querySelectorAll('.cm-lp-fm-head').length, lines:document.querySelectorAll('.cm-line.cm-lp-fm').length})","save":"fmOpenByDefault"},
  {"click":".cm-lp-fm-head"},
  {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});return 1})()"},
  {"sleep":200},
+ {"eval":"JSON.stringify({folded:document.querySelectorAll('.cm-lp-fm-folded').length, head:document.querySelectorAll('.cm-lp-fm-head').length, label:(document.querySelector('.cm-lp-fm-folded span')||{}).textContent, preference:localStorage.getItem('rocksy.fmFolded')})","save":"fmFolded"},
  {"shot":"f2-frontmatter-folded.png"},
+ {"click":".cm-lp-fm-folded"},
+ {"sleep":200},
+ {"eval":"(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});return 1})()"},
+ {"sleep":200},
+ {"eval":"JSON.stringify({folded:document.querySelectorAll('.cm-lp-fm-folded').length, head:document.querySelectorAll('.cm-lp-fm-head').length, lines:document.querySelectorAll('.cm-line.cm-lp-fm').length, dirty:rocksy.activeDoc().dirty, preference:localStorage.getItem('rocksy.fmFolded')})","save":"fmUnfoldedAgain"},
  {"click":".cm-lp-table td:nth-child(2)"},
  {"eval":"(()=>{const s=rocksy.focused.view.state;return s.doc.lineAt(s.selection.main.head).text})()","save":"lineAfterTableClick"}
 ]}

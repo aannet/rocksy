@@ -2,16 +2,19 @@
 //! reconciling, indexing tags, reading files and managing the registry must
 //! leave every byte and every modification time of the vault untouched, and
 //! create nothing in it. The only write is `save_file` on the file asked for.
+//! The only deletion is that of Rocksy's own orphaned temporary files
+//! (`.<name>.rocksy-tmp`, older than an hour) when a vault is opened.
 
 mod common;
 
 use common::{fingerprint, make_vault, TempDir};
 use rocksy_core::{
-    add_vault, file_tags, list_vaults, load_session, open_tree, read_file, reconcile_tree,
-    remove_vault, save_file, save_session, vault_for_path, BuildOptions, CancelToken, ErrorKind,
-    Session, TagIndex,
+    add_vault, clean_vault_temp_files, file_tags, list_tree, list_vaults, load_session, open_tree,
+    purge_vault_data, read_file, reconcile_tree, refresh_pass, remove_vault, save_file, save_session,
+    vault_for_path, BuildOptions, CancelToken, ChangedPaths, ErrorKind, OwnWrites, Session, TagIndex,
 };
 use std::fs;
+use std::time::{Duration, SystemTime};
 
 #[test]
 fn opening_reconciling_and_indexing_do_not_touch_the_vault() {
@@ -33,6 +36,11 @@ fn opening_reconciling_and_indexing_do_not_touch_the_vault() {
     let second = open_tree(&data, &vault).unwrap();
     assert!(second.from_snapshot);
     assert!(!reconcile_tree(&data, &vault, |_| panic!("nothing changed")).unwrap());
+    // The refresh pass of the worker, and the cleanup of orphaned temporary
+    // files run at opening: a vault without such files loses nothing.
+    refresh_pass(&data, &vault, Some(&first), &ChangedPaths::unknown(), &OwnWrites::new(), &|| false).unwrap();
+    assert_eq!(clean_vault_temp_files(&first, SystemTime::now(), &|| false), 0);
+    assert_eq!(clean_vault_temp_files(&first, SystemTime::now() + Duration::from_secs(10 * 365 * 86_400), &|| false), 0);
 
     // Tag index: build, query, update in memory.
     let index = TagIndex::new();
@@ -68,6 +76,11 @@ fn opening_reconciling_and_indexing_do_not_touch_the_vault() {
         assert_eq!(save_file(&vault.join(rel), "x", None).unwrap_err().kind, ErrorKind::Invalid, "{rel}");
     }
     remove_vault(&data, &vault).unwrap();
+    // Removing a vault purges what was derived from it, in the data directory only.
+    assert!(data.join("trees").read_dir().unwrap().next().is_some());
+    purge_vault_data(&data, &vault).unwrap();
+    assert!(data.join("trees").read_dir().unwrap().next().is_none());
+    let _ = open_tree(&data, &vault).unwrap();
 
     // Nothing created, removed, modified or even re-timestamped.
     let after = fingerprint(&vault);
@@ -180,4 +193,39 @@ fn persisting_and_reconciling_tags_do_not_touch_the_vault() {
     assert!(names.iter().all(|n| n.starts_with("tags/") || n.starts_with("search/")), "{names:?}");
     assert_eq!(names.iter().filter(|n| n.ends_with(".tags")).count(), 1);
     assert!(names.iter().any(|n| n.starts_with("search/") && n.ends_with("meta.json")));
+}
+
+#[test]
+fn opening_a_vault_removes_only_rocksys_old_temporary_files() {
+    let dir = TempDir::new("f7-tmp");
+    let vault = make_vault(&dir, "vault");
+    let age = |path: &std::path::Path, secs: u64| {
+        fs::OpenOptions::new().write(true).open(path).unwrap().set_modified(SystemTime::now() - Duration::from_secs(secs)).unwrap();
+    };
+    // Leftovers of a killed process, next to a note and in a sub-folder...
+    let orphan_a = dir.write("vault/.Accueil.md.4242-3.rocksy-tmp", "half-written");
+    let orphan_b = dir.write("vault/01 Travail/.Journal.md.4242-9.rocksy-tmp", "half-written");
+    age(&orphan_a, 2 * 3600);
+    age(&orphan_b, 30 * 86_400);
+    // ...and everything that looks close but must stay.
+    let recent = dir.write("vault/.Accueil.md.4242-4.rocksy-tmp", "being written right now");
+    let in_obsidian = dir.write("vault/.obsidian/.app.json.1-1.rocksy-tmp", "hidden folder: never visited");
+    let foreign = dir.write("vault/01 Travail/.~lock.Journal.md#", "another tool");
+    let visible = dir.write("vault/01 Travail/notes.rocksy-tmp", "a user file with our suffix but no dot");
+    for path in [&in_obsidian, &foreign, &visible] {
+        age(path, 30 * 86_400);
+    }
+    let mut expected = fingerprint(&vault);
+    assert!(expected.remove(".Accueil.md.4242-3.rocksy-tmp").is_some());
+    assert!(expected.remove("01 Travail/.Journal.md.4242-9.rocksy-tmp").is_some());
+
+    let tree = list_tree(&vault).unwrap();
+    assert_eq!(clean_vault_temp_files(&tree, SystemTime::now(), &|| false), 2);
+
+    // Exactly the two orphans are gone; every other byte, name and
+    // modification time of a file is as before (the two folders that lost
+    // an entry got a new modification time, which is not part of a
+    // fingerprint).
+    assert_eq!(fingerprint(&vault), expected);
+    assert!(recent.exists());
 }

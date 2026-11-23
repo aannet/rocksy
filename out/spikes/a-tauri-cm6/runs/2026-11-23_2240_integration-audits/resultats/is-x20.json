@@ -1,0 +1,237 @@
+{
+ "scenario": "is-x20",
+ "saved": {
+  "attachMs": 585,
+  "autosave_off": false,
+  "P1_firstIndexing_stateWhileTyping": "{\"sinceAddVaultMs\":593,\"ready\":false,\"msg\":\"Index de recherche en préparation… La recherche se lancera dès qu'il sera prêt.\",\"status\":\"Index : 6 887 / 9 760 notes\"}",
+  "P1_autoReplay_and_indexEvents_firstIndexing": "{\"firstResultsAfterAddVaultMs\":3249,\"info\":\"3 685 fichiers · 11 ms · 50 premiers affichés\",\"events\":[{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x20\",\"fromCache\":false,\"files\":9760,\"tags\":4199,\"occurrences\":46208,\"links\":19257,\"unresolvedLinks\":398,\"linksGeneration\":9767,\"searchReady\":true,\"searchDocs\":9760,\"reread\":9760,\"removed\":0,\"pending\":0,\"ms\":3023,\"atMs\":3487}],\"status\":\"Index ✓\",\"statusTitle\":\"9 760 notes · 4 199 tags · 19 257 liens (398 non résolus) · recherche : 9 760 notes\"}",
+  "P5_memAfterFirstIndexing_x20": {
+   "webviewMb": 416,
+   "appPrivateMb": 91,
+   "appMb": 147,
+   "webviewProcs": 6
+  },
+  "P1_selectedRow": "{\"path\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x20\\\\TASKS\\\\format 005-27\\\\Plan plan 02767.md\",\"line\":94,\"col\":5,\"len\":4}",
+  "P1_enterToFlashMs": 134,
+  "P1_openedFromKeyboard": "{\"doc\":\"Plan plan 02767\",\"line0\":94,\"col\":5,\"selected\":\"Plan\",\"selectedIsTerm\":true,\"termMarks\":1,\"flash\":1}",
+  "P1_searchLatency_realTyping": "{\"searches\":86,\"keystrokeToPainted\":{\"median\":101,\"p95\":117.9,\"max\":141.7},\"callRoundTrip\":{\"median\":7.5,\"p95\":16.1,\"max\":24.9},\"backendMs\":{\"median\":4.268,\"p95\":12.898,\"max\":19.724},\"uiOverhead\":{\"median\":13.5,\"p95\":24.9},\"filesMax\":9760}",
+  "P1_tenRandomResults_checkedAgainstFile": "[{\"q\":\"plan\",\"total\":3685,\"ms\":2.98,\"file\":\"Plan périmètre 03856.md\",\"line\":3,\"col\":10,\"len\":4,\"atPos\":\"plan\",\"ok\":true,\"excerptMarks\":[\"plan\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"budget\",\"total\":3612,\"ms\":2.873,\"file\":\"Budget décision 01590.md\",\"line\":2,\"col\":9,\"len\":6,\"atPos\":\"budget\",\"ok\":true,\"excerptMarks\":[\"budget\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"strategie\",\"total\":3575,\"ms\":2.921,\"file\":\"Audit stratégie 03355.md\",\"line\":3,\"col\":13,\"len\":9,\"atPos\":\"stratégie\",\"ok\":true,\"excerptMarks\":[\"stratégie\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"reunion audit\",\"total\":1720,\"ms\":4.153,\"file\":\"Audit bilan 09551.md\",\"line\":62,\"col\":4,\"len\":5,\"atPos\":\"Audit\",\"ok\":true,\"excerptMarks\":[\"Audit\"],\"marksOk\":true,\"nameMatch\":false,\"matchCount\":3},{\"q\":\"\\\"plan decision\\\"\",\"total\":26,\"ms\":3.475,\"file\":\"Revue scénario 00382.md\",\"line\":19,\"col\":4,\"len\":13,\"atPos\":\"Plan décision\",\"ok\":true,\"excerptMarks\":[\"Plan décision\"],\"marksOk\":true,\"nameMatch\":false,\"matchCount\":1},{\"q\":\"archi\",\"total\":3676,\"ms\":4.835,\"file\":\"Revue architecture 01125.md\",\"line\":18,\"col\":157,\"len\":12,\"atPos\":\"Architecture\",\"ok\":true,\"excerptMarks\":[\"Architecture\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":3},{\"q\":\"kolueux\",\"total\":3769,\"ms\":2.669,\"file\":\"Données atelier 01268.md\",\"line\":17,\"col\":126,\"len\":7,\"atPos\":\"kolueux\",\"ok\":true,\"excerptMarks\":[\"kolueux\"],\"marksOk\":true,\"nameMatch\":false,\"matchCount\":2},{\"q\":\"tag:projet risque\",\"total\":1451,\"ms\":3.907,\"file\":\"Atelier risque 06601.md\",\"line\":38,\"col\":5,\"len\":6,\"atPos\":\"Risque\",\"ok\":true,\"excerptMarks\":[\"Risque\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"path:meetings client\",\"total\":573,\"ms\":13.203,\"file\":\"Client cadre 02065.md\",\"line\":45,\"col\":25,\"len\":6,\"atPos\":\"client\",\"ok\":true,\"excerptMarks\":[\"client\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":2},{\"q\":\"equipe\",\"total\":4501,\"ms\":2.927,\"file\":\"Note équipe 00148.md\",\"line\":39,\"col\":5,\"len\":6,\"atPos\":\"Équipe\",\"ok\":true,\"excerptMarks\":[\"Équipe\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":2}]",
+  "P7_weirdQueries": "{\"\\\"\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « \\\" »\"},\"-\":{\"ms\":5,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « - »\"},\"tag:\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « tag: »\"},\"path:\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « path: »\"},\"\\\"non fermé\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,2 ms\",\"msg\":\"Aucun résultat pour « \\\"non fermé »\"},\"-mot\":{\"ms\":6,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « -mot »\"},\"(a+b)*[c]?^$.\\\\\\\\|\":{\"ms\":7,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 1,6 ms\",\"msg\":\"Aucun résultat pour « (a+b)*[c]?^$.\\\\\\\\| »\"},\"😀 plan\":{\"ms\":33,\"err\":null,\"direct\":{\"total\":3685,\"ready\":true},\"info\":\"3 685 fichiers · 3,2 ms · 50 premiers affichés\",\"msg\":null},\"plan 😀\":{\"ms\":17,\"err\":null,\"direct\":{\"total\":3685,\"ready\":true},\"info\":\"3 685 fichiers · 1,7 ms · 50 premiers affichés\",\"msg\":null},\"   \":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"\",\"msg\":null},\"xxxxxxxxxxxxxxxxxxxxxxxx\":{\"ms\":7,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx »\"},\"tag:#\":{\"ms\":5,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « tag:# »\"},\"\\\"\\\"\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « \\\"\\\" »\"},\"path:\\\\\\\\ plan\":{\"ms\":27,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 11 ms\",\"msg\":\"Aucun résultat pour « path:\\\\\\\\ plan »\"},\"*\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0 ms\",\"msg\":\"Aucun résultat pour « * »\"},\"a\":{\"ms\":40,\"err\":null,\"direct\":{\"total\":9720,\"ready\":true},\"info\":\"9 720 fichiers · 11 ms · 50 premiers affichés\",\"msg\":null}}",
+  "openBig": "{\"loaded\":true,\"error\":null,\"ms\":31,\"name\":\"__DAILY NOTES SYNTH\"}",
+  "P2_bigNote_linksPanel": "{\"refreshMs\":[0,0,0,0,0],\"outgoingIpcMs\":32.4,\"back\":35,\"out\":446,\"unresolvedShown\":15,\"domNodes\":3585,\"sections\":[\"Liens entrants35\",\"Liens sortants15 non résolus446\"]}",
+  "P5_typingLatency_linksPanelOpen": "{\"n\":151,\"update\":{\"median\":2.3,\"p95\":3.3,\"max\":6.2},\"withLayout\":{\"median\":2.4,\"p95\":3.5,\"max\":6.4}}",
+  "termMarksInBigNote": 0,
+  "P5_typingLatency_searchPanelOpen_termsHighlighted": "{\"n\":156,\"update\":{\"median\":2.2,\"p95\":3.5,\"max\":4.6},\"withLayout\":{\"median\":2.3,\"p95\":3.6,\"max\":4.7}}",
+  "P2_backlinksOfNote": "{\"note\":\"Audit processus 00402\",\"back\":2,\"out\":0,\"sources\":[\"__DAILY NOTES SYNTH\",\"Réunion arbitrage 00302\"]}",
+  "P2_backlinkClick_cursorOnLink": "{\"doc\":\"__DAILY NOTES SYNTH\",\"atCursor\":\"[[Audit processus 00402]]\\n- [[\"}",
+  "P2_backlinksOfImage": "{\"doc\":\"Pasted image 0000397.png\",\"back\":1,\"embeds\":1,\"sections\":[\"Liens entrants1\"]}",
+  "P2_embedBacklinkClick_cursorOnBang": "{\"doc\":\"__DAILY NOTES SYNTH\",\"atCursor\":\"![[Pasted image 0000397.png]]\\n\"}",
+  "P3_unresolvedList": "{\"placeholder\":\"Liens non résolus (398 cibles)…\",\"first\":[\"Missing 001-304 liens · 01_WORK/hypothèse 001-01/données 001-23/backlog 001-35/Séance hypothèse 00568 (+3)\",\"Missing 001-64 liens · 01_WORK/hypothèse 001-01/données 001-23/backlog 001-35/plan 001-60/Revue qualité 00795 (+3)\",\"Missing 000-03 liens · 00_INBOX/équipe 000-00/Décision revue 00395 (+2)\"]}",
+  "P3_unresolvedPick_cursorOnLink": "{\"doc\":\"__DAILY NOTES SYNTH\",\"atCursor\":\"![[Pasted image 0000397.png]]\\n\"}",
+  "sessionForRelaunch": "[\"__DAILY NOTES SYNTH\",\"Séance hypothèse 00568\"]",
+  "P6_dataDir": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ],
+  "P6_dataDir_search": [
+   "c7285b8e9d509d83"
+  ],
+  "timings_firstLaunch": {
+   "ui-script-start": 736,
+   "ui-vault-requested": 737,
+   "ui-nav-response-end": 737,
+   "ui-nav-dom-content-loaded": 737,
+   "ui-backend-ready": 740,
+   "ui-first-file-prefetched": 740,
+   "ui-startup-info": 742,
+   "ui-events-wired": 742,
+   "vault-listing": 965,
+   "ui-tree-received": 1031,
+   "ui-tree-applied": 1157,
+   "tree-ready": 1162,
+   "ui-file-read": 5808,
+   "ui-state-created": 5825
+  },
+  "P5_startup_5launches_x20_session": [
+   {
+    "editor-ready": 867,
+    "editor-ready-since-navigation": 868,
+    "vault-listing": 980,
+    "editor-painted-since-navigation": 1042,
+    "ui-script-start": 1042,
+    "ui-backend-ready": 1043,
+    "ui-startup-info": 1045,
+    "ui-file-read": 1046,
+    "ui-state-created": 1047,
+    "ui-events-wired": 1049,
+    "ui-vault-requested": 1049,
+    "ui-first-frame": 1053,
+    "ui-nav-dom-content-loaded": 1054,
+    "ui-nav-response-end": 1054,
+    "ui-first-file-prefetched": 1054,
+    "ui-tree-received": 1110,
+    "ui-tree-applied": 1169,
+    "tree-ready": 1220
+   },
+   {
+    "editor-ready": 817,
+    "editor-ready-since-navigation": 818,
+    "vault-listing": 932,
+    "editor-painted-since-navigation": 944,
+    "ui-script-start": 946,
+    "ui-backend-ready": 946,
+    "ui-startup-info": 949,
+    "ui-file-read": 951,
+    "ui-vault-requested": 952,
+    "ui-nav-dom-content-loaded": 953,
+    "ui-first-file-prefetched": 953,
+    "ui-state-created": 951,
+    "ui-nav-response-end": 952,
+    "ui-events-wired": 951,
+    "ui-first-frame": 952,
+    "ui-tree-received": 1006,
+    "ui-tree-applied": 1060,
+    "tree-ready": 1109
+   },
+   {
+    "editor-ready": 819,
+    "editor-ready-since-navigation": 819,
+    "vault-listing": 944,
+    "editor-painted-since-navigation": 979,
+    "ui-script-start": 981,
+    "ui-backend-ready": 981,
+    "ui-startup-info": 983,
+    "ui-file-read": 983,
+    "ui-state-created": 985,
+    "ui-events-wired": 986,
+    "ui-vault-requested": 986,
+    "ui-first-frame": 988,
+    "ui-nav-response-end": 988,
+    "ui-nav-dom-content-loaded": 991,
+    "ui-first-file-prefetched": 992,
+    "ui-tree-received": 1046,
+    "ui-tree-applied": 1106,
+    "tree-ready": 1161
+   },
+   {
+    "editor-ready": 765,
+    "editor-ready-since-navigation": 766,
+    "vault-listing": 862,
+    "editor-painted-since-navigation": 887,
+    "ui-script-start": 888,
+    "ui-backend-ready": 889,
+    "ui-startup-info": 891,
+    "ui-file-read": 892,
+    "ui-state-created": 892,
+    "ui-events-wired": 893,
+    "ui-vault-requested": 894,
+    "ui-nav-response-end": 896,
+    "ui-first-frame": 895,
+    "ui-nav-dom-content-loaded": 898,
+    "ui-first-file-prefetched": 899,
+    "ui-tree-received": 960,
+    "ui-tree-applied": 1004,
+    "tree-ready": 1051
+   },
+   {
+    "editor-ready": 717,
+    "editor-ready-since-navigation": 718,
+    "vault-listing": 822,
+    "editor-painted-since-navigation": 858,
+    "ui-script-start": 859,
+    "ui-backend-ready": 860,
+    "ui-startup-info": 861,
+    "ui-file-read": 862,
+    "ui-state-created": 863,
+    "ui-events-wired": 864,
+    "ui-vault-requested": 866,
+    "ui-first-frame": 867,
+    "ui-nav-response-end": 868,
+    "ui-nav-dom-content-loaded": 870,
+    "ui-first-file-prefetched": 871,
+    "ui-tree-received": 922,
+    "ui-tree-applied": 974,
+    "tree-ready": 1020
+   }
+  ],
+  "P4_relaunch_1_indexEvents": "{\"metrics\":{\"editorReadyMs\":290,\"treeReadyMs\":645,\"openVaultMs\":234},\"fromSnapshot\":true,\"events\":[{\"atMs\":533,\"fromCache\":true,\"searchReady\":false,\"ms\":92,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":608,\"fromCache\":true,\"searchReady\":true,\"ms\":129,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":700,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":125,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+  "P4_relaunch_2_indexEvents": "{\"metrics\":{\"editorReadyMs\":268,\"treeReadyMs\":561,\"openVaultMs\":182},\"fromSnapshot\":true,\"events\":[{\"atMs\":521,\"fromCache\":true,\"searchReady\":false,\"ms\":104,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":536,\"fromCache\":true,\"searchReady\":true,\"ms\":136,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":639,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":95,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+  "P4_relaunch_3_indexEvents": "{\"metrics\":{\"editorReadyMs\":275,\"treeReadyMs\":619,\"openVaultMs\":220},\"fromSnapshot\":true,\"events\":[{\"atMs\":569,\"fromCache\":true,\"searchReady\":false,\"ms\":90,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":578,\"fromCache\":true,\"searchReady\":true,\"ms\":134,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":675,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":100,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+  "P4_relaunch_4_indexEvents": "{\"metrics\":{\"editorReadyMs\":236,\"treeReadyMs\":523,\"openVaultMs\":187},\"fromSnapshot\":true,\"events\":[{\"atMs\":485,\"fromCache\":true,\"searchReady\":false,\"ms\":74,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":487,\"fromCache\":true,\"searchReady\":true,\"ms\":106,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":576,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":89,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+  "P4_relaunch_5_indexEvents": "{\"metrics\":{\"editorReadyMs\":253,\"treeReadyMs\":558,\"openVaultMs\":198},\"fromSnapshot\":true,\"events\":[{\"atMs\":523,\"fromCache\":true,\"searchReady\":false,\"ms\":79,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":525,\"fromCache\":true,\"searchReady\":true,\"ms\":114,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":616,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":103,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+  "P5_memAfterRelaunch_x20": {
+   "webviewMb": 388,
+   "appPrivateMb": 39,
+   "appMb": 121,
+   "webviewProcs": 6
+  },
+  "P4_statusAfterRelaunch": "{\"ready\":true,\"total\":3685,\"ms\":3.652,\"roundTrip\":6.8,\"status\":\"Index ✓\",\"title\":\"9 760 notes · 4 199 tags · 19 257 liens (398 non résolus) · recherche : 9 760 notes\"}",
+  "x20_bigNoteUntouched": {
+   "before": {
+    "size": 318443,
+    "sha1": "99a3f8c58e6c74c7066c4b9c00c3360e6665e14c",
+    "bom": false,
+    "crlf": 0,
+    "lf": 4371,
+    "endsWithNewline": true,
+    "tailHex": "6c736f6c206575786d61720a"
+   },
+   "after": {
+    "size": 318443,
+    "sha1": "99a3f8c58e6c74c7066c4b9c00c3360e6665e14c",
+    "bom": false,
+    "crlf": 0,
+    "lf": 4371,
+    "endsWithNewline": true,
+    "tailHex": "6c736f6c206575786d61720a"
+   },
+   "changedBlocks": 0,
+   "changes": []
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  35540,
+  33408,
+  3828,
+  5204,
+  2484,
+  29452
+ ],
+ "cspBeforeRestart": [],
+ "csp": [],
+ "log": [
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cvaults%5Cx20%5C01_WORK%5Chypoth%C3%A8se%20001-01%5Cdon"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cvaults%5Cx20%5C01_WORK%5Chypoth%C3%A8se%20001-01%5Cdon"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cvaults%5Cx20%5C01_WORK%5Chypoth%C3%A8se%20001-01%5Cdon"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cvaults%5Cx20%5C01_WORK%5Chypoth%C3%A8se%20001-01%5Cdon"
+  },
+  {
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Cvaults%5Cx20%5C01_WORK%5Chypoth%C3%A8se%20001-01%5Cdon"
+  }
+ ],
+ "ourPidsStillAlive": []
+}

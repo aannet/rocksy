@@ -103,6 +103,10 @@ function toggleWrap(mark: string): Command {
 
 const previewCompartment = new Compartment();
 const extrasCompartment = new Compartment();
+const lockCompartment = new Compartment();
+/** Read-only document: built-in commands honour `readOnly`; the change filter also stops our own commands and widgets. */
+const lockExt: Extension = [EditorState.readOnly.of(true), EditorState.changeFilter.of(() => false), EditorView.editorAttributes.of({ class: "cm-readonly" })];
+const unlockedExt: Extension = [];
 let previewExt: Extension = livePreview();
 let previewOn = true;
 let extrasExt: Extension = [];
@@ -163,11 +167,17 @@ function shared(host: EditorHost): Extension {
   return ext;
 }
 
-export function createEditorState(text: string | Text, path: string, host: EditorHost): EditorState {
+export function createEditorState(text: string | Text, path: string, host: EditorHost, readOnly = false): EditorState {
   return EditorState.create({
     doc: text,
-    extensions: [lpConfig.of({ host, path }), shared(host), previewCompartment.of(previewExt), extrasCompartment.of(extrasExt)],
+    extensions: [lpConfig.of({ host, path }), shared(host), previewCompartment.of(previewExt), extrasCompartment.of(extrasExt), lockCompartment.of(readOnly ? lockExt : unlockedExt)],
   });
+}
+
+/** Effect that makes a state read-only or editable again, or null when it already is. */
+export function lockEffect(state: EditorState, readOnly: boolean): StateEffect<unknown> | null {
+  const want = readOnly ? lockExt : unlockedExt;
+  return lockCompartment.get(state) === want ? null : lockCompartment.reconfigure(want);
 }
 
 export function createEditorView(parent: HTMLElement, state: EditorState): EditorView {

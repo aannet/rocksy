@@ -1,0 +1,215 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-csp",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\cv"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\x1",
+   "dst": "{IT}\\cv"
+  }
+ ],
+ "allowCspLog": true,
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{window.__evc={};for(const n of ['tree-updated','tags-ready','index-ready','file-changed','tags-progress'])window.__TAURI__.event.listen(n,()=>{window.__evc[n]=(window.__evc[n]||0)+1});return 1})()"
+  },
+  {
+   "eval": "T.addVault(T.it('cv'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "eval": "JSON.stringify({events:window.__evc, csp:window.rocksyCsp, treeRows:T.count('.tree-row'), rowStyle:(document.querySelector('.tree-row')||{getAttribute(){return null}}).getAttribute('style')})",
+   "save": "C1_afterOpen_eventsAndTree"
+  },
+  {
+   "eval": "T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md')).then(JSON.stringify)",
+   "save": "C2_openBig"
+  },
+  {
+   "eval": "JSON.stringify({line:T.show('**'), strong:T.count('.cm-lp-strong'), tags:T.count('.cm-lp-tag'), links:T.count('.cm-lp-link'), cmStyles:document.querySelectorAll('style').length})",
+   "save": "C2_livePreview"
+  },
+  {
+   "eval": "T.show('![[Pasted image')"
+  },
+  {
+   "wait": "T.imgs().length>0 && T.imgs().every(i=>i.ok)",
+   "timeout": 8000,
+   "save": "C2_imagesWaitMs"
+  },
+  {
+   "eval": "JSON.stringify({imgs:T.imgs().slice(0,3), csp:window.rocksyCsp})",
+   "save": "C2_vaultImages"
+  },
+  {
+   "shot": "a5-csp-images.png"
+  },
+  {
+   "eval": "JSON.stringify({line:T.show('```'), cb:T.count('.cm-lp-cb')})",
+   "save": "C2_codeBlock"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Décision plan 00434.md')).then(()=>JSON.stringify({line:T.show('\\n|')}))"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({tables:T.count('.cm-lp-table'), alignedCells:document.querySelectorAll('.cm-lp-table [style*=\"text-align\"]').length, csp:window.rocksyCsp})",
+   "save": "C3_tables"
+  },
+  {
+   "shot": "a5-csp-table.png"
+  },
+  {
+   "eval": "(async()=>{const files=rocksy.tree.entries.filter(e=>!e.isDir&&/\\.md$/i.test(e.path));const first={};for(const e of files){const f=await T.inv('read_file',{path:T.vault(...e.path.split('/'))});const re=/^```mermaid[^\\n]*\\r?\\n([\\s\\S]*?)\\r?\\n```/gm;let m;while((m=re.exec(f.text))){const type=m[1].trim().split(/\\s+/)[0];if(!first[type])first[type]={path:e.path,at:m.index}}}const out={};for(const [type,w] of Object.entries(first)){await T.open(T.vault(...w.path.split('/')));const t=T.text();let i=-1;for(;;){i=t.indexOf('```mermaid',i+1);if(i<0)break;if(t.slice(i,i+80).split('\\n')[1].trim().startsWith(type))break}T.show(i<0?'```mermaid':i);await T.wait(()=>T.count('.cm-lp-mermaid-body svg')>0||T.count('.cm-lp-mermaid-body.is-error')>0,6000);await new Promise(r=>setTimeout(r,250));out[type]={file:w.path.split('/').pop().slice(0,30),svgs:T.count('.cm-lp-mermaid-body svg'),errors:T.count('.cm-lp-mermaid-body.is-error'),styledNodes:document.querySelectorAll('.cm-lp-mermaid-body svg [style]').length+document.querySelectorAll('.cm-lp-mermaid-body svg[style]').length,csp:window.rocksyCsp.length}}return JSON.stringify(out)})()",
+   "save": "C4_mermaidTypes"
+  },
+  {
+   "shot": "a5-csp-mermaid.png"
+  },
+  {
+   "eval": "(async()=>{await rocksy.openPath(T.vault('01_WORK','Canvas dense.canvas'));await T.wait(()=>T.count('.cv-node')>20,5000);await new Promise(r=>setTimeout(r,900));return JSON.stringify({nodes:T.count('.cv-node'), edges:T.count('.canvas-world svg path')-1, imgsOk:[...document.querySelectorAll('.cv-image img')].filter(i=>i.naturalWidth>0).length, imgs:T.count('.cv-image img'), csp:window.rocksyCsp})})()",
+   "save": "C5_canvas"
+  },
+  {
+   "shot": "a5-csp-canvas.png"
+  },
+  {
+   "eval": "(async()=>{await rocksy.showSidebar('tags');await new Promise(r=>setTimeout(r,500));const tags=T.count('.tag-row');await rocksy.showSidebar('links');await new Promise(r=>setTimeout(r,400));await T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));await new Promise(r=>setTimeout(r,600));const links=T.count('.lk-out');await rocksy.showSidebar('search');await T.wait(()=>rocksy.sidebar.search&&!rocksy.sidebar.search.input.disabled,8000);return JSON.stringify({tagRows:tags, outLinks:links, csp:window.rocksyCsp})})()",
+   "save": "C6_panels"
+  },
+  {
+   "click": ".search-panel .tags-search input"
+  },
+  {
+   "type": "plan",
+   "delay": 60
+  },
+  {
+   "wait": "document.querySelector('.sr-file')",
+   "timeout": 8000
+  },
+  {
+   "eval": "JSON.stringify({results:T.count('.sr-file'), info:document.querySelector('.search-info').textContent, csp:window.rocksyCsp})",
+   "save": "C6_search"
+  },
+  {
+   "shot": "a5-csp-search.png"
+  },
+  {
+   "eval": "(()=>{T.view().focus();return 1})()"
+  },
+  {
+   "key": "o",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({picker:!!document.querySelector('.picker'), rows:document.querySelectorAll('.picker li, .picker .pk-row, .picker [data-i]').length, csp:window.rocksyCsp})",
+   "save": "C7_quickPicker"
+  },
+  {
+   "shot": "a5-csp-picker.png"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave)rocksy.toggleAutosave();const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return rocksy.autosave})()",
+   "save": "C8_autosave"
+  },
+  {
+   "type": " brouillon"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 1500,
+   "save": "C8_closeRequest"
+  },
+  {
+   "wait": "document.querySelector('.dialog')",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({title:document.querySelector('.dialog h2').textContent, buttons:[...document.querySelectorAll('.dialog button')].map(e=>e.textContent), csp:window.rocksyCsp})",
+   "save": "C8_closeDialog"
+  },
+  {
+   "shot": "a5-csp-close-dialog.png"
+  },
+  {
+   "click": ".dialog button[data-choice='cancel']"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "(async()=>{const v=T.view();const t=v.state.doc.toString();const i=t.lastIndexOf(' brouillon');v.dispatch({changes:{from:i,to:i+10,insert:''}});rocksy.toggleAutosave();await rocksy.save(rocksy.activeDoc());return JSON.stringify({dialog:!!document.querySelector('.dialog'), autosave:rocksy.autosave, dirty:rocksy.activeDoc().dirty})})()",
+   "save": "C8_afterCancel"
+  },
+  {
+   "eval": "(()=>{window.__evc0=JSON.parse(JSON.stringify(window.__evc));window.__w0=performance.now();return 1})()"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\cv\\00_INBOX\\Créée dehors.md",
+   "text": "# Dehors\n\nMot unique : cspzygo.\n"
+  },
+  {
+   "eval": "T.wait(()=>rocksy.tree.entries.some(e=>e.path.endsWith('Créée dehors.md')),10000).then(ms=>T.wait(()=>(window.__evc['index-ready']||0)>(window.__evc0['index-ready']||0),10000).then(ms2=>JSON.stringify({treeUpdatedAfterMs:ms, indexReadyAfterMs:ms+ms2, before:window.__evc0, after:window.__evc})))",
+   "save": "C9_eventsAfterExternalChange"
+  },
+  {
+   "eval": "JSON.stringify(window.rocksyCsp)",
+   "save": "CSP_violationsAfterTour"
+  },
+  {
+   "eval": "(async()=>{const out={};const sleep=ms=>new Promise(r=>setTimeout(r,ms));const n0=window.rocksyCsp.length;\nconst s=document.createElement('script');s.textContent='window.__pwn1=1';document.body.appendChild(s);out.inlineScript=window.__pwn1===1?'EXECUTED':'blocked';\nconst d=document.createElement('div');d.innerHTML='<img src=\"x-inexistant\" onerror=\"window.__pwn2=1\">';document.body.appendChild(d);await sleep(400);out.onerrorAttribute=window.__pwn2===1?'EXECUTED':'blocked';\nconst b=document.createElement('button');b.setAttribute('onclick','window.__pwn3=1');document.body.appendChild(b);b.click();out.onclickAttribute=window.__pwn3===1?'EXECUTED':'blocked';\nconst a=document.createElement('a');a.href='javascript:window.__pwn4=1';document.body.appendChild(a);a.click();await sleep(100);out.javascriptUrl=window.__pwn4===1?'EXECUTED':'blocked';\ntry{(0,eval)('window.__pwn5=1');out.eval=window.__pwn5===1?'EXECUTED':'no effect'}catch(e){out.eval='blocked: '+e.name}\ntry{new Function('window.__pwn6=1')();out.newFunction=window.__pwn6===1?'EXECUTED':'no effect'}catch(e){out.newFunction='blocked: '+e.name}\ntry{setTimeout('window.__pwn7=1',0);await sleep(100);out.setTimeoutString=window.__pwn7===1?'EXECUTED':'blocked'}catch(e){out.setTimeoutString='blocked: '+e.name}\nconst ext=document.createElement('script');const pe=new Promise(r=>{ext.onerror=()=>r('blocked (error event)');ext.onload=()=>r('LOADED');setTimeout(()=>r('no event'),3000)});ext.src='https://example.com/x.js';document.body.appendChild(ext);out.externalScript=await pe;\ntry{await fetch('https://example.com/');out.fetchExternal='REQUEST SENT'}catch(e){out.fetchExternal='blocked: '+e.name}\ntry{await fetch('http://127.0.0.1:9/x');out.fetchLocalhost='REQUEST SENT'}catch(e){out.fetchLocalhost='blocked: '+e.name}\nout.xhr=await new Promise(r=>{try{const x=new XMLHttpRequest();x.onload=()=>r('REQUEST SENT');x.onerror=()=>r('blocked (error event)');x.open('GET','https://example.com/');x.send()}catch(e){r('blocked: '+e.name)}});\nout.webSocket=await new Promise(r=>{try{const w=new WebSocket('wss://example.com/');w.onopen=()=>r('OPENED');w.onerror=()=>r('blocked (error event)');setTimeout(()=>r('no event'),3000)}catch(e){r('blocked: '+e.name)}});\nout.beacon=(()=>{try{return navigator.sendBeacon('https://example.com/b','x')?'queued (see violations)':'refused'}catch(e){return 'blocked: '+e.name}})();\nout.remoteImage=await new Promise(r=>{const i=new Image();i.onload=()=>r('LOADED');i.onerror=()=>r('blocked (error event)');setTimeout(()=>r('no event'),3000);i.src='https://example.com/x.png'});\nconst f=document.createElement('iframe');f.src='https://example.com/';document.body.appendChild(f);await sleep(500);let frame='blocked';try{frame=f.contentDocument&&f.contentDocument.body&&f.contentDocument.body.childNodes.length?'has content':'blocked (empty)'}catch(e){frame='LOADED (cross-origin)'}out.iframe=frame;f.remove();\nconst form=document.createElement('form');form.action='https://example.com/post';form.method='post';document.body.appendChild(form);try{form.submit();await sleep(300);out.formSubmit=location.href.startsWith('http://tauri.localhost')?'blocked (page unchanged)':'NAVIGATED'}catch(e){out.formSubmit='blocked: '+e.name}\nawait sleep(300);out.violations=window.rocksyCsp.slice(n0).map(v=>v.directive+' '+(v.blocked||'').slice(0,40));out.ipcStillWorks=(await T.inv('list_vaults')).length;\nfor(const e of [s,d,b,a,ext,form])e.remove();window.rocksyCsp.length=0;return JSON.stringify(out)})()",
+   "save": "CSP_injectionProof"
+  },
+  {
+   "eval": "(()=>{window.__evc1=JSON.parse(JSON.stringify(window.__evc));return 1})()"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\cv\\00_INBOX\\Créée dehors 2.md",
+   "text": "# Dehors 2\n"
+  },
+  {
+   "eval": "T.wait(()=>(window.__evc['tree-updated']||0)>(window.__evc1['tree-updated']||0),10000).then(ms=>JSON.stringify({treeUpdatedAfterMs:ms, searchStillAnswers:null}))",
+   "save": "C10_eventsStillArriveAfterInjection"
+  },
+  {
+   "eval": "T.inv('search',{query:'cspzygo'}).then(r=>JSON.stringify({total:r.total}))",
+   "save": "C10_ipcSearch"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "closed"
+  }
+ ]
+}

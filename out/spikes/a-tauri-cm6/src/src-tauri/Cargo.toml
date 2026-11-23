@@ -1,6 +1,6 @@
 [package]
 name = "rocksy"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Rocksy - fast Markdown notes app"
 license = "UNLICENSED"
@@ -19,6 +19,8 @@ tauri-plugin-dialog = "2"
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# Only to keep what the full-text engine reports when one of its threads fails (see `EngineLog`).
+log = "0.4"
 rocksy-core = { path = "../crates/rocksy-core" }
 
 [features]
@@ -31,4 +33,7 @@ opt-level = 3
 lto = "thin"
 codegen-units = 4
 strip = true
-panic = "abort"
+# "unwind": a panic in a background thread (tantivy on a damaged index) must
+# not kill the process and the unsaved text with it; it is caught and turned
+# into an error (see search/engine.rs).
+panic = "unwind"

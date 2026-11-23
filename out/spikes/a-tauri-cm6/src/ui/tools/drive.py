@@ -2,6 +2,9 @@
 
 Runs on Windows against Microsoft Edge headless. Plays a JSON scenario:
   python drive.py scenario.json [--out DIR] [--dist URL] [--port N]
+  Real app (scenarios with an "app" key): [--exe rocksy.exe] [--it TEST_DIR] [--vaults REFERENCE_VAULTS_DIR]
+  The app always runs as an isolated instance (ROCKSY_DATA_DIR under the test folder); the default exe is the
+  work-in-progress build (the "wip" folder of the test area), never the one the user runs.
 
 Step kinds (one key per step object):
   {"nav": "{DIST}?tree=1000"}            navigate, wait for load
@@ -178,7 +181,7 @@ def click(cdp, step):
 
 IT = r"C:\Users\aleca\rocksy-test\it"
 VAULTS = r"C:\Users\aleca\rocksy-test\vaults"
-ROCKSY = r"C:\Users\aleca\rocksy-test\bin\rocksy.exe"
+ROCKSY = r"C:\Users\aleca\rocksy-test\wip\rocksy.exe"
 
 
 def subst(v):
@@ -195,6 +198,11 @@ def js(v):
     return json.dumps(v)
 
 
+def paths_prelude():
+    """Tells the helpers injected in the page where the test folder and the vaults are."""
+    return "window.__ROCKSY_PATHS=%s;\n" % json.dumps({"it": IT, "vaults": VAULTS})
+
+
 def attach(port, want=None, timeout=20):
     """Waits for a debuggable page on `port` and returns a CDP session."""
     deadline = time.time() + timeout
@@ -206,6 +214,8 @@ def attach(port, want=None, timeout=20):
                         cdp = CDP(WS(t["webSocketDebuggerUrl"]))
                         cdp.call("Page.enable")
                         cdp.call("Runtime.enable")
+                        cdp.call("Log.enable")
+                        cdp.call("Network.enable")
                         return cdp
         except Exception:
             pass
@@ -329,10 +339,33 @@ def py_step(step, mem, results):
               "@{appMb=[int]($p.WorkingSet64/1MB); appPrivateMb=[int]($p.PrivateMemorySize64/1MB); webviewProcs=($wv|Measure-Object).Count; webviewMb=[int](($wv|Measure-Object WorkingSetSize -Sum).Sum/1MB)} | ConvertTo-Json -Compress") % (pid, mem["__data"])
         r = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True)
         return json.loads(r.stdout.strip() or "{}")
+    if kind == "copyfile":
+        import shutil
+        os.makedirs(os.path.dirname(step["dst"]), exist_ok=True)
+        shutil.copyfile(step["src"], step["dst"])
+        return {"size": os.path.getsize(step["dst"])}
+    if kind == "waitexit":
+        # Waits until the app process we launched is gone; returns the time it took, or -1.
+        t0 = time.time()
+        deadline = t0 + step.get("waitMs", 8000) / 1000
+        while time.time() < deadline:
+            r = subprocess.run(["tasklist", "/FI", "PID eq %d" % mem["__pid"], "/NH", "/FO", "CSV"], capture_output=True, text=True)
+            if ('"%d"' % mem["__pid"]) not in r.stdout:
+                return round((time.time() - t0) * 1000)
+            time.sleep(0.05)
+        return -1
+    if kind == "closetimed":
+        # Same as "close", and reports how long the process took to exit after the close request.
+        pid = mem["__pid"]
+        ps = ("$p=Get-Process -Id %d; $sw=[Diagnostics.Stopwatch]::StartNew(); $ok=$p.CloseMainWindow(); $w=$p.WaitForExit(%d); "
+              "\"$ok $w $($sw.ElapsedMilliseconds)\"") % (pid, step.get("waitMs", 8000))
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True)
+        parts = r.stdout.strip().split()
+        return {"closeRequested": parts[0] == "True", "exited": parts[1] == "True", "exitMs": int(parts[2])} if len(parts) == 3 else {"raw": r.stdout.strip()}
     if kind == "close":
         # Asks the main window to close (graceful exit), then waits for the process to end.
         pid = mem["__pid"]
-        r = subprocess.run(["powershell", "-NoProfile", "-Command", "$p=Get-Process -Id %d; $ok=$p.CloseMainWindow(); $w=$p.WaitForExit(%d); \"$ok $w\"" % (pid, step.get("wait", 8000))], capture_output=True, text=True)
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", "$p=Get-Process -Id %d; $ok=$p.CloseMainWindow(); $w=$p.WaitForExit(%d); \"$ok $w\"" % (pid, step.get("waitMs", 8000))], capture_output=True, text=True)
         return r.stdout.strip()
     if kind == "alive":
         r = subprocess.run(["tasklist", "/FI", "PID eq %d" % mem["__pid"], "/NH", "/FO", "CSV"], capture_output=True, text=True)
@@ -352,6 +385,37 @@ def py_step(step, mem, results):
             except OSError:
                 pass
         return out
+    if kind == "jsonlall":
+        # Every line of a .jsonl file whose `name` is the one asked (all lines without `name`).
+        out = []
+        try:
+            with open(step["path"], encoding="utf-8") as f:
+                for line in f:
+                    j = json.loads(line)
+                    if "name" not in step or j.get("name") == step["name"]:
+                        out.append(j)
+        except FileNotFoundError:
+            pass
+        return out
+    if kind == "bytes":
+        # Raw bytes of a file as hex (small files: byte-exact comparisons).
+        with open(step["path"], "rb") as f:
+            return f.read(step.get("max", 4096)).hex()
+    if kind == "corrupt":
+        # Overwrites `count` bytes at `offset` of every file of a folder whose name ends with `suffix` (app stopped).
+        done = []
+        for d, _dirs, files in os.walk(step["path"]):
+            for name in files:
+                if name.endswith(step.get("suffix", "")):
+                    full = os.path.join(d, name)
+                    size = os.path.getsize(full)
+                    if size < 64:
+                        continue
+                    with open(full, "r+b") as f:
+                        f.seek(min(step.get("offset", 40), size - 16))
+                        f.write(bytes([0xA5]) * step.get("count", 16))
+                    done.append(os.path.relpath(full, step["path"]))
+        return done
     if kind == "targets":
         with urllib.request.urlopen("http://127.0.0.1:9223/json", timeout=2) as r:
             return [{"type": t.get("type"), "url": t.get("url", "")[:80]} for t in json.load(r)]
@@ -362,6 +426,7 @@ def py_step(step, mem, results):
 
 
 def main():
+    global IT, VAULTS, ROCKSY
     args = sys.argv[1:]
     scenario_path = args[0]
     out = os.path.join(BASE, "shots")
@@ -375,6 +440,12 @@ def main():
             dist = args[i + 1]
         elif args[i] == "--port":
             port = int(args[i + 1])
+        elif args[i] == "--exe":
+            ROCKSY = args[i + 1]
+        elif args[i] == "--it":
+            IT = args[i + 1]
+        elif args[i] == "--vaults":
+            VAULTS = args[i + 1]
         i += 2
     with open(scenario_path, encoding="utf-8") as f:
         scenario = subst(json.load(f))
@@ -386,10 +457,13 @@ def main():
         port = 9223
     os.makedirs(out, exist_ok=True)
     results = {"scenario": name, "saved": {}, "errors": []}
+    if app:
+        results["exe"] = ROCKSY
     mem = {}
     proc = None
     extra = []
     cdp = None
+    prior_events = []
     try:
         if app:
             if app.get("fresh", True):
@@ -441,7 +515,7 @@ def main():
                         raise RuntimeError("wait timed out: " + step["wait"])
                 elif "evalfile" in step:
                     with open(os.path.join(os.path.dirname(os.path.abspath(scenario_path)), step["evalfile"]), encoding="utf-8") as f:
-                        v = cdp.evaluate(f.read())
+                        v = cdp.evaluate((paths_prelude() if app else "") + f.read())
                     if step.get("save"):
                         results["saved"][step["save"]] = v
                 elif "eval" in step:
@@ -490,6 +564,12 @@ def main():
                     time.sleep(0.8)
                 elif "restart" in step:
                     # Kill and relaunch the app with the same data dir (session restore), then re-attach.
+                    # (After a "close" step the process is already gone: this is then a clean restart.)
+                    try:
+                        results["cspBeforeRestart"] = results.get("cspBeforeRestart", []) + json.loads(cdp.evaluate("JSON.stringify(window.rocksyCsp||[])"))
+                    except Exception:
+                        pass
+                    prior_events.extend(cdp.events)
                     kill(proc)
                     time.sleep(0.5)
                     t_launch = time.time()
@@ -517,8 +597,36 @@ def main():
                         results["saved"][step.get("save", "launchMs") + "_exited"] = p2.poll() is not None or (time.sleep(1.5) or p2.poll() is not None)
             except Exception as e:  # keep going: later screenshots are still useful
                 results["errors"].append({"step": n, "what": json.dumps(step)[:160], "error": str(e)[:600]})
-        for ev in cdp.events:
-            if ev.get("method") == "Runtime.exceptionThrown":
+        # Content-Security-Policy violations recorded by the page itself (none is expected).
+        try:
+            csp = cdp.evaluate("JSON.stringify(window.rocksyCsp||[])")
+            results["csp"] = json.loads(csp)
+            if results["csp"]:
+                results["errors"].append({"csp": csp[:600]})
+        except Exception:
+            results["csp"] = None
+        # Requests the page made to anything but the app itself (none is expected), and the requests that were blocked.
+        own = ("http://tauri.localhost", "http://ipc.localhost", "http://asset.localhost", "ipc:", "asset:", "data:", "blob:", "file:", "about:", "devtools:", "chrome")
+        all_events = prior_events + cdp.events
+        if results.get("cspBeforeRestart"):
+            results["errors"].append({"cspBeforeRestart": json.dumps(results["cspBeforeRestart"])[:600]})
+        for ev in all_events:
+            if ev.get("method") == "Network.requestWillBeSent":
+                url = ev["params"]["request"]["url"]
+                if not url.startswith(own):
+                    results.setdefault("externalRequests", []).append(url[:200])
+            elif ev.get("method") == "Network.loadingFailed" and ev["params"].get("blockedReason"):
+                results.setdefault("blockedRequests", []).append({"reason": ev["params"]["blockedReason"], "type": ev["params"].get("type")})
+        for ev in all_events:
+            if ev.get("method") == "Log.entryAdded":
+                entry = ev["params"]["entry"]
+                if entry.get("level") == "error":
+                    line = {"source": entry.get("source"), "text": entry.get("text", "")[:300], "url": entry.get("url", "")[:120]}
+                    results.setdefault("log", []).append(line)
+                    # A scenario that injects hostile content on purpose says so ("allowCspLog").
+                    if "Content Security Policy" in line["text"] and not scenario.get("allowCspLog"):
+                        results["errors"].append({"cspLog": line["text"]})
+            elif ev.get("method") == "Runtime.exceptionThrown":
                 d = ev["params"]["exceptionDetails"]
                 results["errors"].append({"pageException": json.dumps(d.get("exception", d))[:600]})
             elif ev.get("method") == "Runtime.consoleAPICalled" and ev["params"]["type"] in ("error", "warning"):

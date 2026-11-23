@@ -3371,8 +3371,9 @@ dependencies = [
 
 [[package]]
 name = "rocksy"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
+ "log",
  "rocksy-core",
  "serde",
  "serde_json",
@@ -3385,7 +3386,7 @@ dependencies = [
 
 [[package]]
 name = "rocksy-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "memchr",
  "notify",

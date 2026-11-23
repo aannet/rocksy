@@ -1,0 +1,22 @@
+{
+ "scenario": "reload",
+ "saved": {
+  "P5_P8_P9_startup": "{\"first\":[\"startup_info\",\"open_vault\",\"build_tags\"],\"readFileCalls\":0,\"prefetched\":1,\"marks\":[\"editor-ready\",\"editor-ready-since-navigation\",\"editor-painted-since-navigation\",\"ui-script-start\",\"ui-backend-ready\",\"ui-startup-info\",\"ui-file-read\",\"ui-state-created\",\"ui-events-wired\",\"ui-vault-requested\",\"ui-first-frame\",\"ui-tree-received\",\"ui-tree-applied\",\"ui-nav-response-end\",\"ui-nav-dom-content-loaded\",\"ui-first-file-prefetched\",\"tree-ready\"]}",
+  "B2_typingDuringReloadKept": "{\"typedKept\":true,\"conflict\":\"external\",\"dirty\":true,\"banner\":\"Ce fichier a été modifié sur le disque alors que vous avez des changements non enregistrés.Recharger depuis le disqueÉcraser avec ma version\",\"saves\":0,\"diskIsExternal\":true}",
+  "B2_noAutosaveOverExternal": "{\"savesAfterAutosaveDelay\":0,\"conflict\":\"external\"}",
+  "B2_explicitReload": "{\"text\":\"# Version externe\\n\",\"dirty\":false,\"focusInEditor\":true}",
+  "B2_cleanDocReloaded": "« Journal » rechargé (modifié sur le disque)",
+  "B14_deletedFlagged_notRecreated": "{\"banner\":\"Ce fichier a été supprimé ou déplacé sur le disque.\",\"buttons\":[\"Enregistrer quand même à cet emplacement\",\"Fermer l'onglet\"],\"status\":\"Fichier supprimé\",\"toast\":\"Fichier supprimé ou déplacé sur le disque : choisissez dans le bandeau\",\"recreated\":false,\"saves\":0}",
+  "B14_explicitRecreate": "{\"onDisk\":\"# Deux\\n apres suppression\",\"last\":{\"path\":\"C:\\\\Vaults\\\\Demo\\\\00__DEMO\\\\Journal.md\",\"size\":25}}",
+  "B5b_treeUpdatedSamePaths": "{\"epochSamePaths\":0,\"indexKept\":true,\"foot0\":\"1 089 fichiersà jour\",\"foot1\":\"1 089 fichiersinstantané, vérification…\",\"epochNewFile\":1,\"files\":1090}",
+  "B15_otherVaultIgnored": "{\"infoUnchanged\":true,\"eventsRecorded\":0,\"tagsInfoFiles\":true,\"progress\":null,\"status\":\"Index ✓\"}",
+  "P7_linksPanel": "{\"fiveIndexReadySameGeneration\":{\"requests\":0,\"backlinksCalls\":0,\"renders\":0,\"skipped\":5},\"saveWithoutLinkChange\":{\"requests\":0,\"backlinksCalls\":0,\"renders\":0,\"domKept\":true},\"saveWithNewLink\":{\"renders\":1,\"out\":1}}",
+  "P10_tagFilterCached": "{\"tagsListCallsFor12Keystrokes\":0,\"rows\":[[\"p\",0.5,13,13],[\"pr\",0.2,7,7],[\"pro\",0.3,7,7],[\"proj\",0.2,6,6],[\"projet\",0.1,6,6],[\"projet/\",0.2,5,5],[\"\",0.4,43,43],[\"re\",0.3,10,10],[\"d\",0.3,14,14],[\"de\",0.3,9,9],[\"dem\",0.1,4,4],[\"demo\",0.2,4,4]],\"sameCountAsBackend\":true}",
+  "B19_canvasMounted": "{\"panes\":2,\"canvas\":true,\"listeners\":{\"add\":2,\"rem\":0}}",
+  "B19_paneClosed_listenersRemoved": "{\"panes\":1,\"listeners\":{\"add\":2,\"rem\":2},\"leftBehind\":0}",
+  "B16_closeVault": "{\"closed\":[\"C:\\\\Vaults\\\\Demo\"],\"calls\":[\"close_vault\"]}",
+  "P5_fallbackReadFile": "{\"first\":[\"startup_info\",\"read_file\",\"open_vault\",\"build_tags\"],\"prefetched\":0,\"loaded\":true}"
+ },
+ "errors": [],
+ "csp": []
+}

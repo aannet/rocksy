@@ -27,7 +27,10 @@ mod tests;
 
 use serde::{Deserialize, Serialize};
 
-pub use index::{BuildOptions, CancelToken, TagIndex};
+pub use index::{
+    BuildOptions, CancelToken, Housekeeping, ReconcileOutcome, TagIndex, MAX_RESULTS, SEARCH_COMMIT_DELAY,
+    TAGS_SAVE_DELAY,
+};
 
 /// The index holds tags, links and full-text search; this is its real name.
 pub type VaultIndex = TagIndex;
@@ -109,6 +112,17 @@ pub struct ReconcileReport {
     pub unchanged: usize,
     /// Whether the persisted file was (re)written.
     pub persisted: bool,
+    /// Notes of the listing that this pass could not bring up to date: a
+    /// read that failed (file held by another program, hiccup of a synced
+    /// drive) or a full-text write that was lost. They are read again by the
+    /// next pass; the caller should schedule one without waiting for a
+    /// change in the vault.
+    #[serde(default)]
+    pub pending: usize,
+    /// Among `pending`, the notes whose read failed (the others are
+    /// full-text writes that were lost).
+    #[serde(default)]
+    pub unread: usize,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -165,9 +179,12 @@ pub struct UnresolvedLink {
 }
 
 /// Payload of the `index-ready` event.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IndexReady {
+    /// Root of the vault the index holds (same form as `Tree.root`; empty
+    /// when no vault is loaded).
+    pub vault: String,
     pub from_cache: bool,
     /// Notes indexed.
     pub files: usize,
@@ -177,6 +194,9 @@ pub struct IndexReady {
     pub links: usize,
     /// Distinct targets that match no file.
     pub unresolved_links: usize,
+    /// See [`TagIndex::links_generation`]: unchanged means the links of
+    /// every note are unchanged.
+    pub links_generation: u64,
     pub search_ready: bool,
     /// Notes in the full-text index.
     pub search_docs: usize,
@@ -184,6 +204,11 @@ pub struct IndexReady {
     pub reread: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub removed: Option<usize>,
+    /// Notes the last reconcile could not bring up to date (see
+    /// [`ReconcileReport::pending`]); absent when the event does not come
+    /// from a reconcile.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub pending: Option<usize>,
     pub ms: u64,
 }
 

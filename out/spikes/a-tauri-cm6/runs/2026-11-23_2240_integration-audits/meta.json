@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-23",
+  "case": "integration-audits",
+  "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+  "version": "0.2.1",
+  "exeBytes": 14054400,
+  "exeSha256": "300e884922185fe5438663c55efa26c0675c8ad40ec6e0ebf8e573a10a42347e",
+  "comparedWith": "C:\\Users\\aleca\\rocksy-test\\release-0.2.0\\rocksy.exe (11584512 octets)",
+  "vaults": "copies de x1 et x20 synthétiques, disque local C:, cache chaud",
+  "isolation": "ROCKSY_DATA_DIR par scénario, pilotage DevTools port 9223",
+  "branch": "release-0.1 (modifications non commitées)"
+}

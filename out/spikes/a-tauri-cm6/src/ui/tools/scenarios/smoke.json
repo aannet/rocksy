@@ -1,1 +1,6 @@
-{"steps":[{"nav":"{DIST}"},{"wait":"document.querySelector('#a')"},{"click":"#i"},{"type":"abc é"},{"eval":"document.querySelector('#i').value","save":"v"},{"shot":"smoke.png"}]}
+{"steps":[
+ {"nav":"{DIST}?tree=300"},
+ {"wait":"window.rocksyReady && window.rocksy.tree","timeout":15000},
+ {"eval":"JSON.stringify({backend:rocksy.backend.kind, version:rocksy.info.version, doc:rocksy.activeDoc()&&rocksy.activeDoc().name, tree:rocksy.tree.entries.length, csp:window.rocksyCsp})","save":"info"},
+ {"shot":"smoke.png"}
+]}

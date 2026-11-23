@@ -1,0 +1,18 @@
+{
+ "scenario": "edit",
+ "saved": {
+  "arrowDownIntoTable": "{\"line\":\"| Jalon | Responsable | État | Charge |\",\"tableWidgets\":0}",
+  "arrowDownOutOfTable": "{\"line\":\"\",\"tableWidgets\":1}",
+  "arrowUpIntoTable": "{\"line\":\"| Prototype | Sam | en cours, voir [[Live Preview]] | 12 |\",\"tableWidgets\":0}",
+  "listContinuation": "\"Troisième niveau\\n\\t\\t- suite\\n\\n- [ ] Tâche à faire #t\"",
+  "taskContinuationAndBold": "\"- [ ] nouvelle**gras**\\n- [\"",
+  "ctrlS": "{\"saves\":1,\"dirty\":false,\"state\":\"Enregistré\"}",
+  "ctrlClickTag": "{\"sel\":\"demo/apercu\",\"frags\":2}",
+  "headingLinkLine": "## Repliables",
+  "afterCtrlW": "[\"Live Preview\"]",
+  "autosaveOff": false,
+  "noAutosaveWhenOff": "{\"saves\":1,\"dirty\":true}"
+ },
+ "errors": [],
+ "csp": []
+}

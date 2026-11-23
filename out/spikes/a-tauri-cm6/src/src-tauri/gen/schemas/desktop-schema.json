@@ -345,6 +345,282 @@
       "description": "Permission identifier",
       "oneOf": [
         {
+          "description": "Enables the add_vault command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-add-vault",
+          "markdownDescription": "Enables the add_vault command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the backlinks command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-backlinks",
+          "markdownDescription": "Enables the backlinks command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the build_tags command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-build-tags",
+          "markdownDescription": "Enables the build_tags command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the close_ack command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-close-ack",
+          "markdownDescription": "Enables the close_ack command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the close_vault command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-close-vault",
+          "markdownDescription": "Enables the close_vault command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the file_tags command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-file-tags",
+          "markdownDescription": "Enables the file_tags command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the list_vaults command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-list-vaults",
+          "markdownDescription": "Enables the list_vaults command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the log_timing command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-log-timing",
+          "markdownDescription": "Enables the log_timing command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the open_external command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-open-external",
+          "markdownDescription": "Enables the open_external command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the open_vault command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-open-vault",
+          "markdownDescription": "Enables the open_vault command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the outgoing_links command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-outgoing-links",
+          "markdownDescription": "Enables the outgoing_links command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pick_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pick-file",
+          "markdownDescription": "Enables the pick_file command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pick_folder command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pick-folder",
+          "markdownDescription": "Enables the pick_folder command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the quit command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-quit",
+          "markdownDescription": "Enables the quit command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the read_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-read-file",
+          "markdownDescription": "Enables the read_file command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the remove_vault command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-vault",
+          "markdownDescription": "Enables the remove_vault command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the save_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-save-file",
+          "markdownDescription": "Enables the save_file command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the search command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-search",
+          "markdownDescription": "Enables the search command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-session",
+          "markdownDescription": "Enables the set_session command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the startup_info command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-startup-info",
+          "markdownDescription": "Enables the startup_info command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the tag_fragments command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-tag-fragments",
+          "markdownDescription": "Enables the tag_fragments command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the tags_list command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-tags-list",
+          "markdownDescription": "Enables the tags_list command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the unresolved_links command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-unresolved-links",
+          "markdownDescription": "Enables the unresolved_links command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the add_vault command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-add-vault",
+          "markdownDescription": "Denies the add_vault command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the backlinks command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-backlinks",
+          "markdownDescription": "Denies the backlinks command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the build_tags command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-build-tags",
+          "markdownDescription": "Denies the build_tags command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the close_ack command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-close-ack",
+          "markdownDescription": "Denies the close_ack command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the close_vault command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-close-vault",
+          "markdownDescription": "Denies the close_vault command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the file_tags command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-file-tags",
+          "markdownDescription": "Denies the file_tags command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the list_vaults command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-list-vaults",
+          "markdownDescription": "Denies the list_vaults command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the log_timing command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-log-timing",
+          "markdownDescription": "Denies the log_timing command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the open_external command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-open-external",
+          "markdownDescription": "Denies the open_external command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the open_vault command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-open-vault",
+          "markdownDescription": "Denies the open_vault command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the outgoing_links command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-outgoing-links",
+          "markdownDescription": "Denies the outgoing_links command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pick_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pick-file",
+          "markdownDescription": "Denies the pick_file command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pick_folder command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pick-folder",
+          "markdownDescription": "Denies the pick_folder command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the quit command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-quit",
+          "markdownDescription": "Denies the quit command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the read_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-read-file",
+          "markdownDescription": "Denies the read_file command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_vault command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-vault",
+          "markdownDescription": "Denies the remove_vault command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the save_file command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-save-file",
+          "markdownDescription": "Denies the save_file command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the search command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-search",
+          "markdownDescription": "Denies the search command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-session",
+          "markdownDescription": "Denies the set_session command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the startup_info command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-startup-info",
+          "markdownDescription": "Denies the startup_info command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the tag_fragments command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-tag-fragments",
+          "markdownDescription": "Denies the tag_fragments command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the tags_list command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-tags-list",
+          "markdownDescription": "Denies the tags_list command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the unresolved_links command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-unresolved-links",
+          "markdownDescription": "Denies the unresolved_links command without any pre-configured scope."
+        },
+        {
           "description": "Default core plugins set.\n#### This default permission set includes:\n\n- `core:path:default`\n- `core:event:default`\n- `core:window:default`\n- `core:webview:default`\n- `core:app:default`\n- `core:image:default`\n- `core:resources:default`\n- `core:menu:default`\n- `core:tray:default`",
           "type": "string",
           "const": "core:default",

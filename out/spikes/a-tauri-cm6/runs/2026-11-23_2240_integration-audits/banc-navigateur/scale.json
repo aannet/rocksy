@@ -1,0 +1,16 @@
+{
+ "scenario": "scale",
+ "saved": {
+  "startup19k": "{\"metrics\":{\"mark:script-start\":93,\"mark:backend-ready\":99,\"mark:startup-info\":287,\"mark:file-read\":308,\"firstFilePrefetched\":1,\"mark:state-created\":324,\"editorReadyMs\":447,\"mark:events-wired\":453,\"mark:vault-requested\":507,\"mark:first-frame\":529,\"editorPaintedMs\":542,\"mark:nav-response-end\":7,\"mark:nav-dom-content-loaded\":94,\"mark:first-file-prefetched\":1,\"openVaultMs\":96,\"mark:tree-received\":549,\"mark:tree-applied\":571,\"treeBuildMs\":15.7,\"treeEntries\":18347,\"treeReadyMs\":601,\"treeRowsInDom\":52},\"timings\":[{\"name\":\"editor-ready\",\"ms\":447},{\"name\":\"editor-ready-since-navigation\",\"ms\":447},{\"name\":\"editor-painted-since-navigation\",\"ms\":542},{\"name\":\"ui-script-start\",\"ms\":93},{\"name\":\"ui-backend-ready\",\"ms\":99},{\"name\":\"ui-startup-info\",\"ms\":287},{\"name\":\"ui-file-read\",\"ms\":308},{\"name\":\"ui-state-created\",\"ms\":324},{\"name\":\"ui-events-wired\",\"ms\":453},{\"name\":\"ui-vault-requested\",\"ms\":507},{\"name\":\"ui-first-frame\",\"ms\":529},{\"name\":\"ui-nav-response-end\",\"ms\":7},{\"name\":\"ui-nav-dom-content-loaded\",\"ms\":94},{\"name\":\"ui-first-file-prefetched\",\"ms\":1},{\"name\":\"ui-tree-received\",\"ms\":549},{\"name\":\"ui-tree-applied\",\"ms\":571},{\"name\":\"tree-ready\",\"ms\":600}],\"genMs\":{\"tree:Demo\":170.5,\"bigNote\":12.5}}",
+  "treeAllExpanded": "{\"rows\":18348,\"flattenMs\":1.2,\"renderMedianMs\":3.2,\"renderP95Ms\":4.1,\"renderMaxMs\":4.4,\"rowsInDom\":72,\"scrollTop\":190819}",
+  "treeUpdateKeepsScroll": "{\"before\":190819,\"after\":190819,\"build\":9.4,\"entries\":18349}",
+  "quickOpenBench": "{\"items\":14620,\"ms\":[2.3,3.7,2,3.6,1.6,2.8,0.8,2.7,4.1,2.6],\"hits\":[50,50,44,28,0,12,50,50,50,1]}",
+  "quickOpenTyped": "{\"filter\":1.8,\"render\":5.1,\"items\":14620}",
+  "tagsFilterMs": "[[\"p\",2.9,13],[\"pr\",1.3,7],[\"pro\",1.1,7],[\"proj\",0.9,6],[\"proje\",0.9,6],[\"projet\",0.9,6],[\"projet/\",1.4,5],[\"projet/a\",0.8,2],[\"\",2,43],[\"idee\",0.9,3],[\"re\",1.6,10],[\"reunion/h\",0.7,1]]",
+  "tagsMetrics": "{\"listMs\":0.5,\"fragMs\":26.8,\"frags\":200,\"head\":\"#projet/alpha200 premiers sur 3 601\",\"info\":{\"files\":8976,\"tags\":43,\"occurrences\":54087,\"ms\":2573,\"fromCache\":false,\"vault\":\"C:\\\\Vaults\\\\Demo\"}}",
+  "fragmentOpen": "{\"fragment\":{\"start\":107,\"end\":107,\"tagLine\":107,\"excerpt\":\"- Sur objectif priorité validation estimation indicateur ver\"},\"cursorLine0\":107,\"lineText\":\"\\t\\t- Sur objectif priorité validation estimation indicateur v\",\"flashed\":1,\"doc\":\"__DAILY NOTES DEMO\"}",
+  "flashAfter3s": 0
+ },
+ "errors": [],
+ "csp": []
+}

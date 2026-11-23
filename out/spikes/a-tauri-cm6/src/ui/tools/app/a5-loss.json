@@ -1,0 +1,472 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-loss",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\lv"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\x1",
+   "dst": "{IT}\\lv"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\eol-lf.md",
+   "text": "# Fichier de test\n\nligne A\nligne B\nligne C\nligne D\nligne E\nfin\n"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\eol-crlf.md",
+   "text": "# Fichier de test\n\nligne A\nligne B\nligne C\nligne D\nligne E\nfin\n",
+   "crlf": true
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\eol-bom.md",
+   "text": "# Fichier de test\n\nligne A\nligne B\nligne C\nligne D\nligne E\nfin\n",
+   "bom": true
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\eol-bomcrlf.md",
+   "text": "# Fichier de test\n\nligne A\nligne B\nligne C\nligne D\nligne E\nfin\n",
+   "crlf": true,
+   "bom": true
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\eol-mixte.md",
+   "hex": "23204d697874650d0a6c69676e652041206c660a6c69676e6520422063726c660d0a6c69676e652043206c660a6c69676e6520442063726c660d0a6c69676e6520452063726c660d0a66696e2063726c660d0a"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\fermeture.md",
+   "text": "# Fermeture\n\ntexte initial\n"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\conflit.md",
+   "text": "# Conflit\n\ntexte initial\n"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\a-supprimer.md",
+   "text": "# À supprimer\n\ntexte initial\n"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('lv'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\lv\\00_INBOX\\eol-lf.md",
+   "save": "snap_eol-lf",
+   "report": "E_before_eol-lf"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','eol-lf.md')).then(()=>{const t=T.text();const l=T.view().state.doc.lineAt(t.indexOf('ligne C'));T.lineEnd(l.number,true);return JSON.stringify(T.saveState())})",
+   "save": "E_open_eol-lf"
+  },
+  {
+   "type": " MODIF"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_eol-lf",
+   "path": "{IT}\\lv\\00_INBOX\\eol-lf.md",
+   "save": "E_diff_eol-lf"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\lv\\00_INBOX\\eol-crlf.md",
+   "save": "snap_eol-crlf",
+   "report": "E_before_eol-crlf"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','eol-crlf.md')).then(()=>{const t=T.text();const l=T.view().state.doc.lineAt(t.indexOf('ligne C'));T.lineEnd(l.number,true);return JSON.stringify(T.saveState())})",
+   "save": "E_open_eol-crlf"
+  },
+  {
+   "type": " MODIF"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_eol-crlf",
+   "path": "{IT}\\lv\\00_INBOX\\eol-crlf.md",
+   "save": "E_diff_eol-crlf"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\lv\\00_INBOX\\eol-bom.md",
+   "save": "snap_eol-bom",
+   "report": "E_before_eol-bom"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','eol-bom.md')).then(()=>{const t=T.text();const l=T.view().state.doc.lineAt(t.indexOf('ligne C'));T.lineEnd(l.number,true);return JSON.stringify(T.saveState())})",
+   "save": "E_open_eol-bom"
+  },
+  {
+   "type": " MODIF"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_eol-bom",
+   "path": "{IT}\\lv\\00_INBOX\\eol-bom.md",
+   "save": "E_diff_eol-bom"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\lv\\00_INBOX\\eol-bomcrlf.md",
+   "save": "snap_eol-bomcrlf",
+   "report": "E_before_eol-bomcrlf"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','eol-bomcrlf.md')).then(()=>{const t=T.text();const l=T.view().state.doc.lineAt(t.indexOf('ligne C'));T.lineEnd(l.number,true);return JSON.stringify(T.saveState())})",
+   "save": "E_open_eol-bomcrlf"
+  },
+  {
+   "type": " MODIF"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_eol-bomcrlf",
+   "path": "{IT}\\lv\\00_INBOX\\eol-bomcrlf.md",
+   "save": "E_diff_eol-bomcrlf"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\lv\\00_INBOX\\eol-mixte.md",
+   "save": "snap_eol-mixte",
+   "report": "E_before_eol-mixte"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','eol-mixte.md')).then(()=>{const t=T.text();const l=T.view().state.doc.lineAt(t.indexOf('ligne C'));T.lineEnd(l.number,true);return JSON.stringify(T.saveState())})",
+   "save": "E_open_eol-mixte"
+  },
+  {
+   "type": " MODIF"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_eol-mixte",
+   "path": "{IT}\\lv\\00_INBOX\\eol-mixte.md",
+   "save": "E_diff_eol-mixte"
+  },
+  {
+   "py": "bytes",
+   "path": "{IT}\\lv\\00_INBOX\\eol-mixte.md",
+   "save": "E_mixte_bytesAfter"
+  },
+  {
+   "py": "snap",
+   "path": "{IT}\\lv\\00_INBOX\\eol-mixte.md",
+   "save": "snap_mixte2"
+  },
+  {
+   "eval": "(()=>{const t=T.text();const l=T.view().state.doc.lineAt(t.indexOf('ligne D'));T.lineEnd(l.number,true);return 1})()"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "type": "ligne ajoutee"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "py": "linediff",
+   "snap": "snap_mixte2",
+   "path": "{IT}\\lv\\00_INBOX\\eol-mixte.md",
+   "save": "E_diff_mixte_addedLine"
+  },
+  {
+   "py": "bytes",
+   "path": "{IT}\\lv\\00_INBOX\\eol-mixte.md",
+   "save": "E_mixte_bytesAfterAddedLine"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','fermeture.md')).then(()=>{const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return JSON.stringify({autosave:rocksy.autosave})})",
+   "save": "L1_before"
+  },
+  {
+   "type": "TEXTE-TAPE-JUSTE-AVANT-FERMETURE"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "L1_closeRightAfterTyping"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\lv\\00_INBOX\\fermeture.md",
+   "save": "L1_onDisk"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "wait": "rocksy.activeDoc() && rocksy.activeDoc().loaded",
+   "timeout": 8000
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave)rocksy.toggleAutosave();const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return JSON.stringify({doc:rocksy.activeDoc().name,autosave:rocksy.autosave})})()",
+   "save": "L2_setup"
+  },
+  {
+   "type": " BROUILLON-UN"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 1500,
+   "save": "L2a_closeRequest"
+  },
+  {
+   "wait": "document.querySelector('.dialog')",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({title:document.querySelector('.dialog h2').textContent, items:[...document.querySelectorAll('.dialog li')].map(e=>e.textContent), buttons:[...document.querySelectorAll('.dialog button')].map(e=>e.textContent)})",
+   "save": "L2a_dialog"
+  },
+  {
+   "shot": "a5-loss-dialog.png"
+  },
+  {
+   "click": ".dialog button[data-choice='cancel']"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "py": "alive",
+   "save": "L2a_aliveAfterCancel"
+  },
+  {
+   "eval": "JSON.stringify({dialog:!!document.querySelector('.dialog'), dirty:rocksy.activeDoc().dirty, textKept:T.text().includes('BROUILLON-UN')})",
+   "save": "L2a_afterCancel"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\lv\\00_INBOX\\fermeture.md",
+   "save": "L2a_onDiskAfterCancel"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 1500,
+   "save": "L2b_closeRequest"
+  },
+  {
+   "wait": "document.querySelector('.dialog')",
+   "timeout": 5000
+  },
+  {
+   "click": ".dialog button[data-choice='save']"
+  },
+  {
+   "py": "waitexit",
+   "waitMs": 8000,
+   "save": "L2b_exitAfterSaveMs"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\lv\\00_INBOX\\fermeture.md",
+   "save": "L2b_onDiskAfterSaveAndQuit"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "wait": "rocksy.activeDoc() && rocksy.activeDoc().loaded",
+   "timeout": 8000
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave)rocksy.toggleAutosave();const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return JSON.stringify({autosave:rocksy.autosave})})()",
+   "save": "L2c_setup"
+  },
+  {
+   "type": " BROUILLON-DEUX"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 1500,
+   "save": "L2c_closeRequest"
+  },
+  {
+   "wait": "document.querySelector('.dialog')",
+   "timeout": 5000
+  },
+  {
+   "click": ".dialog button[data-choice='discard']"
+  },
+  {
+   "py": "waitexit",
+   "waitMs": 8000,
+   "save": "L2c_exitAfterDiscardMs"
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\lv\\00_INBOX\\fermeture.md",
+   "save": "L2c_onDiskAfterQuitWithoutSaving"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "wait": "rocksy.activeDoc() && rocksy.activeDoc().loaded",
+   "timeout": 8000
+  },
+  {
+   "eval": "(async()=>{if(!rocksy.autosave)rocksy.toggleAutosave();await T.open(T.vault('00_INBOX','conflit.md'));const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return JSON.stringify({autosave:rocksy.autosave})})()",
+   "save": "L3_setup"
+  },
+  {
+   "type": "frappe locale "
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\lv\\00_INBOX\\conflit.md",
+   "text": "# Conflit\n\nCONTENU ECRIT PAR UN AUTRE PROGRAMME\n"
+  },
+  {
+   "type": "encore "
+  },
+  {
+   "eval": "T.wait(()=>rocksy.activeDoc().conflict,10000).then(ms=>JSON.stringify({afterMs:ms, state:T.saveState(), editorKeepsTyping:T.text().includes('frappe locale encore')}))",
+   "save": "L3_conflict"
+  },
+  {
+   "sleep": 3000
+  },
+  {
+   "py": "readtext",
+   "path": "{IT}\\lv\\00_INBOX\\conflit.md",
+   "save": "L3_onDisk_3sLater"
+  },
+  {
+   "shot": "a5-loss-conflict.png"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','a-supprimer.md')).then(()=>JSON.stringify(T.saveState()))",
+   "save": "L4_open"
+  },
+  {
+   "py": "delete",
+   "path": "{IT}\\lv\\00_INBOX\\a-supprimer.md"
+  },
+  {
+   "eval": "T.wait(()=>rocksy.activeDoc().conflict==='deleted',12000).then(ms=>JSON.stringify({afterMs:ms, state:T.saveState(), textKept:T.text().includes('texte initial')}))",
+   "save": "L4_deleted"
+  },
+  {
+   "shot": "a5-loss-deleted.png"
+  },
+  {
+   "py": "exists",
+   "path": "{IT}\\lv\\00_INBOX\\a-supprimer.md",
+   "save": "L4_fileRecreatedByItself"
+  },
+  {
+   "eval": "JSON.stringify(window.rocksyCsp)",
+   "save": "cspViolations"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 1500,
+   "save": "end_closeRequest(conflicts remain: a dialog is expected)"
+  },
+  {
+   "eval": "JSON.stringify({dialog:!!document.querySelector('.dialog'), items:[...document.querySelectorAll('.dialog li')].map(e=>e.textContent), buttons:[...document.querySelectorAll('.dialog button')].map(e=>e.textContent)})",
+   "save": "end_dialogWithConflicts"
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+{
+ "scenario": "f1b",
+ "saved": {
+  "afterCheckboxClick": "- [x] Tâche à faire",
+  "afterTypeUndo": "est/chemin.\n",
+  "tabs": "[[\"Live Preview\",true],[\"Callouts\",false]]"
+ },
+ "errors": [],
+ "csp": []
+}

@@ -1,0 +1,55 @@
+{
+ "scenario": "a5-perf-x20",
+ "saved": {
+  "attachMs": 664,
+  "P1_firstIndexing": "{\"firstIndexingSinceAddVaultMs\":12423,\"events\":[{\"atMs\":12706,\"fromCache\":false,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760,\"reread\":9760,\"pending\":0,\"ms\":12106}],\"metrics\":{\"openVaultMs\":1323}}",
+  "P1_lastEvents_3sLater": "[{\"fromCache\":false,\"searchReady\":true,\"searchDocs\":9760,\"reread\":9760,\"pending\":0}]",
+  "P2_openBigNote": "{\"open\":{\"loaded\":true,\"error\":null,\"ms\":121,\"name\":\"__DAILY NOTES SYNTH\"},\"autosave\":false,\"bytes\":309938,\"lines\":4372}",
+  "P2_typingLatency_middle": "{\"n\":216,\"update\":{\"median\":3.4,\"p95\":4.6,\"max\":15.2},\"withLayout\":{\"median\":3.5,\"p95\":4.7,\"max\":15.8}}",
+  "P2_typingLatency_start": "{\"n\":216,\"update\":{\"median\":4.1,\"p95\":5.4,\"max\":17},\"withLayout\":{\"median\":4.2,\"p95\":5.5,\"max\":17.2}}",
+  "P3_saveFile_318KB_fromPage": "{\"bytes\":310370,\"runs\":[31.4,26.2,27.5,26,43,141.3,34.8],\"median\":31.4,\"min\":26,\"max\":141.3}",
+  "P4_searchLatency_realTyping": "{\"searches\":86,\"keystrokeToPainted\":{\"median\":103.7,\"p95\":120.3,\"max\":148.3},\"callRoundTrip\":{\"median\":9.4,\"p95\":19.1,\"max\":26.6},\"backendMs\":{\"median\":4.4,\"p95\":14.1,\"max\":21.4},\"filesMax\":9760}",
+  "P5_externalChange": "{\"treeShowsFileAfterMs\":670,\"searchFindsFileAfterMs\":678}",
+  "P6_sessionBeforeRestart": "{\"dirty\":[\"__DAILY NOTES SYNTH\"],\"session\":{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\settled-x20\",\"active\":\"__DAILY NOTES SYNTH\"}}",
+  "P6_relaunchAttachMs": 1113,
+  "P6_relaunch_index": "{\"events\":[{\"atMs\":548,\"fromCache\":true,\"searchReady\":false,\"files\":9760,\"searchDocs\":0},{\"atMs\":625,\"fromCache\":true,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760},{\"atMs\":722,\"fromCache\":false,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760,\"reread\":0,\"pending\":0}],\"editorReadyMs\":306,\"treeReadyMs\":586}",
+  "P6_relaunch_timings": {
+   "ui-script-start": 806,
+   "ui-events-wired": 806,
+   "ui-vault-requested": 806,
+   "ui-backend-ready": 809,
+   "ui-nav-response-end": 809,
+   "ui-nav-dom-content-loaded": 809,
+   "ui-first-file-prefetched": 810,
+   "ui-startup-info": 812,
+   "vault-listing": 1184,
+   "ui-tree-received": 2435,
+   "ui-tree-applied": 2811,
+   "tree-ready": 4374,
+   "ui-file-read": 16896,
+   "ui-state-created": 16915,
+   "editor-ready": 1354,
+   "editor-ready-since-navigation": 1355,
+   "editor-painted-since-navigation": 1482,
+   "ui-first-frame": 1493
+  },
+  "P6_memory": {
+   "webviewMb": 395,
+   "appPrivateMb": 39,
+   "appMb": 121,
+   "webviewProcs": 6
+  }
+ },
+ "errors": [
+  {
+   "console": "[{\"type\": \"string\", \"value\": \"Viewport failed to stabilize\"}]"
+  }
+ ],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  33788,
+  24744
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

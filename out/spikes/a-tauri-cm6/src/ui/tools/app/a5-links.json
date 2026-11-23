@@ -1,0 +1,68 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-links",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('cv'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "eval": "(async()=>{await rocksy.showSidebar('links');await T.open(T.vault('00_INBOX','Décision plan 00434.md'));await new Promise(r=>setTimeout(r,600));window.__ir=[];window.__TAURI__.event.listen('index-ready',e=>window.__ir.push(e.payload));const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return JSON.stringify({generation:rocksy.indexInfo.linksGeneration, out:T.count('.lk-out'), requests:rocksy.metrics.linksRequests})})()",
+   "save": "K0_before"
+  },
+  {
+   "type": "une phrase sans lien"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "sleep": 1200
+  },
+  {
+   "eval": "JSON.stringify({indexReadyEvents:window.__ir.length, generation:rocksy.indexInfo.linksGeneration, out:T.count('.lk-out'), requests:rocksy.metrics.linksRequests})",
+   "save": "K1_afterSaveWithoutLinkChange"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "type": "Voir [[Canvas simple]] ici"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "eval": "T.wait(()=>window.__ir.length>0,5000).then(ms=>new Promise(r=>setTimeout(()=>r(JSON.stringify({indexReadyAfterMs:ms, events:window.__ir.map(e=>({fromCache:e.fromCache,linksGeneration:e.linksGeneration,links:e.links,reread:e.reread,pending:e.pending})), out:T.count('.lk-out'), requests:rocksy.metrics.linksRequests, status:document.querySelector('#statusbar').textContent.slice(0,60)})),300)))",
+   "save": "K2_afterSaveWithNewLink"
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "closed"
+  }
+ ]
+}

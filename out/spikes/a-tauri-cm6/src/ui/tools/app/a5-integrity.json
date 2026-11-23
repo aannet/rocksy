@@ -1,0 +1,116 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-a5-integrity",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\iv"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\x1",
+   "dst": "{IT}\\iv"
+  },
+  {
+   "py": "hash",
+   "dir": "{IT}\\iv",
+   "save": "h0"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('iv'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "eval": "(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms));const out={};\nawait T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));T.show('![[Pasted image');await w(700);out.images=T.imgs().length;\nawait T.open(T.vault('00_INBOX','Décision plan 00434.md'));await w(300);\nawait rocksy.openPath(T.vault('01_WORK','Canvas dense.canvas'));await T.wait(()=>T.count('.cv-node')>20,5000);out.canvasNodes=T.count('.cv-node');\nawait rocksy.openPath(T.vault('01_WORK','Canvas simple.canvas'));await w(400);\nconst img=rocksy.tree.entries.find(e=>/\\.png$/i.test(e.path));if(img){await rocksy.openPath(T.vault(...img.path.split('/')));await w(400);out.imageTab=img.path}\nawait rocksy.showSidebar('tags');await w(500);out.tagRows=T.count('.tag-row');\nconst tags=await T.inv('tags_list',{query:''});out.tags=tags.length;out.fragments=(await T.inv('tag_fragments',{tag:tags[0].tag,limit:50})).length;\nawait rocksy.showSidebar('links');await T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));await w(600);out.outLinks=T.count('.lk-out');\nout.unresolved=(await T.inv('unresolved_links',{limit:500})).length;\nawait rocksy.showSidebar('search');await T.wait(()=>rocksy.sidebar.search&&!rocksy.sidebar.search.input.disabled,8000);\nout.search=(await T.inv('search',{query:'plan budget'})).total;\nawait rocksy.showSidebar('files');await w(300);\nconst mm=rocksy.tree.entries.filter(e=>/Mermaid|Diagram/i.test(e.path)&&/\\.md$/i.test(e.path))[0];if(mm){await T.open(T.vault(...mm.path.split('/')));await w(600);out.mermaidNote=mm.path}\nout.docsDirty=rocksy.docs().filter(d=>d.dirty).length;out.csp=window.rocksyCsp;return JSON.stringify(out)})()",
+   "save": "I1_readOnlyTour"
+  },
+  {
+   "sleep": 3000
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "I1_close"
+  },
+  {
+   "py": "hash",
+   "dir": "{IT}\\iv",
+   "save": "h1"
+  },
+  {
+   "py": "diff",
+   "a": "h0",
+   "b": "h1",
+   "save": "I1_vaultDiff_afterReadOnlySession"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-a5-integrity",
+   "save": "I1_dataDir"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "wait": "rocksy.activeDoc() && rocksy.activeDoc().loaded && rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 30000
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Décision plan 00434.md')).then(()=>{const v=T.view();v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return 1})"
+  },
+  {
+   "type": "une ligne ajoutee par le test"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty && !rocksy.activeDoc().saving",
+   "timeout": 5000
+  },
+  {
+   "sleep": 3000
+  },
+  {
+   "py": "closetimed",
+   "waitMs": 8000,
+   "save": "I2_close"
+  },
+  {
+   "py": "hash",
+   "dir": "{IT}\\iv",
+   "save": "h2"
+  },
+  {
+   "py": "diff",
+   "a": "h1",
+   "b": "h2",
+   "save": "I2_vaultDiff_afterOneSave"
+  }
+ ]
+}

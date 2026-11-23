@@ -40,9 +40,10 @@ pub(crate) fn line_excerpt(line: &str, ranges: &[(usize, usize)]) -> (String, Ve
             }
         }
         // Prefer a word boundary.
-        if let Some(ws) = line[pos..first].find(char::is_whitespace) {
+        // The whitespace may be multi-byte (no-break space): skip its full width.
+        if let Some((ws, c)) = line[pos..first].char_indices().find(|(_, c)| c.is_whitespace()) {
             if pos + ws < first {
-                pos += ws + 1;
+                pos += ws + c.len_utf8();
             }
         }
         if pos > start {
@@ -107,6 +108,18 @@ mod tests {
         // Byte-order mark removed, no range at all.
         assert_eq!(line_excerpt("\u{feff}# Titre", &[]), ("# Titre".to_string(), vec![]));
         assert_eq!(line_excerpt("", &[]), (String::new(), vec![]));
+    }
+
+    #[test]
+    fn no_break_space_before_the_range_does_not_panic() {
+        // French typography: a no-break space (2 bytes) sits before ":".
+        let mut line = "x".repeat(400);
+        line.push_str("\u{a0}: voir ");
+        let start = line.len();
+        line.push_str("[[cible]]");
+        let (excerpt, ranges) = line_excerpt(&line, &[(start, line.len())]);
+        assert!(excerpt.contains("[[cible]]"));
+        assert_eq!(ranges.len(), 1);
     }
 
     #[test]

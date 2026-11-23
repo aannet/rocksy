@@ -1,0 +1,10 @@
+{
+ "scenario": "misc",
+ "saved": {
+  "outsideStartup": "{\"metrics\":{\"mark:script-start\":93,\"mark:backend-ready\":100,\"mark:startup-info\":104,\"mark:file-read\":128,\"firstFilePrefetched\":1,\"mark:state-created\":139,\"editorReadyMs\":230,\"mark:events-wired\":231,\"mark:vault-requested\":231,\"mark:first-frame\":251,\"editorPaintedMs\":254,\"mark:nav-response-end\":7,\"mark:nav-dom-content-loaded\":95,\"mark:first-file-prefetched\":1},\"timings\":[{\"name\":\"editor-ready\",\"ms\":229},{\"name\":\"editor-ready-since-navigation\",\"ms\":230},{\"name\":\"editor-painted-since-navigation\",\"ms\":254},{\"name\":\"ui-script-start\",\"ms\":93},{\"name\":\"ui-backend-ready\",\"ms\":100},{\"name\":\"ui-startup-info\",\"ms\":104},{\"name\":\"ui-file-read\",\"ms\":128},{\"name\":\"ui-state-created\",\"ms\":139},{\"name\":\"ui-events-wired\",\"ms\":231},{\"name\":\"ui-vault-requested\",\"ms\":231},{\"name\":\"ui-first-frame\",\"ms\":251},{\"name\":\"ui-nav-response-end\",\"ms\":7},{\"name\":\"ui-nav-dom-content-loaded\",\"ms\":95},{\"name\":\"ui-first-file-prefetched\",\"ms\":1}],\"calls\":[\"startup_info\"],\"vault\":null,\"sidebarHidden\":true}",
+  "outsideCalls": "{\"calls\":[\"startup_info\",\"file_tags\",\"file_tags\"]}",
+  "canvasZoom": "{\"before\":\"0.900\",\"after\":\"1.640\",\"canvasMs\":1.8,\"saves\":0,\"state\":\"Lecture seule\"}"
+ },
+ "errors": [],
+ "csp": []
+}

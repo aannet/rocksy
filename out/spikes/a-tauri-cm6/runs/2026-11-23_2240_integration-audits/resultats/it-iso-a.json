@@ -1,0 +1,18 @@
+{
+ "scenario": "it-iso-a",
+ "saved": {
+  "attachMs": 573,
+  "A_set": "{\"autosave\":false,\"ls\":\"0\"}",
+  "A_dataDir": [
+   "timings.jsonl",
+   "webview"
+  ]
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  35072
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

@@ -3,8 +3,8 @@
   const T = (window.T = {
     inv: (c, a) => window.__TAURI__.core.invoke(c, a),
     /** Paths without backslashes in scenario files: T.it("v1", "a.md"), T.ref("x20"), T.vault("01_WORK", "n.md"). */
-    it: (...p) => ["C:", "Users", "aleca", "rocksy-test", "it", ...p].join("\\"),
-    ref: (...p) => ["C:", "Users", "aleca", "rocksy-test", "vaults", ...p].join("\\"),
+    it: (...p) => [(window.__ROCKSY_PATHS || {}).it || "C:\\Users\\aleca\\rocksy-test\\it", ...p].join("\\"),
+    ref: (...p) => [(window.__ROCKSY_PATHS || {}).vaults || "C:\\Users\\aleca\\rocksy-test\\vaults", ...p].join("\\"),
     vault: (...p) => [rocksy.vaultRoot, ...p].join("\\"),
     view: () => rocksy.focused.view,
     text: () => rocksy.focused.view.state.doc.toString(),
@@ -102,7 +102,7 @@
     },
     saveState() {
       const d = rocksy.activeDoc();
-      return d ? { name: d.name, dirty: d.dirty, saving: d.saving, conflict: d.conflict, error: d.error, mtime: d.mtimeMs, eol: d.eol === "\r\n" ? "crlf" : "lf", bom: d.bom, status: document.querySelector(".st-save").textContent, banner: document.querySelector(".banner").hidden ? null : document.querySelector(".banner").textContent.slice(0, 120) } : null;
+      return d ? { name: d.name, dirty: d.dirty, saving: !!d.saving, conflict: d.conflict, error: d.error, saveError: d.saveError, readOnly: d.readOnly, mtime: d.mtimeMs, eol: d.eolMixed ? "mixed" : d.eol === "\r\n" ? "crlf" : d.eol === "\r" ? "cr" : "lf", bom: d.bom, status: document.querySelector(".st-save").textContent, banner: document.querySelector(".banner").hidden ? null : document.querySelector(".banner").textContent.slice(0, 120) } : null;
     },
   });
   return "helpers ok";

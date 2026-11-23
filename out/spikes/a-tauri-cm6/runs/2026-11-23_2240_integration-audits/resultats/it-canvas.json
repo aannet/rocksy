@@ -1,0 +1,42 @@
+{
+ "scenario": "it-canvas",
+ "saved": {
+  "attachMs": 590,
+  "treeEntries": 1052,
+  "F6_simple": "{\"openToNodesMs\":74,\"mountMs\":49.3,\"nodes\":6,\"edges\":9,\"scale\":\"0.713\"}",
+  "F6_dense": "{\"openToNodesMs\":73,\"mountMs\":46.9,\"nodes\":150,\"groups\":6,\"edges\":289,\"images\":17,\"files\":40,\"text\":84,\"scale\":\"0.169\"}",
+  "F6_dense_content": "{\"imgsOk\":17,\"imgs\":17,\"excerpts\":40}",
+  "F6_zoomPan": "{\"before\":{\"scale\":\"0.169\",\"tx\":\"40\"},\"afterZoom\":{\"scale\":\"0.650\",\"tx\":\"-1203\"},\"afterPan\":{\"scale\":\"0.650\",\"tx\":\"-1383\"}}",
+  "F6_zoomFrameMs": "[7.3,184.8,64.5,219.5,30.6]",
+  "F6_readOnlyState": "{\"status\":\"Lecture seule\",\"dirty\":false}",
+  "F6_denseBytesUnchanged": {
+   "before": {
+    "size": 61735,
+    "sha1": "d9f452223691f8e1e9061ff75dc22c74b6483b71",
+    "bom": false,
+    "crlf": 0,
+    "lf": 3050,
+    "endsWithNewline": false,
+    "tailHex": "6c65220a09097d0a095d0a7d"
+   },
+   "after": {
+    "size": 61735,
+    "sha1": "d9f452223691f8e1e9061ff75dc22c74b6483b71",
+    "bom": false,
+    "crlf": 0,
+    "lf": 3050,
+    "endsWithNewline": false,
+    "tailHex": "6c65220a09097d0a095d0a7d"
+   },
+   "changedBlocks": 0,
+   "changes": []
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  32548
+ ],
+ "csp": [],
+ "ourPidsStillAlive": []
+}

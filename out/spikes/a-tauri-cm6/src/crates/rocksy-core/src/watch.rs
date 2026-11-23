@@ -67,17 +67,38 @@ struct Accumulator {
     root_path: PathBuf,
     paths: Vec<String>,
     seen: HashSet<String>,
+    /// Paths already found to be folders in this batch (see `folder_filter`),
+    /// so that a folder reported again is not looked up again.
+    folders: HashSet<String>,
+    /// Drop "modified" events about folders. This costs one `stat` per new
+    /// path, so it is bounded: see `add`.
+    folder_filter: bool,
+    is_dir: fn(&Path) -> bool,
     truncated: bool,
     events: usize,
 }
 
+fn stat_is_dir(path: &Path) -> bool {
+    fs::metadata(path).map(|m| m.is_dir()).unwrap_or(false)
+}
+
 impl Accumulator {
     fn new(root: &str) -> Self {
+        // On Windows every change inside a folder also reports the folder
+        // itself as modified; that says nothing the child's own event does
+        // not, so it is dropped.
+        Self::with_folder_filter(root, cfg!(windows), stat_is_dir)
+    }
+
+    fn with_folder_filter(root: &str, folder_filter: bool, is_dir: fn(&Path) -> bool) -> Self {
         Self {
             root: root.to_string(),
             root_path: PathBuf::from(root),
             paths: Vec::new(),
             seen: HashSet::new(),
+            folders: HashSet::new(),
+            folder_filter,
+            is_dir,
             truncated: false,
             events: 0,
         }
@@ -104,10 +125,7 @@ impl Accumulator {
             counted = true;
         }
         if !matches!(event.kind, EventKind::Access(_)) {
-            // On Windows every change inside a folder also reports the folder
-            // itself as modified; that says nothing the child's own event
-            // does not, so it is dropped (one `stat` per new path).
-            let skip_folders = cfg!(windows)
+            let skip_folders = self.folder_filter
                 && matches!(event.kind, EventKind::Modify(kind) if !matches!(kind, ModifyKind::Name(_)));
             for path in &event.paths {
                 match self.classify(path) {
@@ -120,16 +138,25 @@ impl Accumulator {
                     PathClass::Visible(text) => {
                         if self.seen.contains(&text) {
                             counted = true;
-                        } else if skip_folders && fs::metadata(path).map(|m| m.is_dir()).unwrap_or(false) {
-                            // not counted
+                        } else if self.paths.len() >= MAX_BATCH_PATHS {
+                            // The list is full and the caller will check
+                            // everything: no file-system access any more. A
+                            // burst must not cost one `stat` per event (slow
+                            // on a synced drive) while the queue grows.
+                            self.truncated = true;
+                            counted = true;
+                        } else if skip_folders && self.folders.contains(&text) {
+                            // a folder already identified: not counted
+                        } else if skip_folders && self.folders.len() >= MAX_BATCH_PATHS {
+                            // Too many folders to remember: stop looking.
+                            self.truncated = true;
+                            counted = true;
+                        } else if skip_folders && (self.is_dir)(path) {
+                            self.folders.insert(text); // not counted
                         } else {
                             counted = true;
-                            if self.paths.len() < MAX_BATCH_PATHS {
-                                self.seen.insert(text.clone());
-                                self.paths.push(text);
-                            } else {
-                                self.truncated = true;
-                            }
+                            self.seen.insert(text.clone());
+                            self.paths.push(text);
                         }
                     }
                 }
@@ -159,6 +186,7 @@ impl Accumulator {
     fn take(&mut self) -> ChangeBatch {
         let paths = std::mem::take(&mut self.paths);
         self.seen.clear();
+        self.folders.clear();
         let markdown = paths
             .iter()
             .filter(|p| p.len() > 3 && p.as_bytes()[p.len() - 3..].eq_ignore_ascii_case(b".md"))
@@ -422,6 +450,84 @@ mod tests {
         assert_eq!(batch.markdown, MAX_BATCH_PATHS);
         assert_eq!(batch.events, MAX_BATCH_PATHS + 50);
         assert!(batch.truncated);
+    }
+
+    thread_local! {
+        static STATS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    }
+
+    /// Stands for `stat`: counts the calls; a path without extension is a folder.
+    fn counting_is_dir(path: &Path) -> bool {
+        STATS.with(|c| c.set(c.get() + 1));
+        path.extension().is_none()
+    }
+
+    fn stats() -> usize {
+        STATS.with(|c| c.get())
+    }
+
+    #[test]
+    fn folder_filter_drops_folder_modifications_only() {
+        let mut acc = Accumulator::with_folder_filter(ROOT, true, counting_is_dir);
+        assert!(!acc.add(event(DATA, &["dir"])), "a modified folder says nothing");
+        assert!(acc.is_empty());
+        assert!(acc.add(event(DATA, &["dir/a.md"])));
+        assert!(acc.add(event(CREATE, &["newdir"])), "creations are never filtered");
+        assert!(acc.add(event(RENAME, &["old", "new"])), "nor renames");
+        assert!(acc.add(event(REMOVE, &["gone"])));
+        let batch = acc.take();
+        assert_eq!(batch.paths, [s("dir/a.md"), s("newdir"), s("old"), s("new"), s("gone")]);
+        assert_eq!((batch.events, batch.truncated), (4, false));
+        assert_eq!(stats(), 2, "only the two content events were looked up");
+    }
+
+    #[test]
+    fn each_path_is_looked_up_at_most_once_per_batch() {
+        let mut acc = Accumulator::with_folder_filter(ROOT, true, counting_is_dir);
+        for _ in 0..500 {
+            assert!(!acc.add(event(DATA, &["dir"])));
+            assert!(acc.add(event(DATA, &["dir/a.md"])));
+        }
+        assert_eq!(stats(), 2);
+        assert_eq!(acc.take().paths, [s("dir/a.md")]);
+        // The memory of folders does not outlive the batch.
+        assert!(!acc.add(event(DATA, &["dir"])));
+        assert_eq!(stats(), 3);
+    }
+
+    #[test]
+    fn no_lookup_once_the_batch_is_full() {
+        let mut acc = Accumulator::with_folder_filter(ROOT, true, counting_is_dir);
+        for i in 0..MAX_BATCH_PATHS {
+            assert!(acc.add(event(DATA, &[&format!("d/n{i}.md")])));
+        }
+        assert_eq!(stats(), MAX_BATCH_PATHS);
+        // The rest of the burst: new files, the same ones again, folders.
+        for i in 0..5000 {
+            assert!(acc.add(event(DATA, &[&format!("e/n{}.md", i % 100)])));
+            assert!(acc.add(event(DATA, &["e"])));
+        }
+        assert_eq!(stats(), MAX_BATCH_PATHS, "no stat after the cap");
+        let batch = acc.take();
+        assert_eq!(batch.paths.len(), MAX_BATCH_PATHS);
+        assert!(batch.truncated);
+        assert_eq!(batch.events, MAX_BATCH_PATHS + 10_000);
+    }
+
+    #[test]
+    fn folder_lookups_are_bounded_too() {
+        let mut acc = Accumulator::with_folder_filter(ROOT, true, counting_is_dir);
+        for i in 0..MAX_BATCH_PATHS {
+            assert!(!acc.add(event(DATA, &[&format!("dir{i}")])));
+        }
+        assert!(acc.is_empty());
+        assert_eq!(stats(), MAX_BATCH_PATHS);
+        for i in 0..1000 {
+            assert!(acc.add(event(DATA, &[&format!("more{i}")])));
+        }
+        assert_eq!(stats(), MAX_BATCH_PATHS);
+        let batch = acc.take();
+        assert!(batch.truncated && batch.paths.is_empty());
     }
 
     #[test]

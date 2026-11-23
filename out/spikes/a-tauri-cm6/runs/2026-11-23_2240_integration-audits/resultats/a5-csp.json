@@ -1,0 +1,145 @@
+{
+ "scenario": "a5-csp",
+ "saved": {
+  "attachMs": 578,
+  "treeEntries": 1049,
+  "C1_afterOpen_eventsAndTree": "{\"events\":{\"tags-progress\":4,\"tags-ready\":1,\"index-ready\":1},\"csp\":[],\"treeRows\":11,\"rowStyle\":\"top:0px;padding-left:6px\"}",
+  "C2_openBig": "{\"loaded\":true,\"error\":null,\"ms\":79,\"name\":\"__DAILY NOTES SYNTH\"}",
+  "C2_livePreview": "{\"line\":-1,\"strong\":0,\"tags\":0,\"links\":23,\"cmStyles\":2}",
+  "C2_imagesWaitMs": 70,
+  "C2_vaultImages": "{\"imgs\":[{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Ccv%5\"},{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Ccv%5\"},{\"w\":32,\"h\":32,\"ok\":true,\"src\":\"http://asset.localhost/C%3A%5CUsers%5Caleca%5Crocksy-test%5Cit5%5Ccv%5\"}],\"csp\":[]}",
+  "C2_codeBlock": "{\"line\":268,\"cb\":6}",
+  "C3_tables": "{\"tables\":1,\"alignedCells\":4,\"csp\":[]}",
+  "C4_mermaidTypes": "{\"flowchart\":{\"file\":\"Projet stratégie 00257.md\",\"svgs\":1,\"errors\":0,\"styledNodes\":3,\"csp\":0},\"mindmap\":{\"file\":\"Format bilan 00103.md\",\"svgs\":1,\"errors\":0,\"styledNodes\":1,\"csp\":0},\"stateDiagram-v2\":{\"file\":\"Périmètre scénario 00425.md\",\"svgs\":1,\"errors\":0,\"styledNodes\":1,\"csp\":0},\"erDiagram\":{\"file\":\"Réunion décision 00439.md\",\"svgs\":1,\"errors\":0,\"styledNodes\":5,\"csp\":0},\"wardley-beta\":{\"file\":\"Scénario projet 00117.md\",\"svgs\":1,\"errors\":0,\"styledNodes\":1,\"csp\":0},\"classDiagram\":{\"file\":\"Chantier outil 00411.md\",\"svgs\":1,\"errors\":0,\"styledNodes\":4,\"csp\":0},\"gantt\":{\"file\":\"Idée client 00201.md\",\"svgs\":1,\"errors\":0,\"styledNodes\":4,\"csp\":0},\"pie\":{\"file\":\"Architecture hypothèse 00089.m\",\"svgs\":1,\"errors\":0,\"styledNodes\":1,\"csp\":0},\"sequenceDiagram\":{\"file\":\"Bilan périmètre 00019.md\",\"svgs\":1,\"errors\":0,\"styledNodes\":8,\"csp\":0}}",
+  "C5_canvas": "{\"nodes\":150,\"edges\":289,\"imgsOk\":17,\"imgs\":17,\"csp\":[]}",
+  "C6_panels": "{\"tagRows\":131,\"outLinks\":446,\"csp\":[]}",
+  "C6_search": "{\"results\":2,\"info\":\"\",\"csp\":[]}",
+  "C7_quickPicker": "{\"picker\":true,\"rows\":52,\"csp\":[]}",
+  "C8_autosave": false,
+  "C8_closeRequest": {
+   "closeRequested": true,
+   "exited": false,
+   "exitMs": 1518
+  },
+  "C8_closeDialog": "{\"title\":\"Un document n'est pas enregistré\",\"buttons\":[\"Annuler\",\"Quitter sans enregistrer\",\"Enregistrer et quitter\"],\"csp\":[]}",
+  "C8_afterCancel": "{\"dialog\":false,\"autosave\":true,\"dirty\":false}",
+  "C9_eventsAfterExternalChange": "{\"treeUpdatedAfterMs\":427,\"indexReadyAfterMs\":491,\"before\":{\"tags-progress\":4,\"tags-ready\":1,\"index-ready\":1},\"after\":{\"tags-progress\":4,\"tags-ready\":2,\"index-ready\":2,\"tree-updated\":1}}",
+  "CSP_violationsAfterTour": "[]",
+  "CSP_injectionProof": "{\"inlineScript\":\"blocked\",\"onerrorAttribute\":\"blocked\",\"onclickAttribute\":\"blocked\",\"javascriptUrl\":\"blocked\",\"eval\":\"blocked: EvalError\",\"newFunction\":\"blocked: EvalError\",\"setTimeoutString\":\"blocked\",\"externalScript\":\"blocked (error event)\",\"fetchExternal\":\"blocked: TypeError\",\"fetchLocalhost\":\"blocked: TypeError\",\"xhr\":\"blocked (error event)\",\"webSocket\":\"blocked (error event)\",\"beacon\":\"queued (see violations)\",\"remoteImage\":\"blocked (error event)\",\"iframe\":\"blocked (empty)\",\"formSubmit\":\"blocked (page unchanged)\",\"violations\":[\"script-src-elem inline\",\"script-src-attr inline\",\"script-src-attr inline\",\"script-src-elem inline\",\"script-src eval\",\"script-src eval\",\"script-src eval\",\"script-src-elem https://example.com/x.js\",\"connect-src https://example.com/\",\"connect-src http://127.0.0.1:9/x\",\"connect-src https://example.com/\",\"connect-src wss://example.com/\",\"connect-src https://example.com/b\",\"img-src https://example.com/x.png\",\"frame-src https://example.com\",\"form-action https://example.com/post\"],\"ipcStillWorks\":1}",
+  "C10_eventsStillArriveAfterInjection": "{\"treeUpdatedAfterMs\":438,\"searchStillAnswers\":null}",
+  "C10_ipcSearch": "{\"total\":1}",
+  "closed": {
+   "closeRequested": true,
+   "exited": true,
+   "exitMs": 30
+  }
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  24340
+ ],
+ "csp": null,
+ "externalRequests": [
+  "https://example.com/x.js",
+  "https://example.com/",
+  "https://example.com/x.png"
+ ],
+ "blockedRequests": [
+  {
+   "reason": "csp",
+   "type": "Script"
+  },
+  {
+   "reason": "csp",
+   "type": "XHR"
+  },
+  {
+   "reason": "csp",
+   "type": "Image"
+  }
+ ],
+ "log": [
+  {
+   "source": "security",
+   "text": "Executing inline script violates the following Content Security Policy directive 'script-src 'self' 'self' 'sha256-+E9ovsYTCxYX5g/JGgtjD3XKq0R5DAqln6n2O2gLm34=' 'sha256-+z/KBcpXePIryhgCgupuZMG3xvO4qjTDOa1fc6UmjrE=' 'sha256-087NUIQFqKN917BTi13s2OEH6YRRehpwGX/SRKYusY8=' 'sha256-0OtTwJvp7ehF4BiZa8cO82L",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self' 'self' 'sha256-+E9ovsYTCxYX5g/JGgtjD3XKq0R5DAqln6n2O2gLm34=' 'sha256-+z/KBcpXePIryhgCgupuZMG3xvO4qjTDOa1fc6UmjrE=' 'sha256-087NUIQFqKN917BTi13s2OEH6YRRehpwGX/SRKYusY8=' 'sha256-0OtTwJvp7ehF4BiZ",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self' 'self' 'sha256-+E9ovsYTCxYX5g/JGgtjD3XKq0R5DAqln6n2O2gLm34=' 'sha256-+z/KBcpXePIryhgCgupuZMG3xvO4qjTDOa1fc6UmjrE=' 'sha256-087NUIQFqKN917BTi13s2OEH6YRRehpwGX/SRKYusY8=' 'sha256-0OtTwJvp7ehF4BiZ",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Running the JavaScript URL violates the following Content Security Policy directive 'script-src 'self' 'self' 'sha256-+E9ovsYTCxYX5g/JGgtjD3XKq0R5DAqln6n2O2gLm34=' 'sha256-+z/KBcpXePIryhgCgupuZMG3xvO4qjTDOa1fc6UmjrE=' 'sha256-087NUIQFqKN917BTi13s2OEH6YRRehpwGX/SRKYusY8=' 'sha256-0OtTwJvp7ehF4BiZa8cO",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: \"script-src 'self' 'self' 'sha256-+E9ovsYTCxYX5g/JGgtjD3XKq0R5DAqln6n2O2gLm34=' 'sha256-+z/KBcpXePIryhgCgupuZMG3xvO4qjTDOa1fc6UmjrE=' 'sha256-087NUIQFq",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Loading the script 'https://example.com/x.js' violates the following Content Security Policy directive: \"script-src 'self' 'self' 'sha256-+E9ovsYTCxYX5g/JGgtjD3XKq0R5DAqln6n2O2gLm34=' 'sha256-+z/KBcpXePIryhgCgupuZMG3xvO4qjTDOa1fc6UmjrE=' 'sha256-087NUIQFqKN917BTi13s2OEH6YRRehpwGX/SRKYusY8=' 'sha256-",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Connecting to 'https://example.com/' violates the following Content Security Policy directive: \"connect-src ipc: http://ipc.localhost\". The action has been blocked.",
+   "url": ""
+  },
+  {
+   "source": "javascript",
+   "text": "Fetch API cannot load https://example.com/. Refused to connect because it violates the document's Content Security Policy.",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Connecting to 'http://127.0.0.1:9/x' violates the following Content Security Policy directive: \"connect-src ipc: http://ipc.localhost\". The action has been blocked.",
+   "url": ""
+  },
+  {
+   "source": "javascript",
+   "text": "Fetch API cannot load http://127.0.0.1:9/x. Refused to connect because it violates the document's Content Security Policy.",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Connecting to 'https://example.com/' violates the following Content Security Policy directive: \"connect-src ipc: http://ipc.localhost\". The action has been blocked.",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Connecting to 'wss://example.com/' violates the following Content Security Policy directive: \"connect-src ipc: http://ipc.localhost\". The action has been blocked.",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Connecting to 'https://example.com/b' violates the following Content Security Policy directive: \"connect-src ipc: http://ipc.localhost\". The action has been blocked.",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Loading the image 'https://example.com/x.png' violates the following Content Security Policy directive: \"img-src 'self' asset: http://asset.localhost data: blob:\". The action has been blocked.",
+   "url": "http://tauri.localhost/"
+  },
+  {
+   "source": "security",
+   "text": "Framing 'https://example.com/' violates the following Content Security Policy directive: \"frame-src 'none'\". The request has been blocked.\n",
+   "url": ""
+  },
+  {
+   "source": "security",
+   "text": "Sending form data to 'https://example.com/post' violates the following Content Security Policy directive: \"form-action 'none'\". The request has been blocked.\n",
+   "url": ""
+  }
+ ],
+ "ourPidsStillAlive": []
+}

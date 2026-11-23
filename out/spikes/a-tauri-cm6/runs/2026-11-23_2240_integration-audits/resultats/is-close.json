@@ -1,0 +1,34 @@
+{
+ "scenario": "is-close",
+ "saved": {
+  "attachMs": 623,
+  "P7_stateWhenClosing": "{\"progressAtClose\":{\"done\":0,\"total\":9760,\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x20\"},\"events\":0}",
+  "P7_closeMainWindow(ok exited)": "True True",
+  "P7_aliveAfterClose": false,
+  "P7_dataDirAfterClose": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ],
+  "relaunchAttachMs": 511,
+  "P7_afterRelaunch_session": "{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\it5\\\\vaults\\\\x20\",\"tree\":true}",
+  "P7_waitIndexMs": 0,
+  "P7_afterRelaunch_index": "{\"events\":[{\"atMs\":328,\"fromCache\":true,\"searchReady\":false,\"files\":9760,\"searchDocs\":0,\"ms\":91},{\"atMs\":339,\"fromCache\":true,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760,\"ms\":126},{\"atMs\":432,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"files\":9760,\"searchDocs\":9760,\"ms\":107}],\"search\":{\"total\":3685,\"ready\":true},\"tags\":4199}",
+  "P7_aliveAtEnd": true,
+  "P7_thirdLaunch_index": "[{\"fromCache\":true,\"searchReady\":false,\"files\":9760,\"searchDocs\":0},{\"fromCache\":true,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760},{\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"files\":9760,\"searchDocs\":9760}]"
+ },
+ "errors": [],
+ "exe": "C:\\Users\\aleca\\rocksy-test\\wip\\rocksy.exe",
+ "pids": [
+  30548,
+  33556,
+  3716
+ ],
+ "cspBeforeRestart": [],
+ "csp": [],
+ "ourPidsStillAlive": []
+}
