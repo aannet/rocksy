@@ -11,12 +11,15 @@
 
 .EXAMPLE
   .\scan-plugin-api.ps1
-  .\scan-plugin-api.ps1 -Vault "G:\Mon Drive\MonVault" -OutJson .\plugin-api-usage.json
+  .\scan-plugin-api.ps1 -Vault "D:\chemin\vers\mon-vault" -OutJson .\plugin-api-usage.json
 #>
 param(
-  [string]$Vault = "G:\Mon Drive\MonVault",
+  [string]$Vault,
   [string]$OutJson = "$PSScriptRoot\..\data\plugin-api-usage.json"
 )
+if (-not $Vault) { $Vault = Read-Host 'Chemin du vault Obsidian (dossier qui contient .obsidian)' }
+$Vault = $Vault.Trim().Trim('"')
+if (-not $Vault) { throw 'Aucun chemin de vault donne.' }
 
 $ErrorActionPreference = 'Stop'
 $pluginsDir = Join-Path $Vault '.obsidian\plugins'

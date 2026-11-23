@@ -1,27 +1,23 @@
 // Etat du suivi Rocksy. Ecrit par la session principale uniquement.
 window.ROCKSY_ETAT = {
-  "maj": "23/11/2026 22:58",
-  "resume": "Rocksy 0.2.1 est prêt : C:\\Users\\aleca\\rocksy-test\\release-0.2.1\\rocksy.exe. Il corrige les constats des trois audits : faille du canvas, CSP stricte, accès aux fichiers limité aux vaults et aux fichiers que tu ouvres, plus de perte de texte à la fermeture, index de recherche endommagé reconstruit, enregistrement 3 à 4 fois plus rapide. Vérifié dans l'app réelle sur vaults synthétiques (C:, cache chaud) : sécurité, fermeture, intégrité du vault (4 658 fichiers identiques), démarrage sans régression nette. Pas vérifié : vrai vault, Google Drive, dialogues natifs, glisser-déposer, second lancement, déplacement réel des index, install.ps1. Suites revérifiées par moi : 244 tests du cœur, 124 tests d'interface. Rien n'est commité.",
+  "maj": "23/11/2026 23:16",
+  "resume": "Rocksy 0.2.1 est prêt : C:\\Users\\aleca\\rocksy-test\\release-0.2.1\\rocksy.exe. Il corrige les constats des trois audits : faille du canvas, CSP stricte, accès aux fichiers limité aux vaults et aux fichiers que tu ouvres, plus de perte de texte à la fermeture, index de recherche endommagé reconstruit, enregistrement 3 à 4 fois plus rapide. Vérifié dans l'app réelle sur vaults synthétiques (C:, cache chaud) : sécurité, fermeture, intégrité du vault (4 658 fichiers identiques), démarrage sans régression nette. Pas vérifié : vrai vault, Google Drive, dialogues natifs, glisser-déposer, second lancement, déplacement réel des index, install.ps1. Suites revérifiées par moi : 244 tests du cœur, 124 tests d'interface. La 0.2.1 est commitée (e45a52c, étiquette v0.2.1, branche release-0.1, rien de poussé).",
   "actionsAlec": [
     {
-      "texte": "1. Dire si je commite la 0.2.1 (et si je pose l'étiquette v0.2.1).",
-      "detail": "Non commité : 109 fichiers modifiés ou nouveaux, dont les quatre rapports d'audit et le dossier de run."
-    },
-    {
-      "texte": "2. Passer à la 0.2.1 sur ton vrai vault.",
+      "texte": "1. Passer à la 0.2.1 sur ton vrai vault.",
       "detail": "Ferme Rocksy, lance C:\\Users\\aleca\\rocksy-test\\release-0.2.1\\rocksy.exe. Au premier lancement, les index passent de %APPDATA% à %LOCALAPPDATA% sans réindexation (jamais essayé sur ton profil réel : dis-moi si le vault se réindexe quand même). Ne reviens pas ensuite à la 0.2.0 : elle réindexerait tout. À regarder : ajout d'un vault par le dialogue, glisser-déposer d'un .md, second lancement qui ouvre un onglet, fermeture juste après une frappe, et si une note dont le nom contient « ~ » suivi d'un chiffre s'enregistre bien."
     },
     {
-      "texte": "3. Trois points que je n'ai pas pu tester : glisser-déposer d'un .md sur la fenêtre, dialogues « Ajouter un vault » et « Ouvrir un fichier », clic sur un lien web.",
+      "texte": "2. Trois points que je n'ai pas pu tester : glisser-déposer d'un .md sur la fenêtre, dialogues « Ajouter un vault » et « Ouvrir un fichier », clic sur un lien web.",
       "detail": "Ils demandent une action à l'écran. Dis-moi si l'un d'eux ne marche pas."
     },
     {
-      "texte": "4. Chronos manuels sur le vrai vault (10 min).",
+      "texte": "3. Chronos manuels sur le vrai vault (10 min).",
       "detail": "out\\tools\\measure-coldstart.ps1 -ProcessName rocksy -RunsRoot out\\spikes\\a-tauri-cm6\\runs (3 lancements, F8/F9), une fois à chaud et une fois après redémarrage de Windows (Drive à froid). Même chose sur Obsidian pour la baseline, qui n'a jamais été relevée."
     },
     {
-      "texte": "5. Lancer le script KPI étendu sur le vrai vault (75 s, non bloquant).",
-      "detail": "powershell -NoProfile -ExecutionPolicy Bypass -File \"\\\\wsl.localhost\\Ubuntu\\home\\alec\\projects\\008-Rocksy\\out\\tools\\vault-kpis.ps1\" -Vault \"G:\\Mon Drive\\MonVault\"  — compteurs uniquement, sortie datée dans out/data/. Si le chemin \\\\wsl.localhost est refusé, copie le script sur C: et ajoute -OutFile."
+      "texte": "4. Lancer le script KPI étendu sur le vrai vault (75 s, non bloquant).",
+      "detail": "powershell -NoProfile -ExecutionPolicy Bypass -File \"\\\\wsl.localhost\\Ubuntu\\home\\alec\\projects\\008-Rocksy\\out\\tools\\vault-kpis.ps1\"  — le script demande le chemin du vault ; compteurs uniquement, sortie datée dans out/data/. Si le chemin \\\\wsl.localhost est refusé, copie le script sur C: et ajoute -OutFile."
     }
   ],
   "phases": [
@@ -1199,6 +1195,30 @@ window.ROCKSY_ETAT = {
       "type": "info",
       "texte": "Défaut restant connu : le protocole asset: touche un chemin réseau avant de le refuser (1,3 s contre 2 ms). L'interface ne fait jamais cette requête et la CSP bloque les scripts injectés.",
       "pourquoi": "Comportement de Tauri ; pas de parade simple dans ce lot."
+    },
+    {
+      "h": "23:08",
+      "type": "info",
+      "texte": "0.2.1 commitée sur release-0.1 (e45a52c, 196 fichiers) et étiquette v0.2.1 posée, à la demande d'Alec. Rien de poussé.",
+      "pourquoi": "Demande explicite."
+    },
+    {
+      "h": "23:08",
+      "type": "décision",
+      "texte": "Les captures de page du run d'intégration des audits (11 Mo de PNG sur données synthétiques) ne sont pas versionnées ; elles restent sur disque.",
+      "pourquoi": "Même règle que pour le premier run d'intégration : éviter de grossir le dépôt."
+    },
+    {
+      "h": "23:16",
+      "type": "info",
+      "texte": "Publication sur un dépôt GitHub public, à la demande d'Alec, à partir d'une copie nettoyée de l'historique : audit du vault retiré, nom de la note de travail et nom du vault remplacés, adresse d'auteur noreply.",
+      "pourquoi": "Le dépôt est public ; choix d'Alec de nettoyer avant de pousser."
+    },
+    {
+      "h": "23:16",
+      "type": "décision",
+      "texte": "Les scripts vault-kpis.ps1 et scan-plugin-api.ps1 n'ont plus de chemin de vault par défaut : ils le demandent s'il n'est pas passé en paramètre.",
+      "pourquoi": "Demande d'Alec : le vrai chemin ne doit plus figurer dans les scripts."
     }
   ],
   "rapport": {

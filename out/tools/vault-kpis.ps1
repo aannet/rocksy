@@ -16,18 +16,21 @@
 
 .EXAMPLE
   .\vault-kpis.ps1
-  .\vault-kpis.ps1 -Vault "G:\Mon Drive\MonVault"
-  .\vault-kpis.ps1 -Vault "G:\Mon Drive\MonVault" -OutFile .\mes-kpis.json
+  .\vault-kpis.ps1 -Vault "D:\chemin\vers\mon-vault"
+  .\vault-kpis.ps1 -Vault "D:\chemin\vers\mon-vault" -OutFile .\mes-kpis.json
 
 .NOTES
   Sur Google Drive a froid, la lecture des .md peut etre lente : lance-le apres un premier
   parcours du vault (ou accepte la duree, elle est mesuree et reportee dans le JSON).
 #>
 param(
-  [string]$Vault = "G:\Mon Drive\MonVault",
+  [string]$Vault,
   [Alias('OutJson')]
   [string]$OutFile = ("$PSScriptRoot\..\data\vault-kpis-{0}.json" -f (Get-Date -Format 'yyyy-MM-dd'))
 )
+if (-not $Vault) { $Vault = Read-Host 'Chemin du vault Obsidian (dossier qui contient .obsidian)' }
+$Vault = $Vault.Trim().Trim('"')
+if (-not $Vault) { throw 'Aucun chemin de vault donne.' }
 
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path $Vault)) { throw "Vault introuvable : $Vault" }
