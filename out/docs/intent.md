@@ -53,10 +53,16 @@ Trois promesses, dans l'ordre de priorité :
 
 M0 baseline · M1 audit plugins · **M2 spike comparatif d'interface** · M3 index Rust persisté · M4 mods natifs avec rechargement à chaud · M5 store. Détail : `../PLAN.md`.
 
-## 8. Points à valider ou compléter
+## 8. Réponses d'Alec (24/11/2026)
 
-- Les trois promesses du §2 sont-elles dans le bon ordre ? *(déduit de tes irritants)*
-- Y a-t-il une raison de fond au-delà de la vitesse (plaisir de construire, usage avec des agents IA, autre) ? Elle change l'effort accepté sur les mods.
-- Distribution un jour ou usage personnel seulement ?
-- Échéance et temps disponible par semaine.
-- Une « semaine sans Obsidian » est-elle bien ton critère final ?
+- **Ordre des trois promesses** (vitesse, liberté d'usage, continuité) : confirmé.
+- **Raison de fond** : il est devenu très simple de construire ses propres logiciels. Alec est ingénieur, donc **plaisir de construire**. La vitesse est le motif pratique, le plaisir de construire le moteur.
+- **Distribution** : usage strictement personnel pour l'instant, **publication probable sur GitHub ensuite**. Conséquences : licence à choisir avant la publication, aucune donnée personnelle dans le dépôt (le dossier `in/` et `out/data/` contiennent des chemins et tailles du vrai vault : à retirer ou à anonymiser avant toute publication), documentation d'installation, nom du projet à vérifier.
+- **Échéance** : **la première release doit être prête aujourd'hui (24/11/2026)**, sans y passer les soirées. Les itérations suivantes sont de la recette, de l'amélioration et de la guidance.
+- **Critère final** : confirmé, **une semaine de travail sans rouvrir Obsidian**.
+
+## 9. Conséquence : « release 0.1 » du jour
+
+La première release n'est pas la v1 du périmètre fonctionnel. Elle est un **plus petit sous-ensemble utilisable**, livré aujourd'hui. Le périmètre complet (`perimetre-fonctionnel.md`) devient la feuille de route des itérations. Décision d'Alec (24/11) : le spike comparatif est conservé et passe en premier, puis la 0.1 est construite sur la pile retenue, tags inclus. Voir `../PLAN.md` §6 (étapes 0 à 5).
+
+Le critère « une semaine sans Obsidian » ne s'applique pas à la 0.1 : il se mesure à la fin des itérations de recette.

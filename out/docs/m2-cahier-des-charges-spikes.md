@@ -1,5 +1,7 @@
 # M2 — Cahier des charges des deux spikes
 
+> **Durées (note du 24/11) :** les estimations en jours de ce document sont des durées de travail humain. Avec l'IA et des sous-agents en parallèle, `../PLAN.md` §6 les ramène à quelques heures (estimations non mesurées).
+
 Version 2, 24/11/2026 (v1 du 23/11). Mise à jour d'après `out/docs/perimetre-fonctionnel.md` : Live Preview indispensable (critère éliminatoire), canvas en lecture seule, mobile hors v1. Les durées sont des estimations à ajuster avec ton temps disponible (question ouverte du brief).
 
 ## 1. Objectif
