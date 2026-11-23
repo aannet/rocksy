@@ -1,6 +1,6 @@
 # rocksy-core
 
-Cœur de Rocksy, sans aucune dépendance d'interface (ni tauri, ni runtime asynchrone). Dépendances : `serde`, `serde_json`, `memchr`. Les types publics se sérialisent dans le JSON `camelCase` de `../../CONTRACT.md`. Les fonctions sont bloquantes : c'est à l'appelant (commandes Tauri) de lancer `reconcile_tree` et `TagIndex::build` sur un thread.
+Cœur de Rocksy, sans aucune dépendance d'interface (ni tauri, ni runtime asynchrone). Dépendances : `serde`, `serde_json`, `memchr`, et `notify` 9 pour le watcher. Les types publics se sérialisent dans le JSON `camelCase` de `../../CONTRACT.md`. Les fonctions sont bloquantes : c'est à l'appelant (commandes Tauri) de lancer `reconcile_tree` et `TagIndex::build` sur un thread.
 
 Règle de base : la crate n'écrit dans un vault que par `save_file`. Tout le reste (registre, session, snapshots d'arbre, index des tags) va dans `data_dir`, fourni par l'appelant.
 
@@ -49,6 +49,14 @@ impl TagIndex {                                                          // à p
     fn stats(&self) -> TagStats;                                          // { files, tags, occurrences, skipped }
 }
 
+// Watcher (watch.rs)
+struct WatchOptions { debounce_ms: u64 /* 400 */, max_wait_ms: u64 /* 3000 */ }   // Default
+struct ChangeBatch { root: String, paths: Vec<String>, truncated: bool, markdown: usize, events: usize }
+fn watch_vault(root: &Path, options: WatchOptions,
+               on_batch: impl Fn(ChangeBatch) + Send + 'static) -> Result<VaultWatcher>;
+impl VaultWatcher { fn root(&self) -> &str; }                            // Drop arrête tout
+const MAX_BATCH_PATHS: usize = 2000;
+
 // Session (session.rs) : data_dir/session.json
 fn load_session(data_dir: &Path) -> Option<Session>;
 fn save_session(data_dir: &Path, session: &Session) -> Result<()>;
@@ -95,6 +103,17 @@ charge  : racine du vault
 
 Entiers en varint LEB128 sauf largeur indiquée ; chaînes = longueur en varint puis UTF-8. Écriture atomique (temporaire + `fsync` + `rename`).
 
+## Watcher
+
+`watch_vault` écoute la racine récursivement et appelle `on_batch` avec des lots regroupés. C'est un déclencheur, pas une source de vérité : à chaque lot, relancer `reconcile_tree` et `TagIndex::reconcile`, et les relancer aussi périodiquement, car rien ne garantit que tous les systèmes de fichiers (lecteur virtuel de Drive) notifient.
+
+- **Filtrage** : tout chemin dont un composant relatif à la racine commence par `.` est ignoré (`.obsidian/`, `.trash/`, dossiers à point, temporaires `.x.md.<pid>-<n>.rocksy-tmp`). Les événements de simple accès sont ignorés. Un enregistrement par `save_file` donne un lot qui ne contient que la note.
+- **Regroupement** : un lot part après `debounce_ms` sans événement, ou au plus tard `max_wait_ms` après le premier événement du lot si la rafale continue. `on_batch` tourne sur le thread du watcher, jamais en parallèle avec lui-même ; s'il est long, les événements s'accumulent pour le lot suivant.
+- **`truncated: true`** : plus de 2 000 chemins, événements perdus par le système, erreur de `notify`, ou la racine elle-même a changé. Il faut tout revérifier.
+- **Renommage** : l'ancien et le nouveau chemin sont dans `paths`. Sous Windows, les événements « dossier modifié » qui accompagnent chaque changement d'un enfant sont écartés (un `stat` par nouveau chemin).
+- **Arrêt** : `drop` arrête la source, puis le thread ; à son retour, `on_batch` ne tourne plus et ne sera plus appelé. Le lot en cours est abandonné. Le watcher peut être lâché depuis son propre callback.
+- **Erreurs** : `not_found` ou `invalid` à la création ; `io` si le système refuse (limite inotify sous Linux : une surveillance par dossier, dossiers à point compris). Racine supprimée pendant l'écoute : aucun plantage, le watcher se tait.
+
 ## Tests
 
 ```bash
@@ -105,7 +124,7 @@ cargo clippy -p rocksy-core --all-targets
 cargo check -p rocksy-core --target x86_64-pc-windows-msvc --all-targets
 ```
 
-`tests/no_unwanted_writes.rs` est le test F7 : empreinte (contenu, taille, mtime) de tous les fichiers d'un vault de test avant et après ouverture de l'arbre, réconciliation, indexation des tags et lectures.
+`tests/watch.rs` exerce le watcher sur le vrai système de fichiers (inotify, ReadDirectoryChangesW). `tests/no_unwanted_writes.rs` est le test F7 : empreinte (contenu, taille, mtime) de tous les fichiers d'un vault de test avant et après ouverture de l'arbre, réconciliation, indexation des tags et lectures.
 
 ## Mesures (`rocksy-cli`)
 
@@ -117,6 +136,8 @@ python3 out/tools/gen-vault.py --out ~/rocksy-vaults/x20 --scale 20
 $BIN tree ~/rocksy-vaults/x20 [--data-dir D]        # listing, écriture et relecture du snapshot, réconciliation
 $BIN tags ~/rocksy-vaults/x20 [--threads N] [--reps N]   # construction de l'index, latence de tags_list et tag_fragments
 $BIN tags-persist ~/rocksy-vaults/x20 [--data-dir D] [--work-dir W] [--modify N]   # persistance de l'index
+$BIN watch ~/rocksy-vaults/x20 --seconds 30          # une ligne JSON par lot (lecture seule)
+$BIN watch-bench ~/rocksy-vaults/x20 [--work-dir W] [--burst N]   # délais du watcher, sur une copie temporaire
 $BIN fragments note.md                               # fragments d'un fichier
 ```
 
@@ -138,3 +159,15 @@ Médianes en millisecondes, build release, cache disque chaud. Linux = WSL2 sur 
 | `reconcile` sans changement sur la copie | 1,5 | 15 | 4,5 à 5,8 | 47 à 50 |
 
 Les fourchettes sont les médianes de deux ou trois lancements successifs. 20x = 9 760 notes, 46 208 occurrences, 4 199 tags.
+
+### Watcher : mesures du 23/11/2026
+
+Options par défaut (400 ms / 3 000 ms), build release. Rien n'est mesuré sur Google Drive.
+
+| Mesure | Linux 20x | Windows 20x |
+|---|---|---|
+| Mise en place sur le vault | 462 ms au premier lancement, puis 32 à 45 ms (1 964 surveillances inotify) | 0,5 à 0,7 ms |
+| Arrêt (`drop`) | 0,2 à 0,3 ms | 0,2 à 0,4 ms |
+| Délai entre une écriture et son lot (5 essais) | 400,1 à 405,4 ms | 400,8 à 408,6 ms |
+| Rafale de 300 réécritures | 1 lot, 300 chemins, 422 ms après le début (écritures en 22 ms) | 1 lot, 300 chemins, 2 761 ms après le début (écritures en 2 354 ms) |
+| 30 s d'écoute au repos | 0 tick CPU, 4,4 Mo résidents, 3 threads | 0 ms CPU, 4,4 Mo de working set, 3 threads |

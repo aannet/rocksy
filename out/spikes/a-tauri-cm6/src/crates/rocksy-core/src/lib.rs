@@ -4,6 +4,7 @@
 //! that persists Rocksy's own data takes the application data directory
 //! (`data_dir`) explicitly; nothing is ever derived from, or written next to,
 //! a vault. The only write that can land inside a vault is [`save_file`].
+//! The only dependency beyond serialization is `notify`, for [`watch_vault`].
 //!
 //! All public data types serialize to the camelCase JSON described in
 //! `CONTRACT.md`.
@@ -16,6 +17,7 @@ pub mod session;
 pub mod tags;
 pub mod tree;
 pub mod vaults;
+pub mod watch;
 
 #[cfg(test)]
 pub(crate) mod testutil;
@@ -34,6 +36,8 @@ pub use tree::{
 pub use vaults::{
     add_vault, find_vault, list_vaults, remove_vault, vault_for_path, VaultRef,
 };
+
+pub use watch::{watch_vault, ChangeBatch, VaultWatcher, WatchOptions};
 
 /// Crate version (the app version reported in `StartupInfo.version`).
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

@@ -16,7 +16,7 @@ Code landed on 2026-11-23: the M2 spike A (Tauri 2 + CodeMirror 6) was built as 
 ### Code layout (`out/spikes/a-tauri-cm6/src/`)
 
 - `CONTRACT.md`: the interface contract (commands, events, JSON types) between core, shell and UI. Change it first, then the three sides.
-- `crates/rocksy-core/`: UI-independent Rust core (files with atomic save, vault registry, tree snapshot, tag index with fragments, persisted per vault in `data_dir/tags/` and reconciled by size + mtime, session) plus the `rocksy-cli` measurement binary. Only `serde`, `serde_json`, `memchr`. Workspace root is `src/Cargo.toml`.
+- `crates/rocksy-core/`: UI-independent Rust core (files with atomic save, vault registry, tree snapshot, tag index with fragments, persisted per vault in `data_dir/tags/` and reconciled by size + mtime, folder watcher (`notify`, dot-folders ignored, bursts debounced; a trigger only, listing stays the source of truth), session) plus the `rocksy-cli` measurement binary. Only `serde`, `serde_json`, `memchr`. Workspace root is `src/Cargo.toml`.
 - `src-tauri/`: Tauri 2 shell, thin command wrappers in `src/main.rs`, single-instance and dialog plugins. Deliberately outside the workspace (own `Cargo.lock`) so the core builds and tests on Linux without the Tauri tree.
 - `ui/`: Vite + TypeScript + CodeMirror 6, no framework. `src/backend.ts` has a Tauri backend and an in-memory mock backend (used in a plain browser and by the tests). UI strings in French.
 
@@ -27,7 +27,7 @@ There is no Rust/Node/MSVC toolchain on Windows and no sudo in WSL. Everything i
 - Full Windows build: `out/tools/build-win.sh [--skip-ui]` → `C:\Users\aleca\rocksy-test\bin\rocksy.exe`.
 - Core tests: `cd out/spikes/a-tauri-cm6/src && CARGO_TARGET_DIR=~/.cache/rocksy-target/core cargo test -p rocksy-core` (also `cargo clippy -p rocksy-core --all-targets`).
 - UI: `cd out/spikes/a-tauri-cm6/src/ui && npm run build && npx vitest run`; browser test bench in `ui/tools/` (headless Edge on Windows driven over CDP).
-- Driving the real app without screenshots of the desktop: launch with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223` and `ROCKSY_DATA_DIR=<isolated dir>`, then `out/tools/cdp.py` (run with the Windows Python; the port only listens on Windows localhost). Always kill the process afterwards: the app is single-instance.
+- Driving the real app without screenshots of the desktop: launch with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223` and `ROCKSY_DATA_DIR=<isolated dir>`, then `out/tools/cdp.py` (run with the Windows Python; the port only listens on Windows localhost). A run with `ROCKSY_DATA_DIR` set is its own instance (no single-instance plugin), so tests never land in Alec's running app; without it the app is single-instance.
 - Test data lives outside the repo: `C:\Users\aleca\rocksy-test\vaults\{x1,x20}` (synthetic, reference for measurements: never write into them) and `~/rocksy-vaults` in WSL. Writing thousands of files through `/mnt/c` is very slow: tar in WSL, extract with Windows `tar.exe`.
 - The RTK hook truncates command output; use `rtk proxy <cmd>` for raw output and never pipe `curl` into a shell.
 - The real vault (`G:`) is technically reachable through PowerShell interop. Do not touch it: measurements on it are Alec's to run.

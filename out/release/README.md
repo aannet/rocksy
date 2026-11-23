@@ -1,6 +1,6 @@
-# Rocksy 0.1.1 — installation et prise en main
+# Rocksy 0.1.2 — installation et prise en main
 
-Rocksy 0.1.1 est un éditeur Markdown rapide pour Windows 11, qui ouvre n'importe quel `.md` (avec ou sans vault) et lit un vault Obsidian sans le convertir. Ce n'est pas encore le remplaçant d'Obsidian : voir « Limites ».
+Rocksy 0.1.2 est un éditeur Markdown rapide pour Windows 11, qui ouvre n'importe quel `.md` (avec ou sans vault) et lit un vault Obsidian sans le convertir. Ce n'est pas encore le remplaçant d'Obsidian : voir « Limites ».
 
 ## Contenu
 
@@ -45,10 +45,15 @@ Désinstaller : `powershell -ExecutionPolicy Bypass -File .\install.ps1 -Uninsta
 | Tags | Panneau des tags : filtrer, cliquer un tag pour voir ses fragments, cliquer un fragment pour ouvrir la note à l'endroit exact |
 | Canvas | Lecture seule |
 
+## Nouveautés de la 0.1.2
+
+- Suivi des changements externes : quand un autre outil (Drive, nettoyeur IA, explorateur) crée, modifie, renomme ou supprime des notes pendant que Rocksy est ouvert, l'arbre et les tags se mettent à jour, environ une demi-seconde après sur un disque local. Les rafales sont regroupées et seules les notes modifiées sont relues. Les dossiers à point sont ignorés.
+- Filet de sécurité : au retour sur la fenêtre, le vault est revérifié si la dernière vérification date de plus de 30 s (au cas où Google Drive ne signalerait pas tous les changements).
+
 ## Nouveautés de la 0.1.1
 
 - Index des tags persisté : après une première indexation, les tags sont disponibles dès l'ouverture du vault. Le panneau des tags indique « index enregistré, vérification en cours… » puis « à jour ».
-- Pour passer de la 0.1.0 à la 0.1.1 : remplacer `rocksy.exe` (ou relancer `install.ps1`). Les données de `%APPDATA%\dev.rocksy.app` sont conservées.
+- Pour changer de version : remplacer `rocksy.exe` (ou relancer `install.ps1`). Les données de `%APPDATA%\dev.rocksy.app` sont conservées.
 
 ## Ce que Rocksy écrit, et où
 
@@ -61,6 +66,6 @@ Désinstaller : `powershell -ExecutionPolicy Bypass -File .\install.ps1 -Uninsta
 - Une note modifiée par un autre outil sans changement de taille ni de date n'est pas revue par l'index des tags avant sa prochaine modification.
 - Pas de recherche plein texte, de backlinks, de graphe, de renommage de tags, de mise à jour des liens au renommage, ni de création, renommage ou suppression de fichiers depuis l'arbre.
 - Pas de mods ni de store. Pas d'import automatique des vaults d'Obsidian (ajout manuel).
-- Les modifications externes ne sont détectées que pour les fichiers ouverts (scrutation toutes les 2 s) ; l'arbre se met à jour à l'ouverture du vault.
+- Le suivi des changements externes n'a pas été vérifié sur Google Drive : s'il ne reçoit pas de notification, la mise à jour attend le retour sur la fenêtre ou la réouverture du vault. Un renommage est vu comme une suppression et un ajout.
 - UTF-8 uniquement.
 - Non testé à ce jour sur le vrai vault Google Drive ni à froid après redémarrage : voir `../spikes/m2-resultats.md`.

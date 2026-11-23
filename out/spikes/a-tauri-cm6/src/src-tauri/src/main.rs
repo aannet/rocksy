@@ -27,6 +27,11 @@ struct AppState {
     tags_thread: Mutex<Option<std::thread::JoinHandle<()>>>,
     /// Open files and their last known mtime, watched for external changes.
     watched: Mutex<HashMap<String, u64>>,
+    /// Vault shown in the tree, its watcher, and the queue of refresh requests it feeds.
+    current_vault: Mutex<Option<String>>,
+    watcher: Mutex<Option<core::VaultWatcher>>,
+    refresh_tx: Mutex<Option<std::sync::mpsc::Sender<RefreshRequest>>>,
+    last_refresh_ms: std::sync::atomic::AtomicU64,
     /// Serialises appends to the timings log (commands run concurrently).
     timing_log: Mutex<()>,
 }
@@ -40,6 +45,12 @@ struct StartupInfo {
     data_dir: String,
     version: String,
     process_start_ms: u64,
+}
+
+/// Asks the refresh worker to check a vault again (tree always, tags when notes may have changed).
+struct RefreshRequest {
+    root: String,
+    tags: bool,
 }
 
 #[derive(Clone, Serialize)]
@@ -138,6 +149,7 @@ fn remove_vault(state: State<'_, AppState>, path: String) -> ApiResult<Vec<Vault
 #[tauri::command(async)]
 fn open_vault(app: AppHandle, state: State<'_, AppState>, path: String) -> ApiResult<Tree> {
     let tree = core::open_tree(&state.data_dir, Path::new(&path))?;
+    watch_current_vault(&state, &path);
     if tree.from_snapshot {
         // The snapshot may be stale: list again off the UI path and push a diff if any.
         let data_dir = state.data_dir.clone();
@@ -296,6 +308,77 @@ fn emit_open_files(app: &AppHandle, paths: Vec<String>) {
     }
 }
 
+/// Replaces the folder watcher with one on `path`. The watcher is only a trigger:
+/// each batch of events asks the refresh worker to list the vault again, which stays
+/// the source of truth. Without a watcher (creation refused), the focus safety net remains.
+fn watch_current_vault(state: &AppState, path: &str) {
+    // Drop the previous watcher first: after that no stale batch can arrive.
+    lock(&state.watcher).take();
+    *lock(&state.current_vault) = Some(path.to_string());
+    let Some(tx) = lock(&state.refresh_tx).clone() else { return };
+    let root = path.to_string();
+    let watcher = core::watch_vault(Path::new(path), core::WatchOptions::default(), move |batch| {
+        // Never work on the watcher thread: hand the batch over and return.
+        let _ = tx.send(RefreshRequest { root: root.clone(), tags: batch.markdown > 0 || batch.truncated });
+    });
+    *lock(&state.watcher) = watcher.ok();
+}
+
+/// Worker that serves refresh requests one at a time, merging those that piled up
+/// meanwhile (a burst of external changes costs a few listings, not hundreds).
+fn spawn_refresh_worker(app: AppHandle) {
+    let (tx, rx) = std::sync::mpsc::channel::<RefreshRequest>();
+    *lock(&app.state::<AppState>().refresh_tx) = Some(tx);
+    std::thread::spawn(move || {
+        while let Ok(mut request) = rx.recv() {
+            while let Ok(next) = rx.try_recv() {
+                request.tags |= next.tags || next.root != request.root;
+                request.root = next.root;
+            }
+            let state = app.state::<AppState>();
+            // The vault may have been switched since the request was posted.
+            if lock(&state.current_vault).as_deref() != Some(request.root.as_str()) {
+                continue;
+            }
+            let root = Path::new(&request.root);
+            let tree_app = app.clone();
+            let _ = core::reconcile_tree(&state.data_dir, root, |fresh| {
+                let _ = tree_app.emit("tree-updated", fresh);
+            });
+            let job = lock(&state.tags_job).as_ref().map(|(r, c)| (r.clone(), c.clone()));
+            if let (true, Some((indexed, cancel))) = (request.tags, job) {
+                if Path::new(&indexed) == root {
+                    if let Ok(Some(r)) = state.tags.reconcile(&state.data_dir, root, BuildOptions::default(), &cancel, |_| {}) {
+                        if r.reread > 0 || r.removed > 0 {
+                            let extra = serde_json::json!({ "fromCache": false, "reread": r.reread, "removed": r.removed, "persisted": r.persisted });
+                            let _ = app.emit("tags-ready", tags_ready_payload(r.files, r.tags, r.occurrences, r.ms, extra));
+                        }
+                    }
+                }
+            }
+            state.last_refresh_ms.store(now_ms(), std::sync::atomic::Ordering::Relaxed);
+            // Rate limit: under a long burst, at most one pass per second.
+            std::thread::sleep(Duration::from_millis(1000));
+        }
+    });
+}
+
+/// Safety net for missed notifications (a synced drive may not report every change):
+/// when the window comes back to the front, check the vault if the last pass is old.
+fn refresh_on_focus(app: &AppHandle) {
+    let state = app.state::<AppState>();
+    let last = state.last_refresh_ms.load(std::sync::atomic::Ordering::Relaxed);
+    if now_ms().saturating_sub(last) < 30_000 {
+        return;
+    }
+    let root = lock(&state.current_vault).clone();
+    let tx = lock(&state.refresh_tx).clone();
+    if let (Some(root), Some(tx)) = (root, tx) {
+        state.last_refresh_ms.store(now_ms(), std::sync::atomic::Ordering::Relaxed);
+        let _ = tx.send(RefreshRequest { root, tags: true });
+    }
+}
+
 /// Persists the tag index a few seconds after it changed (a note was saved).
 fn spawn_tags_saver(app: AppHandle) {
     std::thread::spawn(move || loop {
@@ -310,6 +393,7 @@ fn spawn_tags_saver(app: AppHandle) {
 /// Stops the background reconciliation and persists the tag index before the process exits.
 fn flush_tags(app: &AppHandle) {
     let state = app.state::<AppState>();
+    lock(&state.watcher).take();
     if let Some((_, cancel)) = lock(&state.tags_job).as_ref() {
         cancel.cancel();
     }
@@ -347,11 +431,16 @@ fn main() {
     let cwd = std::env::current_dir().unwrap_or_default();
     let arg_files = files_from_args(&args, &cwd);
 
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default();
+    // An isolated profile (ROCKSY_DATA_DIR, used by tests and measurements) runs as its own
+    // instance, so it never lands in the window of the user's running app.
+    if std::env::var_os("ROCKSY_DATA_DIR").is_none() {
         // Must be the first plugin: a second launch forwards its arguments here and exits.
-        .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             emit_open_files(app, files_from_args(&argv, Path::new(&cwd)));
-        }))
+        }));
+    }
+    builder
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(move |app| {
@@ -383,12 +472,20 @@ fn main() {
                 tags_thread: Mutex::new(None),
                 watched: Mutex::new(HashMap::new()),
                 timing_log: Mutex::new(()),
+                current_vault: Mutex::new(None),
+                watcher: Mutex::new(None),
+                refresh_tx: Mutex::new(None),
+                last_refresh_ms: std::sync::atomic::AtomicU64::new(0),
             });
             spawn_file_watcher(app.handle().clone());
             spawn_tags_saver(app.handle().clone());
+            spawn_refresh_worker(app.handle().clone());
             Ok(())
         })
         .on_window_event(|window, event| {
+            if let tauri::WindowEvent::Focused(true) = event {
+                refresh_on_focus(window.app_handle());
+            }
             if let tauri::WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {
                 let files: Vec<String> = paths
                     .iter()

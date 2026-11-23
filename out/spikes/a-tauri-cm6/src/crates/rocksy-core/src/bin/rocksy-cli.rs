@@ -4,12 +4,14 @@
 //!   rocksy-cli tree <vault> [--data-dir D]
 //!   rocksy-cli tags <vault> [--threads N] [--reps N]
 //!   rocksy-cli tags-persist <vault> [--data-dir D] [--work-dir W] [--modify N] [--threads N]
+//!   rocksy-cli watch <vault> [--seconds N] [--debounce-ms N] [--max-wait-ms N] [--max-paths N]
+//!   rocksy-cli watch-bench <vault> [--work-dir W] [--burst N]
 //!   rocksy-cli fragments <file.md>
 
 use rocksy_core::{
     file_tags, list_tree, load_tree_snapshot, open_tree, read_file, reconcile_tree,
     save_tree_snapshot, tags_index_path, tree_snapshot_path, ApiError, BuildOptions, CancelToken,
-    ReconcileReport, TagIndex,
+    watch_vault, ChangeBatch, ReconcileReport, TagIndex, WatchOptions,
 };
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -20,6 +22,8 @@ const USAGE: &str = "usage:
   rocksy-cli tree <vault> [--data-dir D]
   rocksy-cli tags <vault> [--threads N] [--reps N]
   rocksy-cli tags-persist <vault> [--data-dir D] [--work-dir W] [--modify N] [--threads N]
+  rocksy-cli watch <vault> [--seconds N] [--debounce-ms N] [--max-wait-ms N] [--max-paths N]
+  rocksy-cli watch-bench <vault> [--work-dir W] [--burst N]
   rocksy-cli fragments <file.md>";
 
 fn ms(start: Instant) -> f64 {
@@ -402,6 +406,151 @@ fn cmd_tags_persist(
     }))
 }
 
+/// Prints one JSON line per batch until `seconds` have passed (forever
+/// without `--seconds`). Only reads the vault.
+fn cmd_watch(vault: &Path, seconds: Option<usize>, options: WatchOptions, max_paths: usize) -> Result<Value, String> {
+    let start = Instant::now();
+    let batches = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let counter = std::sync::Arc::clone(&batches);
+    let watcher = watch_vault(vault, options, move |batch| {
+        counter.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let sample: Vec<&String> = batch.paths.iter().take(max_paths).collect();
+        println!(
+            "{}",
+            json!({
+                "tMs": ms(start), "paths": batch.paths.len(), "markdown": batch.markdown,
+                "events": batch.events, "truncated": batch.truncated, "sample": sample,
+            })
+        );
+    })
+    .map_err(err)?;
+    println!(
+        "{}",
+        json!({ "event": "ready", "root": watcher.root(), "setupMs": ms(start),
+                "debounceMs": options.debounce_ms, "maxWaitMs": options.max_wait_ms })
+    );
+    match seconds {
+        Some(s) => std::thread::sleep(std::time::Duration::from_secs(s as u64)),
+        None => loop {
+            std::thread::sleep(std::time::Duration::from_secs(3600));
+        },
+    }
+    let stop = Instant::now();
+    drop(watcher);
+    Ok(json!({ "event": "done", "seconds": round3(start.elapsed().as_secs_f64()),
+               "batches": batches.load(std::sync::atomic::Ordering::Relaxed), "dropMs": ms(stop) }))
+}
+
+/// Measures the watcher on a temporary copy of the vault's Markdown files:
+/// set-up time, delay between a write and its batch, behaviour on a burst.
+fn cmd_watch_bench(vault: &Path, work_dir: Option<&str>, burst: usize) -> Result<Value, String> {
+    use std::time::Duration;
+    let io = |e: std::io::Error| format!("I/O error: {e}");
+    let options = WatchOptions::default();
+
+    // Set-up and tear-down on the reference vault itself (read-only).
+    let start = Instant::now();
+    let reference = watch_vault(vault, options, |_| {}).map_err(err)?;
+    let setup_reference_ms = ms(start);
+    let start = Instant::now();
+    drop(reference);
+    let drop_reference_ms = ms(start);
+
+    let base = work_dir.map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
+    let work = base.join(format!("rocksy-cli-watch-{}", std::process::id()));
+    let result = (|| -> Result<Value, String> {
+        let copy = work.join("vault");
+        let files = copy_markdown(vault, &copy)?;
+        if files.is_empty() {
+            return Err("no Markdown file to work on".into());
+        }
+        let (tx, rx) = std::sync::mpsc::channel::<(Instant, ChangeBatch)>();
+        let start = Instant::now();
+        let watcher = watch_vault(&copy, options, move |batch| {
+            let _ = tx.send((Instant::now(), batch));
+        })
+        .map_err(err)?;
+        let setup_copy_ms = ms(start);
+
+        // One write at a time: delay until the batch that reports it.
+        let mut delays = Vec::new();
+        for round in 0..5 {
+            let target = &files[(round * files.len() / 5) % files.len()];
+            let wanted = target.to_string_lossy().into_owned();
+            let mut bytes = std::fs::read(target).map_err(io)?;
+            bytes.extend_from_slice(format!("\nécriture {round} #rocksy-cli/watch\n").as_bytes());
+            std::fs::write(target, bytes).map_err(io)?;
+            let written = Instant::now();
+            loop {
+                let (at, batch) = rx
+                    .recv_timeout(Duration::from_secs(30))
+                    .map_err(|_| format!("no batch within 30 s for {wanted}"))?;
+                if batch.paths.contains(&wanted) {
+                    delays.push(round3(at.duration_since(written).as_secs_f64() * 1000.0));
+                    break;
+                }
+            }
+            // Let the watcher go quiet before the next round.
+            while rx.recv_timeout(Duration::from_millis(options.debounce_ms * 2)).is_ok() {}
+        }
+        let mut sorted = delays.clone();
+        sorted.sort_by(|a, b| a.total_cmp(b));
+
+        // Burst: N files rewritten as fast as possible.
+        let n = burst.min(files.len());
+        let targets: Vec<&PathBuf> = (0..n).map(|k| &files[k * files.len() / n]).collect();
+        let mut pending: std::collections::HashSet<String> =
+            targets.iter().map(|t| t.to_string_lossy().into_owned()).collect();
+        let burst_start = Instant::now();
+        for target in &targets {
+            let mut bytes = std::fs::read(target).map_err(io)?;
+            bytes.extend_from_slice("\nrafale #rocksy-cli/rafale\n".as_bytes());
+            std::fs::write(target, bytes).map_err(io)?;
+        }
+        let write_ms = ms(burst_start);
+        let mut batches = Vec::new();
+        let mut truncated = false;
+        let mut last_batch_ms = 0.0;
+        loop {
+            // After everything was reported, wait a little for stragglers.
+            let wait = if pending.is_empty() { Duration::from_millis(options.debounce_ms * 3) } else { Duration::from_secs(30) };
+            match rx.recv_timeout(wait) {
+                Ok((at, batch)) => {
+                    last_batch_ms = round3(at.duration_since(burst_start).as_secs_f64() * 1000.0);
+                    truncated |= batch.truncated;
+                    for p in &batch.paths {
+                        pending.remove(p);
+                    }
+                    batches.push(json!({ "tMs": last_batch_ms, "paths": batch.paths.len(), "events": batch.events, "truncated": batch.truncated }));
+                }
+                Err(_) => break,
+            }
+        }
+        let start = Instant::now();
+        drop(watcher);
+        let drop_ms = ms(start);
+        Ok(json!({
+            "copiedMarkdownFiles": files.len(),
+            "setupOnCopyMs": setup_copy_ms,
+            "dropOnCopyMs": drop_ms,
+            "singleWrite": { "delaysMs": delays, "medianMs": sorted[sorted.len() / 2], "maxMs": sorted[sorted.len() - 1],
+                             "debounceMs": options.debounce_ms },
+            "burst": { "files": n, "writeMs": write_ms, "batches": batches.len(), "lastBatchMs": last_batch_ms,
+                       "missingPaths": pending.len(), "truncated": truncated, "detail": batches },
+        }))
+    })();
+    let _ = std::fs::remove_dir_all(&work);
+    let result = result?;
+    Ok(json!({
+        "command": "watch-bench",
+        "vault": vault,
+        "options": { "debounceMs": options.debounce_ms, "maxWaitMs": options.max_wait_ms },
+        "setupOnReferenceMs": setup_reference_ms,
+        "dropOnReferenceMs": drop_reference_ms,
+        "onCopy": result,
+    }))
+}
+
 fn cmd_fragments(file: &Path) -> Result<Value, String> {
     let content = read_file(file).map_err(err)?;
     let start = Instant::now();
@@ -431,6 +580,15 @@ fn run(raw: &[String]) -> Result<Value, String> {
             args.usize_opt("modify")?.unwrap_or(50),
             args.usize_opt("threads")?,
         ),
+        "watch" => {
+            let defaults = WatchOptions::default();
+            let options = WatchOptions {
+                debounce_ms: args.usize_opt("debounce-ms")?.map_or(defaults.debounce_ms, |v| v as u64),
+                max_wait_ms: args.usize_opt("max-wait-ms")?.map_or(defaults.max_wait_ms, |v| v as u64),
+            };
+            cmd_watch(&target, args.usize_opt("seconds")?, options, args.usize_opt("max-paths")?.unwrap_or(20))
+        }
+        "watch-bench" => cmd_watch_bench(&target, args.opt("work-dir"), args.usize_opt("burst")?.unwrap_or(300)),
         "fragments" => cmd_fragments(&target),
         other => Err(format!("unknown command: {other}\n{USAGE}")),
     }
@@ -440,7 +598,11 @@ fn main() -> ExitCode {
     let raw: Vec<String> = std::env::args().skip(1).collect();
     match run(&raw) {
         Ok(value) => {
-            println!("{}", serde_json::to_string_pretty(&value).unwrap_or_default());
+            if value.get("event").is_some() {
+                println!("{value}"); // line-oriented output of `watch`
+            } else {
+                println!("{}", serde_json::to_string_pretty(&value).unwrap_or_default());
+            }
             ExitCode::SUCCESS
         }
         Err(message) => {

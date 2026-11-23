@@ -1,0 +1,1 @@
+ROCKSY_AGENT({id:"watch", maj:"13:31", pct:100, etape:"Terminé : watcher livré, rapport remis", notes:["notify 9.0.0 ; Linux 112 tests, Windows natif 109 tests, 0 échec", "Windows 20x : mise en place 0,7 ms, lot 400 à 409 ms après une écriture, rafale de 300 = 1 lot, 0 ms CPU au repos sur 30 s", "Aucun processus laissé en arrière-plan"]});

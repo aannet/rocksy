@@ -1,15 +1,15 @@
 // Etat du suivi Rocksy. Ecrit par la session principale uniquement.
 window.ROCKSY_ETAT = {
-  "maj": "23/11/2026 13:10",
-  "resume": "Rocksy 0.1.1 est prêt : C:\\Users\\aleca\\rocksy-test\\release-0.1.1\\rocksy.exe. Nouveauté : l'index des tags est persisté. Vérifié dans l'app réelle sur vaults synthétiques : après une première indexation, les tags sont disponibles 9 à 38 ms après l'ouverture du vault sans lire aucune note, et seules les notes modifiées sont relues. Pas encore vérifié sur le vrai vault ni sur Google Drive. Le code de la 0.1.0 est commité (branche release-0.1) ; la persistance ne l'est pas encore. Mes tests sont terminés : plus aucune fenêtre ne s'ouvrira toute seule.",
+  "maj": "23/11/2026 13:37",
+  "resume": "Rocksy 0.1.2 est prêt : C:\\Users\\aleca\\rocksy-test\\release-0.1.2\\rocksy.exe. Nouveauté : le suivi des changements externes. Vérifié dans l'app réelle sur vault synthétique : une note créée, modifiée, renommée ou supprimée par un autre outil met à jour l'arbre et les tags environ 430 ms après ; une rafale de 192 notes donne une seule mise à jour ; les dossiers à point sont ignorés ; 0 CPU au repos. Pas vérifié sur Google Drive, où il n'est pas certain que les notifications arrivent (filet : revérification au retour sur la fenêtre). La 0.1.2 n'est pas commitée. Mes tests ne se mélangent plus à ta fenêtre : un profil de test est maintenant une instance séparée.",
   "actionsAlec": [
     {
-      "texte": "1. Remplacer ton exe par la 0.1.1 et rouvrir ton vault.",
-      "detail": "Ferme Rocksy, puis lance C:\\Users\\aleca\\rocksy-test\\release-0.1.1\\rocksy.exe (ou relance install.ps1 depuis ce dossier). La première ouverture du vault indexe toutes les notes (long sur Drive à froid) ; à partir de la deuxième, le panneau des tags doit afficher « index enregistré, vérification en cours… » puis « à jour ». Dis-moi le temps affiché et si des notes sont relues à tort."
+      "texte": "1. Passer à la 0.1.2 et vérifier le suivi sur ton vrai vault.",
+      "detail": "Ferme Rocksy, lance C:\\Users\\aleca\\rocksy-test\\release-0.1.2\\rocksy.exe. Test le plus utile : Rocksy ouvert sur ton vault, crée ou modifie une note depuis l'explorateur (ou laisse Drive synchroniser un changement venu d'une autre machine) et regarde si l'arbre et le panneau des tags suivent sans rien faire. Si rien ne bouge, clique ailleurs puis reviens sur la fenêtre après 30 s : c'est le filet de sécurité. Dis-moi lequel des deux a marché."
     },
     {
-      "texte": "2. Dire si je commite la persistance (0.1.1).",
-      "detail": "Ta demande de commit portait sur le code d'alors ; la persistance est faite depuis et n'est pas commitée."
+      "texte": "2. Dire si je commite la 0.1.2 (watcher).",
+      "detail": "Non commité : tes deux demandes de commit portaient sur le code d'alors."
     },
     {
       "texte": "3. Trois points que je n'ai pas pu tester : glisser-déposer d'un .md sur la fenêtre, dialogues « Ajouter un vault » et « Ouvrir un fichier », clic sur un lien web.",
@@ -265,6 +265,40 @@ window.ROCKSY_ETAT = {
           "note": "À faire par toi."
         }
       ]
+    },
+    {
+      "id": "e7",
+      "titre": "Étape 7 — Watcher de dossier",
+      "statut": "fait",
+      "pct": 100,
+      "poids": 2,
+      "taches": [
+        {
+          "t": "Cœur : écoute récursive, dossiers à point ignorés, regroupement des rafales",
+          "s": "fait",
+          "note": "112 tests sous Linux, 109 sous Windows. Rafale de 300 réécritures : 1 lot. Repos sur le 20x : 0 CPU, 4,4 Mo."
+        },
+        {
+          "t": "App : à chaque lot, réconcilier l'arbre et les tags ; filet de sécurité",
+          "s": "fait",
+          "note": "Au plus une passe par seconde. Filet : revérification au retour sur la fenêtre si la dernière date de plus de 30 s (non testé automatiquement)."
+        },
+        {
+          "t": "Tests dans l'app réelle : création, modification, renommage, suppression, rafale",
+          "s": "fait",
+          "note": "Mise à jour ~430 ms après chaque changement ; rafale de 192 notes en une passe (654 ms) ; rien pour les dossiers à point. Détail : runs/…_watcher."
+        },
+        {
+          "t": "Nouveau build",
+          "s": "fait",
+          "note": "0.1.2 dans C:\\Users\\aleca\\rocksy-test\\release-0.1.2"
+        },
+        {
+          "t": "Vérification sur Google Drive",
+          "s": "todo",
+          "note": "À faire par toi : on ne sait pas si le lecteur G: émet des notifications."
+        }
+      ]
     }
   ],
   "agents": [
@@ -323,6 +357,14 @@ window.ROCKSY_ETAT = {
       "statut": "fait",
       "perimetre": "src/crates/rocksy-core",
       "bilan": "Livré : chargement de l'index 20x en 25 à 38 ms sous Windows, fichier de 4,4 Mo."
+    },
+    {
+      "id": "watch",
+      "titre": "Cœur : watcher de dossier",
+      "modele": "Fable",
+      "statut": "fait",
+      "perimetre": "src/crates/rocksy-core",
+      "bilan": "Livré avec la crate notify 9 (11 crates en plus). Limite : sous Linux, une surveillance par dossier."
     }
   ],
   "journal": [
@@ -583,10 +625,58 @@ window.ROCKSY_ETAT = {
       "type": "info",
       "texte": "Constat : %LOCALAPPDATA% et %APPDATA%\\dev.rocksy.app existent de nouveau.",
       "pourquoi": "Ce sont tes propres lancements de l'app (mes tests utilisent des profils isolés). Je n'y touche pas."
+    },
+    {
+      "h": "13:20",
+      "type": "info",
+      "texte": "Commit bd78554 (0.1.1, persistance des tags) sur release-0.1, à la demande d'Alec.",
+      "pourquoi": ""
+    },
+    {
+      "h": "13:22",
+      "type": "problème",
+      "texte": "Le sous-agent « générateur » restait affiché « en attente d'un shell » depuis 11:11.",
+      "pourquoi": "Résidu d'une copie de fichiers lancée en arrière-plan ce matin ; aucun processus ne tournait plus. Tâche arrêtée. Les nouveaux sous-agents ont pour consigne de ne rien laisser en arrière-plan."
+    },
+    {
+      "h": "13:22",
+      "type": "décision",
+      "texte": "Le watcher n'est qu'un déclencheur : à chaque lot d'événements, l'app relance la vérification par listing (arbre + tags), qui reste la source de vérité. Une vérification périodique sert de filet de sécurité.",
+      "pourquoi": "Il n'est pas garanti que le lecteur virtuel de Google Drive émette des notifications fiables, et je ne peux pas le tester. Avec ce choix, un événement manqué retarde la mise à jour au lieu de la perdre."
+    },
+    {
+      "h": "13:22",
+      "type": "décision",
+      "texte": "Événements des dossiers à point ignorés ; rafales regroupées (400 ms de silence, 3 s au plus).",
+      "pourquoi": "79 % des fichiers du vault sont dans des dossiers à point, et le nettoyeur IA réécrit des centaines de fichiers d'un coup."
+    },
+    {
+      "h": "13:22",
+      "type": "décision",
+      "texte": "Pas de suivi des renommages dans cette étape : un renommage est vu comme une suppression et un ajout (la note renommée est relue une fois).",
+      "pourquoi": "Le suivi sert surtout à la mise à jour des liens, qui n'existe pas encore."
+    },
+    {
+      "h": "13:37",
+      "type": "décision",
+      "texte": "Un lancement avec un profil isolé (variable ROCKSY_DATA_DIR) est une instance séparée : l'instance unique ne s'applique qu'au profil normal.",
+      "pourquoi": "Tu avais Rocksy ouvert et mon test s'est arrêté pour ne pas ouvrir ses fichiers dans ta fenêtre. Avec ce changement, mes tests et ton usage ne se croisent plus. L'instance unique du profil normal est inchangée (vérifiée ce matin, pas revérifiée depuis)."
+    },
+    {
+      "h": "13:37",
+      "type": "mesure",
+      "texte": "Watcher dans l'app réelle (copie du 1x sur C:) : création, modification, renommage, suppression vus en 424 à 432 ms ; rafale de 192 notes : une seule passe, 654 ms ; 0 ms de CPU sur 10 s au repos.",
+      "pourquoi": "Je visais 300 notes dans la rafale ; le dossier choisi n'en contenait que 192. La rafale de 300 est testée dans le cœur seul (1 lot)."
+    },
+    {
+      "h": "13:37",
+      "type": "décision",
+      "texte": "Version 0.1.2 ; la crate notify (et 10 dépendances) s'ajoute au cœur, qui n'en avait que 3.",
+      "pourquoi": "C'est la bibliothèque prévue au plan pour le watcher ; l'écrire à la main pour Windows et Linux aurait coûté plus et serait moins sûr."
     }
   ],
   "rapport": {
-    "synthese": "Session du 23/11/2026, environ 1 h 40, de 10:50 à 12:30. Le plan prévoyait que tu compiles et chronomètres sous Windows ; comme Windows n'avait aucune chaîne de build, j'ai compilé pour Windows depuis WSL et testé l'app moi-même. Résultat : une app Rocksy 0.1.0 qui tourne sous Windows, vérifiée sur des vaults synthétiques, et un verdict sur Rune. Elle n'a jamais touché ton vrai vault ni Google Drive : c'est la première chose à essayer. Suite de l'après-midi (12:35 à 13:15) : commit du code à ta demande, puis persistance de l'index des tags, livrée en 0.1.1.",
+    "synthese": "Session du 23/11/2026, environ 1 h 40, de 10:50 à 12:30. Le plan prévoyait que tu compiles et chronomètres sous Windows ; comme Windows n'avait aucune chaîne de build, j'ai compilé pour Windows depuis WSL et testé l'app moi-même. Résultat : une app Rocksy 0.1.0 qui tourne sous Windows, vérifiée sur des vaults synthétiques, et un verdict sur Rune. Elle n'a jamais touché ton vrai vault ni Google Drive : c'est la première chose à essayer. Suite de l'après-midi (12:35 à 13:15) : commit du code à ta demande, puis persistance de l'index des tags, livrée en 0.1.1. Puis watcher de dossier, livré en 0.1.2 (13:50 à 14:20).",
     "sections": [
       {
         "titre": "Ce qui a été fait",
@@ -608,6 +698,16 @@ window.ROCKSY_ETAT = {
           "Tests du cœur : 96 sous Linux et, pour la première fois, 93 exécutés réellement sous Windows, tous verts. Démarrage de l'app inchangé.",
           "Non testé : vrai vault, Google Drive, interruption d'une longue première indexation.",
           "Limite : une note modifiée sans changement de taille ni de date n'est pas revue ; le fichier d'index contient des extraits de notes."
+        ]
+      },
+      {
+        "titre": "Ajout : suivi des changements externes (0.1.2)",
+        "points": [
+          "Le dossier du vault est écouté ; à chaque lot de changements, l'app relance la vérification par listing (arbre et tags). Les dossiers à point sont ignorés, les rafales regroupées.",
+          "Testé dans l'app réelle : création, modification, renommage, suppression (~430 ms), rafale de 192 notes en une passe, aucun événement pour .obsidian, 0 CPU au repos.",
+          "Tests du cœur : 112 sous Linux (relancés par moi), 109 sous Windows d'après le sous-agent.",
+          "Non testé : Google Drive (notifications incertaines), le filet de sécurité au retour sur la fenêtre, une rafale de plus de 3 s dans l'app, un lecteur démonté.",
+          "Limite : un renommage est vu comme une suppression et un ajout."
         ]
       },
       {
@@ -666,7 +766,6 @@ window.ROCKSY_ETAT = {
         "titre": "Suite proposée, dans l'ordre",
         "points": [
           "Essai sur le vrai vault et chronos manuels : ils diront si Drive à froid tient les cibles.",
-          "Watcher de dossier (détecter les changements pendant que l'app est ouverte, rafales du nettoyeur IA).",
           "Recherche plein texte et backlinks, puis renommage de tags.",
           "Décider de la structure du dépôt et commiter ; alléger les captures.",
           "Avant publication : licence, anonymisation de in/ et out/data/, CSP, identifiant dev.rocksy.app."

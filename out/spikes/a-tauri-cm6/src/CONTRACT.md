@@ -51,6 +51,10 @@ src/
 | `tags-ready` | `{ files, tags, occurrences, ms, fromCache, reread?, removed?, persisted? }` ; peut être émis deux fois par `build_tags` (index persisté, puis réconcilié) |
 | `file-changed` | `{ path, mtimeMs }` : changement externe d'un fichier ouvert |
 
+## Suivi des changements externes
+
+Après `open_vault`, le backend écoute le dossier du vault (dossiers à point ignorés, rafales regroupées : 400 ms de silence, 3 s au plus). Le watcher n'est qu'un déclencheur : à chaque lot, le backend relance le listing du vault (au plus une passe par seconde) et émet `tree-updated` si l'arbre a changé, puis `tags-ready` (`fromCache: false`, `reread`, `removed`) si des notes ont été relues ou retirées. Filet de sécurité : la même passe est relancée quand la fenêtre revient au premier plan, si la dernière date de plus de 30 s. Les fichiers ouverts restent suivis par `file-changed`.
+
 ## Types
 
 ```ts
