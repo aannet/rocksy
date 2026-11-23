@@ -5,7 +5,7 @@ import { Annotation, type EditorState, type Text, Transaction } from "@codemirro
 import { EditorView, type ViewUpdate } from "@codemirror/view";
 import type { Backend } from "./backend";
 import { toApiError } from "./backend";
-import type { Fragment, Session, StartupInfo, TagCount, Tree, VaultRef } from "./types";
+import type { Fragment, IndexReady, Session, StartupInfo, TagCount, Tree, VaultRef } from "./types";
 import { basename, dirname, extname, isAbsolute, isImagePath, isMarkdownPath, joinAbs, samePath, stripExt, toRel } from "./paths";
 import { FileIndex, linkTextFor, parseWikilink, resolveImage, resolveLink } from "./resolve";
 import { type FuzzyItem, fuzzySearch, makeItem } from "./fuzzy";
@@ -23,7 +23,8 @@ import {
 } from "./editor/editor";
 import type { ImageRef, LinkRef } from "./editor/livepreview";
 import { iconSvg } from "./icons";
-import type { Sidebar } from "./sidebar";
+import type { Sidebar, SidebarTab } from "./sidebar";
+import { setTermsEffect, termsField } from "./editor/termhl";
 import type { PickerItem } from "./picker";
 
 export type DocKind = "md" | "canvas" | "image";
@@ -66,6 +67,7 @@ export interface Command {
 }
 
 const externalChange = Annotation.define<boolean>();
+const UNRESOLVED_LIMIT = 5000;
 
 function loadPref(key: string, fallback: string): string {
   try {
@@ -275,7 +277,12 @@ export class App implements EditorHost {
   focused: Pane;
   autosave = loadPref("autosave", "1") === "1";
   sidebarOpen = loadPref("sidebar", "1") === "1";
-  sidebarTab: "files" | "tags" = "files";
+  sidebarTab: SidebarTab = "files";
+  /** Last `index-ready` payload of the open vault (tags, links, search). */
+  indexInfo: IndexReady | null = null;
+  private searchTerms: readonly string[] = [];
+  /** History of `index-ready` payloads since launch (diagnostics and tests). */
+  indexEvents: (IndexReady & { atMs: number })[] = [];
   sidebar: Sidebar | null = null;
   tagsProgress: { done: number; total: number } | null = null;
   tagsInfo: { files: number; tags: number; occurrences: number; ms: number; fromCache?: boolean; reread?: number; removed?: number } | null = null;
@@ -504,6 +511,7 @@ export class App implements EditorHost {
     if (pane.active !== doc) return;
     pane.show();
     pane.focusEditor();
+    this.applySearchTerms();
     this.updateStatus();
     this.queueSession();
     this.sidebar?.onActiveDoc();
@@ -625,6 +633,7 @@ export class App implements EditorHost {
     if (doc.pane.active === doc) doc.pane.renderBanner();
     this.updateSaveState();
     if (doc.dirty && !doc.conflict && !doc.error) this.scheduleAutosave(doc);
+    else if (!doc.conflict && !doc.error && doc === this.activeDoc()) this.sidebar?.onDocSaved();
   }
 
   async reload(doc: Doc): Promise<void> {
@@ -856,7 +865,7 @@ export class App implements EditorHost {
     return this.sidebar;
   }
 
-  async showSidebar(tab?: "files" | "tags"): Promise<void> {
+  async showSidebar(tab?: SidebarTab): Promise<void> {
     this.sidebarOpen = true;
     savePref("sidebar", "1");
     if (tab) this.sidebarTab = tab;
@@ -885,6 +894,7 @@ export class App implements EditorHost {
     this.linkItems = null;
     this.tagsInfo = null;
     this.tagsProgress = null;
+    this.indexInfo = null;
     this.refreshOutside();
     this.reserveSidebar();
     this.updateStatus();
@@ -1088,6 +1098,10 @@ export class App implements EditorHost {
     c("view.sidebar", "Afficher / masquer le panneau latéral", () => this.toggleSidebar());
     c("view.files", "Afficher l'arbre des fichiers", () => void this.showSidebar("files"));
     c("view.tags", "Afficher les tags", () => void this.showSidebar("tags"));
+    c("view.search", "Rechercher dans le vault", () => void this.showSidebar("search"), "Ctrl+Maj+F");
+    c("view.links", "Afficher les liens de la note (entrants et sortants)", () => void this.showSidebar("links"));
+    c("links.unresolved", "Liens non résolus", () => void this.showUnresolved());
+    c("search.clear", "Effacer le surlignage de recherche", () => this.setSearchTerms([]));
     c("view.preview", "Basculer Live Preview / mode source", () => this.togglePreview(), "Ctrl+E");
     c("edit.find", "Rechercher dans la note", () => this.findInNote(), "Ctrl+F");
     document.addEventListener("click", (e) => {
@@ -1142,7 +1156,8 @@ export class App implements EditorHost {
     }
     const k = e.key.toLowerCase();
     let cmd: string | null = null;
-    if (k === "s") cmd = "file.save";
+    if (k === "f" && e.shiftKey) cmd = "view.search";
+    else if (k === "s") cmd = "file.save";
     else if (k === "o") cmd = "file.quickopen";
     else if (k === "p") cmd = "__palette";
     else if (k === "w") cmd = "tab.close";
@@ -1172,8 +1187,10 @@ export class App implements EditorHost {
     };
     btn("rb-sidebar", "sidebar", "Panneau latéral", () => this.toggleSidebar());
     btn("rb-files", "files", "Fichiers", () => void this.showSidebar("files"));
+    btn("rb-search", "search", "Rechercher dans le vault (Ctrl+Maj+F)", () => void this.showSidebar("search"));
     btn("rb-tags", "tag", "Tags", () => void this.showSidebar("tags"));
-    btn("rb-open", "search", "Ouvrir une note (Ctrl+O)", () => void this.quickOpen());
+    btn("rb-links", "link", "Liens de la note", () => void this.showSidebar("links"));
+    btn("rb-open", "quick", "Ouvrir une note (Ctrl+O)", () => void this.quickOpen());
     btn("rb-palette", "command", "Palette de commandes (Ctrl+P)", () => void this.palette());
     const sp = document.createElement("div");
     sp.className = "spacer";
@@ -1257,9 +1274,29 @@ export class App implements EditorHost {
     this.updateTagsStatus();
   }
 
+  /** Global index indicator: reading progress, then what is still missing (links, search), then nothing. */
   updateTagsStatus(): void {
     const p = this.tagsProgress;
-    this.st.tags.textContent = p ? `Tags : ${p.done.toLocaleString("fr-FR")} / ${p.total.toLocaleString("fr-FR")}` : "";
+    const el = this.st.tags;
+    const info = this.indexInfo;
+    const n = (x: number) => x.toLocaleString("fr-FR");
+    if (!this.vaultRoot) {
+      el.textContent = "";
+      el.title = "";
+    } else if (p) {
+      el.textContent = `Index : ${n(p.done)} / ${n(p.total)} notes`;
+      el.title = "Lecture des notes nouvelles ou modifiées";
+    } else if (!info) {
+      el.textContent = this.tagsInfo ? "Index : tags ✓ · liens et recherche…" : this.tree ? "Index : en préparation…" : "";
+      el.title = "Tags, liens et recherche plein texte du vault";
+    } else {
+      el.textContent = info.searchReady ? (info.fromCache ? "Index : vérification…" : "Index ✓") : "Index : tags ✓ liens ✓ · recherche…";
+      el.title = `${n(info.files)} notes · ${n(info.tags)} tags · ${n(info.links)} liens (${n(info.unresolvedLinks)} non résolus) · recherche : ${info.searchReady ? n(info.searchDocs) + " notes" : "en préparation"}`;
+    }
+  }
+
+  get searchReady(): boolean {
+    return !!this.indexInfo?.searchReady;
   }
 
   // ------------------------------------------------------------ session & events
@@ -1294,6 +1331,12 @@ export class App implements EditorHost {
       this.updateTagsStatus();
       this.sidebar?.onTagsReady();
     });
+    b.on("index-ready", (p) => {
+      this.indexInfo = p;
+      if (this.indexEvents.length < 50) this.indexEvents.push({ ...p, atMs: Math.round(performance.now()) });
+      this.updateTagsStatus();
+      this.sidebar?.onIndexReady();
+    });
     b.onFileDrop((paths) => void this.openFiles(paths));
   }
 
@@ -1310,6 +1353,85 @@ export class App implements EditorHost {
       this.queueSession();
       await this.activate(last);
     }
+  }
+
+  /** Opens a note at a position (search result, backlink): scrolls, flashes the line, selects `len` units from `col`. */
+  async openAt(path: string, line: number, col: number, len = 0): Promise<void> {
+    const doc = await this.openPath(path, { activate: false });
+    if (!doc) return;
+    await this.activate(doc);
+    // Positions follow the exact text of read_file, BOM included; the editor text has no BOM.
+    const fix = doc.bom && line === 0 ? 1 : 0;
+    const view = this.viewOf(doc);
+    if (view) revealLines(view, line, line, Math.max(0, col - fix), len);
+  }
+
+  /** Terms of the last vault search, highlighted in the open notes (empty list: no highlight). */
+  setSearchTerms(terms: readonly string[]): void {
+    this.searchTerms = terms;
+    this.applySearchTerms();
+  }
+
+  private applySearchTerms(): void {
+    for (const p of this.panes) {
+      const v = p.view;
+      if (!v || p.active?.kind !== "md" || p.editorHost.hidden) continue;
+      const cur = v.state.field(termsField, false);
+      if (cur === undefined || cur === this.searchTerms || (cur.length === 0 && this.searchTerms.length === 0)) continue;
+      v.dispatch({ effects: setTermsEffect.of(this.searchTerms) });
+    }
+  }
+
+  /** Palette-like list of link targets that do not exist in the vault; picking one opens its first source. */
+  async showUnresolved(): Promise<void> {
+    if (!this.vaultRoot) {
+      this.toast("Aucun vault ouvert");
+      return;
+    }
+    if (this.pickerOpen) return;
+    this.pickerOpen = true;
+    const root = this.vaultRoot;
+    let list: Awaited<ReturnType<Backend["unresolvedLinks"]>> = [];
+    try {
+      list = await this.backend.unresolvedLinks(UNRESOLVED_LIMIT);
+    } catch (e) {
+      this.toast(`Liens non résolus indisponibles : ${toApiError(e).message}`);
+    }
+    const { openPicker } = await this.picker();
+    const items: PickerItem[] = list.map((u) => ({
+      ...makeItem(u.target),
+      icon: "unlink",
+      detail: `${u.count} lien${u.count > 1 ? "s" : ""} · ${u.sources.length ? (toRel(root, u.sources[0]) ?? u.sources[0]).replace(/\.md$/i, "") : ""}${u.sources.length > 1 ? ` (+${u.sources.length - 1})` : ""}`,
+      run: () => void this.openUnresolvedSource(u.target, u.sources[0]),
+    }));
+    openPicker({
+      placeholder: `Liens non résolus (${list.length >= UNRESOLVED_LIMIT ? "les " + UNRESOLVED_LIMIT.toLocaleString("fr-FR") + " cibles les plus citées" : list.length.toLocaleString("fr-FR") + " cibles"})…`,
+      search: (q) => fuzzySearch(q, items, 100),
+      emptyText: this.indexInfo ? "Aucun lien non résolu" : "Index en préparation…",
+      footer: "Entrée : ouvrir la première note source",
+      onClose: () => {
+        this.pickerOpen = false;
+        this.focused.focusEditor();
+      },
+    });
+  }
+
+  private async openUnresolvedSource(target: string, source: string | undefined): Promise<void> {
+    if (!source) return;
+    let line = -1;
+    let col = 0;
+    try {
+      const out = await this.backend.outgoingLinks(source);
+      const hit = out.find((o) => !o.resolved && o.target.toLowerCase() === target.toLowerCase());
+      if (hit) {
+        line = hit.line;
+        col = hit.col;
+      }
+    } catch {
+      /* open the note anyway */
+    }
+    if (line >= 0) await this.openAt(source, line, col);
+    else await this.openPath(source);
   }
 
   /** Opens a tag fragment: scrolls to its block and flashes it. */

@@ -1,6 +1,6 @@
 # Spike A — Tauri 2 + CodeMirror 6
 
-Statut (23/11/2026) : l'app se construit, démarre et passe les cas F1 à F9 sur les vaults synthétiques (`grille.md` ; F5 et F6 partiels). Rien n'a encore été mesuré sur le vault réel ni à froid.
+Statut (23/11/2026) : l'app (0.2.0) se construit, démarre et passe les cas F1 à F9 sur les vaults synthétiques (`grille.md` ; F5 et F6 partiels). La recherche plein texte et les liens (entrants, sortants, non résolus) sont vérifiés dans l'app réelle sur le vault synthétique 20x. Rien n'a encore été mesuré sur le vault réel ni à froid.
 
 Cahier des charges : `../../docs/m2-cahier-des-charges-spikes.md`. Contrat entre le cœur et l'interface : `src/CONTRACT.md`.
 
@@ -34,12 +34,12 @@ Pour un essai sans toucher au profil réel, définir `ROCKSY_DATA_DIR` : la list
 ## Tester
 
 - Interface contre le backend simulé, dans Edge headless : `src/ui/tools/run.sh perf scale shell …` (scénarios dans `src/ui/tools/scenarios/`).
-- App réelle : `src/ui/tools/run-app.sh it-preview it-perf it-save it-f7 it-f8 it-canvas it-mermaid it-x20 it-final` (scénarios dans `src/ui/tools/app/`). Le pilote lance `rocksy.exe` avec un `ROCKSY_DATA_DIR` neuf sous `C:\Users\aleca\rocksy-test\it\`, s'attache au port de débogage de WebView2 (9223), joue de vraies frappes et de vrais clics, prend des captures de page, compare des octets et des empreintes sur disque, puis tue le processus. Résultats dans `C:\Users\aleca\rocksy-test\ui\shots-app\`.
+- App réelle : `src/ui/tools/run-app.sh it-preview it-perf it-save it-f7 it-f8 it-canvas it-mermaid it-x20 it-final`, et pour la recherche et les liens `is-x20 is-w1 is-f7 is-close is-auto` (scénarios dans `src/ui/tools/app/`). Un seul scénario à la fois (port 9223). Le pilote lance `rocksy.exe` avec un `ROCKSY_DATA_DIR` neuf sous `C:\Users\aleca\rocksy-test\it\`, s'attache au port de débogage de WebView2 (9223), joue de vraies frappes et de vrais clics, prend des captures de page, compare des octets et des empreintes sur disque, puis arrête le processus qu'il a lancé, par son PID (jamais « tous les rocksy.exe » : un lancement avec `ROCKSY_DATA_DIR` est une instance séparée de celle de l'utilisateur). Résultats dans `C:\Users\aleca\rocksy-test\ui\shots-app\`.
 - Les tests qui écrivent travaillent sur des copies (`it\v1`, `it\v7`), jamais sur `vaults\x1` ni `vaults\x20`.
 
 ## Mesures
 
-Les sessions de mesure sont dans `runs/`, un dossier par session (`AAAA-MM-JJ_HHMM_<cas>/`). La campagne d'intégration est dans `runs/2026-11-23_1223_integration/` (`notes.md` pour les chiffres et les conditions). Le tableau des cas F1 à F9 est dans `grille.md`.
+Les sessions de mesure sont dans `runs/`, un dossier par session (`AAAA-MM-JJ_HHMM_<cas>/`). La campagne d'intégration est dans `runs/2026-11-23_1223_integration/`, celle de la recherche et des liens dans `runs/2026-11-23_1516_integration-recherche-liens/` (`notes.md` pour les chiffres et les conditions). Le tableau des cas F1 à F9 est dans `grille.md`.
 
 ## Reste à faire
 

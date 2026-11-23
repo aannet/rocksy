@@ -4,6 +4,10 @@ import type {
   BackendEvents,
   FileContent,
   Fragment,
+  LinkRef,
+  OutLink,
+  SearchResult,
+  UnresolvedLink,
   SaveResult,
   Session,
   StartupInfo,
@@ -25,6 +29,11 @@ export interface Backend {
   tagsList(query: string): Promise<TagCount[]>;
   tagFragments(tag: string, limit?: number): Promise<Fragment[]>;
   fileTags(path: string, text: string): Promise<Fragment[]>;
+  /** Full-text search in the indexed vault (`limit`: number of files, default 50). */
+  search(query: string, limit?: number): Promise<SearchResult>;
+  backlinks(path: string): Promise<LinkRef[]>;
+  outgoingLinks(path: string): Promise<OutLink[]>;
+  unresolvedLinks(limit?: number): Promise<UnresolvedLink[]>;
   setSession(session: Session): Promise<void>;
   pickFolder(): Promise<string | null>;
   pickFile(): Promise<string | null>;
@@ -101,6 +110,10 @@ function tauriBackend(): Backend {
     tagsList: (query) => call("tags_list", { query }),
     tagFragments: (tag, limit) => call("tag_fragments", limit == null ? { tag } : { tag, limit }),
     fileTags: (path, text) => call("file_tags", { path, text }),
+    search: (query, limit) => call("search", limit == null ? { query } : { query, limit }),
+    backlinks: (path) => call("backlinks", { path }),
+    outgoingLinks: (path) => call("outgoing_links", { path }),
+    unresolvedLinks: (limit) => call("unresolved_links", limit == null ? {} : { limit }),
     setSession: (session) => call("set_session", { session }),
     pickFolder: () => call("pick_folder"),
     pickFile: () => call("pick_file"),

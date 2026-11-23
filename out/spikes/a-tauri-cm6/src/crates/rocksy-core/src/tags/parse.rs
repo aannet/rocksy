@@ -13,8 +13,10 @@
 //! special case: their `#` is never preceded by whitespace.
 
 use super::frontmatter::parse_frontmatter;
+use super::links::{parse_markdown_link, parse_wikilink, LinkTarget};
 use super::TagSource;
-use memchr::{memchr, memchr2_iter};
+use crate::excerpt::line_excerpt;
+use memchr::{memchr, memchr2, memchr2_iter};
 
 pub(crate) const EXCERPT_MAX: usize = 240;
 
@@ -29,9 +31,30 @@ pub(crate) struct RawOcc<'a> {
     pub excerpt: u32,
 }
 
+/// A link or embed found in the text.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct RawLink {
+    pub target: String,
+    pub heading: Option<String>,
+    pub alias: Option<String>,
+    /// `![[...]]` or `![alt](...)`.
+    pub embed: bool,
+    /// Markdown syntax (resolved relative to the note) rather than wikilink.
+    pub markdown: bool,
+    pub line: u32,
+    /// UTF-16 column of the first character of the link (`!` for an embed).
+    pub col: u32,
+    /// The line of the link, as a one-line excerpt.
+    pub excerpt: String,
+    /// The link inside `excerpt` (UTF-16 units, end excluded).
+    pub range: (u32, u32),
+}
+
 pub(crate) struct Parsed<'a> {
     pub occs: Vec<RawOcc<'a>>,
     pub excerpts: Vec<String>,
+    /// Links in document order (none inside the frontmatter).
+    pub links: Vec<RawLink>,
 }
 
 // ---------------------------------------------------------------------------
@@ -178,14 +201,26 @@ fn matching(b: &[u8], open: usize, open_ch: u8, close_ch: u8) -> Option<usize> {
     None
 }
 
+/// A link found on a line: byte span and what it points to.
+pub(crate) struct LinkHit {
+    pub start: usize,
+    pub end: usize,
+    pub embed: bool,
+    pub markdown: bool,
+    pub target: LinkTarget,
+}
+
 /// If a wikilink (`[[...]]`), an inline link (`[text](dest "title")`) or a
-/// reference link (`[text][ref]`) starts at `i`, returns the index after it.
-fn skip_link(b: &[u8], i: usize) -> Option<usize> {
+/// reference link (`[text][ref]`) starts at `i`, returns the index after it
+/// and, when it is a link to a file, its target (with `true` for Markdown
+/// syntax).
+fn scan_link(line: &str, i: usize) -> Option<(usize, Option<(bool, LinkTarget)>)> {
+    let b = line.as_bytes();
     if b.get(i + 1) == Some(&b'[') {
         let mut j = i + 2;
         while j + 1 < b.len() {
             if b[j] == b']' && b[j + 1] == b']' {
-                return Some(j + 2);
+                return Some((j + 2, parse_wikilink(&line[i + 2..j]).map(|t| (false, t))));
             }
             j += 1;
         }
@@ -193,8 +228,12 @@ fn skip_link(b: &[u8], i: usize) -> Option<usize> {
     }
     let after_text = matching(b, i, b'[', b']')?;
     match b.get(after_text) {
-        Some(b'(') => matching(b, after_text, b'(', b')'),
-        Some(b'[') => matching(b, after_text, b'[', b']'),
+        Some(b'(') => {
+            let end = matching(b, after_text, b'(', b')')?;
+            let target = parse_markdown_link(&line[i + 1..after_text - 1], &line[after_text + 1..end - 1]);
+            Some((end, target.map(|t| (true, t))))
+        }
+        Some(b'[') => Some((matching(b, after_text, b'[', b']')?, None)),
         _ => None,
     }
 }
@@ -210,11 +249,11 @@ fn skip_angle(b: &[u8], i: usize) -> Option<usize> {
     }
 }
 
-/// Appends the tags of `line[from..]` to `out`. `from` is treated as a
-/// position where a tag may start.
-pub(crate) fn scan_inline(line: &str, from: usize, out: &mut Vec<Hit>) {
+/// Appends the tags of `line[from..]` to `out` and its links to `links`.
+/// `from` is treated as a position where a tag may start.
+pub(crate) fn scan_inline(line: &str, from: usize, out: &mut Vec<Hit>, links: &mut Vec<LinkHit>) {
     let b = line.as_bytes();
-    if from >= b.len() || memchr(b'#', &b[from..]).is_none() {
+    if from >= b.len() || memchr2(b'#', b'[', &b[from..]).is_none() {
         return;
     }
     let mut i = from;
@@ -254,7 +293,17 @@ pub(crate) fn scan_inline(line: &str, from: usize, out: &mut Vec<Hit>) {
                 prev_ws = false;
             }
             b'[' => {
-                i = skip_link(b, i).unwrap_or(i + 1);
+                let embed = i > from && b[i - 1] == b'!';
+                let start = if embed { i - 1 } else { i };
+                i = match scan_link(line, i) {
+                    Some((end, found)) => {
+                        if let Some((markdown, target)) = found {
+                            links.push(LinkHit { start, end, embed, markdown, target });
+                        }
+                        end
+                    }
+                    None => i + 1,
+                };
                 prev_ws = false;
             }
             b'<' => {
@@ -505,6 +554,9 @@ struct Blocks {
     spans: Vec<(u32, u32)>,
     pending: Vec<Pending>,
     hits: Vec<Hit>,
+    /// (line, link) in document order.
+    links: Vec<(u32, LinkHit)>,
+    link_hits: Vec<LinkHit>,
 }
 
 impl Blocks {
@@ -516,7 +568,10 @@ impl Blocks {
         self.spans[block as usize].1 = line as u32;
     }
     fn scan(&mut self, full: &str, from: usize, line: usize, block: u32) {
-        scan_inline(full, from, &mut self.hits);
+        scan_inline(full, from, &mut self.hits, &mut self.link_hits);
+        for link in self.link_hits.drain(..) {
+            self.links.push((line as u32, link));
+        }
         for hit in self.hits.drain(..) {
             self.pending.push(Pending { line: line as u32, hit, block });
         }
@@ -690,9 +745,10 @@ fn block_pass(lines: &[&str], body_start: usize, blocks: &mut Blocks) {
 /// Analyses a text: frontmatter tags first, then inline tags in document
 /// order.
 pub(crate) fn parse(text: &str) -> Parsed<'_> {
-    let mut parsed = Parsed { occs: Vec::new(), excerpts: Vec::new() };
-    // Cheapest exit: without a `#` and without a frontmatter there is no tag.
-    let has_hash = memchr(b'#', text.as_bytes()).is_some();
+    let mut parsed = Parsed { occs: Vec::new(), excerpts: Vec::new(), links: Vec::new() };
+    // Cheapest exit: without a `#`, a `[` or a frontmatter there is neither
+    // a tag nor a link.
+    let has_hash = memchr2(b'#', b'[', text.as_bytes()).is_some();
     let may_have_frontmatter = text.starts_with("---") || text.starts_with("\u{feff}---");
     if !has_hash && !may_have_frontmatter {
         return parsed;
@@ -732,8 +788,30 @@ pub(crate) fn parse(text: &str) -> Parsed<'_> {
         return parsed;
     }
 
-    let mut blocks = Blocks { spans: Vec::new(), pending: Vec::new(), hits: Vec::new() };
+    let mut blocks = Blocks {
+        spans: Vec::new(),
+        pending: Vec::new(),
+        hits: Vec::new(),
+        links: Vec::new(),
+        link_hits: Vec::new(),
+    };
     block_pass(&lines, body_start, &mut blocks);
+
+    for (line_no, hit) in blocks.links.drain(..) {
+        let line = lines[line_no as usize];
+        let (excerpt, ranges) = line_excerpt(line, &[(hit.start, hit.end)]);
+        parsed.links.push(RawLink {
+            target: hit.target.target,
+            heading: hit.target.heading,
+            alias: hit.target.alias,
+            embed: hit.embed,
+            markdown: hit.markdown,
+            line: line_no,
+            col: col_utf16(line, hit.start),
+            excerpt,
+            range: ranges.first().copied().unwrap_or((0, 0)),
+        });
+    }
 
     // One excerpt per block, shared by its tags unless a tag is too far from
     // the start of the block to be visible in it.

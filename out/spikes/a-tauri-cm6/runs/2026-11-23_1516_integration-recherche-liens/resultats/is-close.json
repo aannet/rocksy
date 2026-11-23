@@ -1,0 +1,31 @@
+{
+  "scenario": "is-close",
+  "saved": {
+    "attachMs": 562,
+    "P7_stateWhenClosing": "{\"progressAtClose\":{\"done\":0,\"total\":9760},\"events\":0}",
+    "P7_closeMainWindow(ok exited)": "True True",
+    "P7_aliveAfterClose": false,
+    "P7_dataDirAfterClose": [
+      "search",
+      "session.json",
+      "tags",
+      "timings.jsonl",
+      "trees",
+      "vaults.json",
+      "webview"
+    ],
+    "relaunchAttachMs": 511,
+    "P7_afterRelaunch_session": "{\"vault\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\vaults\\\\x20\",\"tree\":true}",
+    "P7_waitIndexMs": 112,
+    "P7_afterRelaunch_index": "{\"events\":[{\"atMs\":303,\"fromCache\":true,\"searchReady\":false,\"files\":9760,\"searchDocs\":0,\"ms\":36},{\"atMs\":324,\"fromCache\":true,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760,\"ms\":57},{\"atMs\":371,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"files\":9760,\"searchDocs\":9760,\"ms\":45}],\"search\":{\"total\":3685,\"ready\":true},\"tags\":4199}",
+    "P7_aliveAtEnd": true,
+    "P7_thirdLaunch_index": "[{\"fromCache\":true,\"searchReady\":false,\"files\":9760,\"searchDocs\":0},{\"fromCache\":true,\"searchReady\":true,\"files\":9760,\"searchDocs\":9760},{\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"files\":9760,\"searchDocs\":9760}]"
+  },
+  "errors": [],
+  "pids": [
+    6808,
+    21776,
+    24136
+  ],
+  "ourPidsStillAlive": []
+}

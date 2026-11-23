@@ -8,6 +8,7 @@ import { tags as t } from "@lezer/highlight";
 import { rocksyMarkdown } from "./mdlang";
 import { enterBlock, flashEffect, flashField, livePreview, lpConfig, refreshEffect, type LpHost } from "./livepreview";
 import { listContinuation } from "./syntax";
+import { termHighlight } from "./termhl";
 
 export interface EditorHost extends LpHost {
   onUpdate(update: ViewUpdate): void;
@@ -141,6 +142,7 @@ function shared(host: EditorHost): Extension {
       indentUnit.of("\t"),
       EditorState.tabSize.of(4),
       flashField,
+      termHighlight(),
       Prec.high(
         keymap.of([
           { key: "Enter", run: continueMarkup },
@@ -173,23 +175,31 @@ export function createEditorView(parent: HTMLElement, state: EditorState): Edito
 }
 
 /** Scrolls to a 0-based line range and flashes it (tag fragments, heading links). */
-export function revealLines(view: EditorView, startLine: number, endLine: number, col = 0): void {
+export function revealLines(view: EditorView, startLine: number, endLine: number, col = 0, len = 0): void {
   const doc = view.state.doc;
   const a = doc.line(Math.min(doc.lines, Math.max(1, startLine + 1)));
   const b = doc.line(Math.min(doc.lines, Math.max(1, endLine + 1)));
   const anchor = Math.min(a.to, a.from + col);
+  const head = Math.min(a.to, anchor + Math.max(0, len));
   view.dispatch({
-    selection: { anchor },
+    selection: { anchor, head },
     effects: [EditorView.scrollIntoView(a.from, { y: "start", yMargin: 80 }), flashEffect.of({ from: a.from, to: b.to })],
   });
-  window.setTimeout(() => {
-    try {
-      view.dispatch({ effects: flashEffect.of(null) });
-    } catch {
-      /* view destroyed */
-    }
-  }, 2600);
+  // A newer reveal on the same view must not be cut short by the timer of the previous one.
+  clearTimeout(flashTimers.get(view));
+  flashTimers.set(
+    view,
+    window.setTimeout(() => {
+      try {
+        view.dispatch({ effects: flashEffect.of(null) });
+      } catch {
+        /* view destroyed */
+      }
+    }, 2600),
+  );
 }
+
+const flashTimers = new WeakMap<EditorView, number>();
 
 export function refreshPreview(view: EditorView): void {
   view.dispatch({ effects: refreshEffect.of(null) });

@@ -1,15 +1,15 @@
 // Etat du suivi Rocksy. Ecrit par la session principale uniquement.
 window.ROCKSY_ETAT = {
-  "maj": "23/11/2026 13:37",
-  "resume": "Rocksy 0.1.2 est prêt : C:\\Users\\aleca\\rocksy-test\\release-0.1.2\\rocksy.exe. Nouveauté : le suivi des changements externes. Vérifié dans l'app réelle sur vault synthétique : une note créée, modifiée, renommée ou supprimée par un autre outil met à jour l'arbre et les tags environ 430 ms après ; une rafale de 192 notes donne une seule mise à jour ; les dossiers à point sont ignorés ; 0 CPU au repos. Pas vérifié sur Google Drive, où il n'est pas certain que les notifications arrivent (filet : revérification au retour sur la fenêtre). La 0.1.2 n'est pas commitée. Mes tests ne se mélangent plus à ta fenêtre : un profil de test est maintenant une instance séparée.",
+  "maj": "23/11/2026 15:19",
+  "resume": "Rocksy 0.2.0 est prêt : C:\\Users\\aleca\\rocksy-test\\release-0.2.0\\rocksy.exe. Nouveautés : recherche plein texte à la frappe (Ctrl+Maj+F) et liens entrants et sortants (onglet Liens). Vérifié dans l'app réelle sur vaults synthétiques : frappe → résultats en 100 ms (dont 80 ms d'attente voulue), liens de la note de 318 Ko affichés en 33 à 68 ms, vault intact (4 658 fichiers identiques), démarrage inchangé. Pas vérifié sur le vrai vault ni sur Google Drive. La 0.2.0 n'est pas commitée. Mes tests sont terminés.",
   "actionsAlec": [
     {
-      "texte": "1. Passer à la 0.1.2 et vérifier le suivi sur ton vrai vault.",
-      "detail": "Ferme Rocksy, lance C:\\Users\\aleca\\rocksy-test\\release-0.1.2\\rocksy.exe. Test le plus utile : Rocksy ouvert sur ton vault, crée ou modifie une note depuis l'explorateur (ou laisse Drive synchroniser un changement venu d'une autre machine) et regarde si l'arbre et le panneau des tags suivent sans rien faire. Si rien ne bouge, clique ailleurs puis reviens sur la fenêtre après 30 s : c'est le filet de sécurité. Dis-moi lequel des deux a marché."
+      "texte": "1. Passer à la 0.2.0 sur ton vrai vault.",
+      "detail": "Ferme Rocksy, lance C:\\Users\\aleca\\rocksy-test\\release-0.2.0\\rocksy.exe. À la première ouverture du vault, l'index est reconstruit (le format a changé) : toutes les notes sont relues une fois, en arrière-plan ; la recherche affiche « en préparation » pendant ce temps. Ensuite : Ctrl+Maj+F pour chercher, onglet Liens pour les backlinks. Dis-moi combien de temps prend cette première indexation sur Drive et si des résultats ou des liens te paraissent faux."
     },
     {
-      "texte": "2. Dire si je commite la 0.1.2 (watcher).",
-      "detail": "Non commité : tes deux demandes de commit portaient sur le code d'alors."
+      "texte": "2. Dire si je commite la 0.2.0 (et si je pose l'étiquette v0.2.0).",
+      "detail": "Non commité."
     },
     {
       "texte": "3. Trois points que je n'ai pas pu tester : glisser-déposer d'un .md sur la fenêtre, dialogues « Ajouter un vault » et « Ouvrir un fichier », clic sur un lien web.",
@@ -299,6 +299,50 @@ window.ROCKSY_ETAT = {
           "note": "À faire par toi : on ne sait pas si le lecteur G: émet des notifications."
         }
       ]
+    },
+    {
+      "id": "e8",
+      "titre": "Étape 8 — Recherche plein texte et backlinks",
+      "statut": "fait",
+      "pct": 100,
+      "poids": 3,
+      "taches": [
+        {
+          "t": "Contrat : commandes search, backlinks, outgoing_links, unresolved_links, événement index-ready",
+          "s": "fait",
+          "note": "CONTRACT.md"
+        },
+        {
+          "t": "Cœur : liens et résolution, moteur de recherche persisté, une seule lecture par note",
+          "s": "fait",
+          "note": "tantivy 0.27. 147 tests sous Linux, 144 sous Windows. Index plein texte : 63 Mo pour 64 Mo de texte (20x). Une note modifiée est lue une seule fois pour tags, liens et recherche."
+        },
+        {
+          "t": "Interface : panneau de recherche, panneau des liens, liens non résolus",
+          "s": "fait",
+          "note": "Vu dans Edge contre un backend simulé seulement : recherche à la frappe (Ctrl+Maj+F), extraits surlignés, navigation clavier, ouverture à la bonne ligne ; onglet des liens entrants et sortants ; commande « Liens non résolus » ; état de l'index dans la barre d'état. 57 tests unitaires. Démarrage inchangé."
+        },
+        {
+          "t": "App : branchement des commandes",
+          "s": "fait",
+          "note": "4 commandes branchées, événement index-ready. Exe : 11,6 Mo (6,7 avant)."
+        },
+        {
+          "t": "Tests dans l'app réelle et mesures (1x, 20x)",
+          "s": "fait",
+          "note": "7 points vérifiés dans l'app réelle : recherche (86 recherches tapées : médiane 100 ms, p95 116 ms ; 10 résultats sur 10 exacts ; LF, CRLF, BOM, accents), liens (enregistrement, fichier créé de l'extérieur → lien résolu en 0,5 s), liens non résolus, non-régression, vault intact, 16 requêtes inhabituelles sans erreur. Détail : runs/…_integration-recherche-liens."
+        },
+        {
+          "t": "Build 0.2.0",
+          "s": "fait",
+          "note": "C:\\Users\\aleca\\rocksy-test\\release-0.2.0"
+        },
+        {
+          "t": "Vérification sur le vrai vault (Drive)",
+          "s": "todo",
+          "note": "À faire par toi."
+        }
+      ]
     }
   ],
   "agents": [
@@ -344,11 +388,11 @@ window.ROCKSY_ETAT = {
     },
     {
       "id": "ui",
-      "titre": "Frontend, puis intégration dans l'app réelle",
+      "titre": "Interface : intégration recherche et liens dans l'app réelle",
       "modele": "Fable",
       "statut": "fait",
       "perimetre": "src/ui, grille F1-F9",
-      "bilan": "Interface livrée puis testée dans l'app réelle : grille F1-F9, 45 captures, 5 corrections d'interface. 40 tests unitaires."
+      "bilan": "Intégration recherche et liens faite : 7 points vérifiés, 4 corrections d'interface."
     },
     {
       "id": "persist",
@@ -365,6 +409,14 @@ window.ROCKSY_ETAT = {
       "statut": "fait",
       "perimetre": "src/crates/rocksy-core",
       "bilan": "Livré avec la crate notify 9 (11 crates en plus). Limite : sous Linux, une surveillance par dossier."
+    },
+    {
+      "id": "search",
+      "titre": "Cœur : liens et recherche",
+      "modele": "Fable",
+      "statut": "fait",
+      "perimetre": "src/crates/rocksy-core",
+      "bilan": "Liens, résolution façon Obsidian, recherche tantivy. Requêtes 1 à 12 ms sur le 20x sous Windows (cœur seul)."
     }
   ],
   "journal": [
@@ -673,10 +725,112 @@ window.ROCKSY_ETAT = {
       "type": "décision",
       "texte": "Version 0.1.2 ; la crate notify (et 10 dépendances) s'ajoute au cœur, qui n'en avait que 3.",
       "pourquoi": "C'est la bibliothèque prévue au plan pour le watcher ; l'écrire à la main pour Windows et Linux aurait coûté plus et serait moins sûr."
+    },
+    {
+      "h": "14:25",
+      "type": "info",
+      "texte": "Commit 45c483d et étiquettes v0.1.2 (watcher) et v0.1.1 (persistance, sur bd78554), à la demande d'Alec.",
+      "pourquoi": "Pas d'étiquette v0.1.0 : le premier commit ne correspond pas exactement à l'exe 0.1.0."
+    },
+    {
+      "h": "14:24",
+      "type": "décision",
+      "texte": "Un seul index par vault : chaque note nouvelle ou modifiée est lue une seule fois et alimente tags, liens et recherche plein texte.",
+      "pourquoi": "Sur Google Drive, lire une note est ce qui coûte (~155 ms). Trois index séparés liraient trois fois."
+    },
+    {
+      "h": "14:24",
+      "type": "décision",
+      "texte": "Moteur de recherche : tantivy comme prévu au plan, mais soumis à une porte d'entrée de 20 min (compile-t-il avec notre chaîne croisée, à quel coût ?). Repli : un index inversé maison.",
+      "pourquoi": "Je ne veux pas découvrir en fin de course qu'il ne compile pas pour Windows sans MSVC. Le sous-agent tranche avec preuve et je consigne le résultat."
+    },
+    {
+      "h": "14:24",
+      "type": "décision",
+      "texte": "Sémantique de recherche fixée : casse et accents ignorés, mots combinés par ET, dernier mot en préfixe (recherche à la frappe), \"expression exacte\", -mot, path:, tag: (avec descendants). Extraits tirés de l'index, sans relire les fichiers.",
+      "pourquoi": "La question ouverte du plan (requêtes combinées ET/OU/NON avec path:) était à v1.x par défaut ; path: et tag: en filtres sont peu coûteux une fois l'index là. Le OU n'est pas prévu. À corriger si tu veux autre chose."
+    },
+    {
+      "h": "14:24",
+      "type": "décision",
+      "texte": "Résolution des liens comme Obsidian : chemin exact, puis suffixe de chemin, puis nom de fichier, sans tenir compte de la casse ; en cas d'ambiguïté, chemin le plus court. Les pièces jointes ont aussi des backlinks.",
+      "pourquoi": "Le vault doit se comporter comme dans Obsidian. Les backlinks des pièces jointes préparent le scan des médias orphelins prévu en job."
+    },
+    {
+      "h": "14:24",
+      "type": "décision",
+      "texte": "Pas de création de note au clic sur un lien non résolu, pas de mise à jour des liens au renommage dans cette étape.",
+      "pourquoi": "Ce sont des écritures dans le vault, à traiter à part avec leurs propres tests."
+    },
+    {
+      "h": "14:35",
+      "type": "décision",
+      "texte": "tantivy 0.27 retenu pour la recherche plein texte.",
+      "pourquoi": "Porte d'entrée passée : il compile et s'exécute sous Windows avec la chaîne croisée, sans dépendance C (compression lz4 en Rust). Coût : environ 100 crates en plus et quelques Mo sur l'exe (4,6 Mo pour un exe de test, contre 1 Mo pour l'outil actuel)."
+    },
+    {
+      "h": "14:35",
+      "type": "décision",
+      "texte": "Contrat complété d'après les retours de l'interface : longueur du terme trouvé (pour le sélectionner), et pas d'erreur tant que la recherche n'est pas prête (résultat vide, searchReady faux).",
+      "pourquoi": "Manques relevés par le sous-agent interface en développant contre le backend simulé."
+    },
+    {
+      "h": "14:35",
+      "type": "info",
+      "texte": "Dans le ruban, la loupe ouvre désormais la recherche dans le vault ; l'ouverture rapide (Ctrl+O) a une autre icône.",
+      "pourquoi": "Choix du sous-agent interface, cohérent avec l'usage habituel de la loupe."
+    },
+    {
+      "h": "15:05",
+      "type": "mesure",
+      "texte": "App réelle, 20x, appels depuis la page. Première indexation complète (tags + liens + recherche) : 2,5 s à chaud. Après relance : tags et liens à 147 ms, recherche à 176 ms après la demande, 0 note relue. Requêtes : 4 à 22 ms aller-retour. Liens sortants de la note de 318 Ko (446 liens) : 6 ms ; backlinks : 2,5 ms.",
+      "pourquoi": "Vault synthétique sur C:, cache chaud. Sur Drive, la première indexation sera dominée par la lecture des notes ; elle est sauvegardée toutes les 5 s et reprend où elle s'est arrêtée."
+    },
+    {
+      "h": "15:05",
+      "type": "info",
+      "texte": "Coûts de la recherche : exe de 6,7 à 11,6 Mo ; index sur disque à peu près de la taille du texte du vault (63 Mo pour le 20x, environ 4 Mo pour un vault de 488 notes) ; mémoire de l'app 75 Mo après relance sur le 20x, 133 Mo juste après une indexation complète ; enregistrement d'une note plus long de 60 à 110 ms.",
+      "pourquoi": "L'index stocke le texte des notes pour produire les extraits sans relire les fichiers. Comme l'index des tags, il contient donc tes notes et reste dans %APPDATA%\\dev.rocksy.app."
+    },
+    {
+      "h": "15:05",
+      "type": "décision",
+      "texte": "Enregistrement : tags, liens et recherche sont mis à jour avant que l'enregistrement rende la main (60 à 110 ms de plus), plutôt qu'en différé.",
+      "pourquoi": "Le panneau des liens et la recherche sont justes dès l'enregistrement. L'enregistrement est asynchrone, la frappe ne devrait pas en souffrir ; c'est mesuré dans les tests d'intégration. Repli possible : validation en arrière-plan."
+    },
+    {
+      "h": "15:05",
+      "type": "info",
+      "texte": "Écarts du cœur au contrat, acceptés : le dernier mot n'est un préfixe que s'il termine la saisie ; une requête faite seulement d'exclusions renvoie vide ; pas de racinisation (« budget » ne trouve pas « budgétaire », mais « budg » le trouve en fin de saisie).",
+      "pourquoi": "Comportements raisonnables et documentés ; à revoir à l'usage."
+    },
+    {
+      "h": "15:19",
+      "type": "mesure",
+      "texte": "Interface dans l'app réelle (20x) : frappe → résultats affichés en 100 ms (médiane), 116 ms (p95), dont 80 ms d'attente voulue, 7 ms d'appel et 12 ms de rendu. Démarrage : éditeur prêt 547 ms, arbre 705 ms (médianes de 5). Frappe sur 318 Ko avec les panneaux ouverts : p95 ≤ 3,4 ms ; pendant des enregistrements : p95 4,1 ms, max 13,9 ms. Ctrl+S : 50 ms sur une petite note (31 à 34 avant), 69 à 109 ms sur la note de 318 Ko. Mémoire de l'app : 57 Mo après relance, 152 Mo après une première indexation.",
+      "pourquoi": "Pas de régression du démarrage ni de la frappe ; l'enregistrement coûte 20 à 70 ms de plus, sans effet visible sur la frappe."
+    },
+    {
+      "h": "15:19",
+      "type": "info",
+      "texte": "Fermeture de l'app pendant une première indexation : testée, mais l'indexation du 20x s'est terminée avant la sortie ; la « reprise » n'a donc pas été observée dans l'app.",
+      "pourquoi": "La reprise est testée dans le cœur par simulation. Sur Drive, où l'indexation est lente, c'est ce cas qui comptera : à surveiller chez toi."
+    },
+    {
+      "h": "15:19",
+      "type": "info",
+      "texte": "Pas d'événement index-ready après un enregistrement : l'info-bulle de l'état de l'index (nombre de liens) n'est rafraîchie qu'au prochain changement externe ou à la relance.",
+      "pourquoi": "Sans effet sur les panneaux, qui se rafraîchissent eux-mêmes. Laissé tel quel."
+    },
+    {
+      "h": "15:19",
+      "type": "décision",
+      "texte": "Le passage à la 0.2.0 reconstruit l'index (format version 2) : toutes les notes sont relues une fois.",
+      "pourquoi": "L'ancien index ne contenait pas les liens. Sur Drive, cette relecture unique sera longue ; elle est en arrière-plan."
     }
   ],
   "rapport": {
-    "synthese": "Session du 23/11/2026, environ 1 h 40, de 10:50 à 12:30. Le plan prévoyait que tu compiles et chronomètres sous Windows ; comme Windows n'avait aucune chaîne de build, j'ai compilé pour Windows depuis WSL et testé l'app moi-même. Résultat : une app Rocksy 0.1.0 qui tourne sous Windows, vérifiée sur des vaults synthétiques, et un verdict sur Rune. Elle n'a jamais touché ton vrai vault ni Google Drive : c'est la première chose à essayer. Suite de l'après-midi (12:35 à 13:15) : commit du code à ta demande, puis persistance de l'index des tags, livrée en 0.1.1. Puis watcher de dossier, livré en 0.1.2 (13:50 à 14:20).",
+    "synthese": "Session du 23/11/2026, environ 1 h 40, de 10:50 à 12:30. Le plan prévoyait que tu compiles et chronomètres sous Windows ; comme Windows n'avait aucune chaîne de build, j'ai compilé pour Windows depuis WSL et testé l'app moi-même. Résultat : une app Rocksy 0.1.0 qui tourne sous Windows, vérifiée sur des vaults synthétiques, et un verdict sur Rune. Elle n'a jamais touché ton vrai vault ni Google Drive : c'est la première chose à essayer. Suite de l'après-midi (12:35 à 13:15) : commit du code à ta demande, puis persistance de l'index des tags, livrée en 0.1.1. Puis watcher de dossier, livré en 0.1.2 (13:50 à 14:20). Enfin recherche plein texte et backlinks, livrés en 0.2.0 (14:30 à 15:20).",
     "sections": [
       {
         "titre": "Ce qui a été fait",
@@ -711,6 +865,18 @@ window.ROCKSY_ETAT = {
         ]
       },
       {
+        "titre": "Ajout : recherche plein texte et backlinks (0.2.0)",
+        "points": [
+          "Un index unique par vault : tags, liens et recherche alimentés par une seule lecture de chaque note modifiée. Moteur de recherche tantivy, sans dépendance C.",
+          "Recherche à la frappe avec extraits surlignés, casse et accents ignorés, expressions, exclusions, filtres path: et tag:. Liens entrants et sortants, images comprises, résolution comme Obsidian, liste des liens non résolus.",
+          "Testé dans l'app réelle : 7 points, dont exactitude des positions (10 sur 10, fichiers LF, CRLF, BOM), mise à jour après enregistrement et après changement externe, vault intact (4 658 fichiers identiques), 16 requêtes inhabituelles sans erreur.",
+          "Tests automatiques relancés par moi : 147 pour le cœur, 57 pour l'interface, tous verts. 144 exécutés sous Windows d'après le sous-agent.",
+          "Coûts : exe 11,6 Mo, index de recherche de la taille du texte du vault, 20 à 70 ms de plus par enregistrement.",
+          "Non testé : vrai vault, Drive, reprise d'une première indexation interrompue dans l'app, défilement de la liste des liens à la molette.",
+          "Limites : pas de OU ni de racinisation ; liens dans le frontmatter et liens par référence non extraits ; une seule instance peut mettre à jour la recherche d'un même profil."
+        ]
+      },
+      {
         "titre": "Ce qui a été testé, et comment",
         "points": [
           "Cœur : 81 tests automatiques (règles des tags, blocs, enregistrement atomique, snapshot, aucune écriture indésirable), relancés par moi en fin de session : tous passent. Interface : 40 tests unitaires, tous passent.",
@@ -735,7 +901,7 @@ window.ROCKSY_ETAT = {
         "titre": "Limites connues de la 0.1",
         "points": [
           "Première indexation des tags d'un vault : lit toutes les notes (13 s pour 9 760 fichiers jamais lus sur C:, plus long sur Drive). Les suivantes sont instantanées depuis la 0.1.1.",
-          "Pas de recherche plein texte, backlinks, graphe, renommage de tags, création ou renommage de fichiers depuis l'arbre, mods, import des vaults d'Obsidian.",
+          "Pas de graphe, de renommage de tags, de création ou renommage de fichiers depuis l'arbre, de mods, d'import des vaults d'Obsidian.",
           "Session propre à Rocksy : le workspace.json d'Obsidian n'est pas lu ; la disposition en volets n'est pas restaurée.",
           "Tableau, Mermaid ou callout repliable imbriqué dans une liste ou une citation : affiché en source. Lignes de plus de 6 000 caractères : affichées en source.",
           "Fichier ouvert supprimé par un autre outil : signalé seulement à l'enregistrement. Messages d'erreur du cœur en anglais.",
@@ -766,7 +932,7 @@ window.ROCKSY_ETAT = {
         "titre": "Suite proposée, dans l'ordre",
         "points": [
           "Essai sur le vrai vault et chronos manuels : ils diront si Drive à froid tient les cibles.",
-          "Recherche plein texte et backlinks, puis renommage de tags.",
+          "Renommage de tags et mise à jour des liens au renommage (premières écritures en masse dans le vault : aperçu, confirmation, annulation).",
           "Décider de la structure du dépôt et commiter ; alléger les captures.",
           "Avant publication : licence, anonymisation de in/ et out/data/, CSP, identifiant dev.rocksy.app."
         ]

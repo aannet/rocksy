@@ -7,6 +7,8 @@ import { listContinuation, parseCalloutHead, parseEmbed, parseTable, renderInlin
 import { scanTags } from "../src/mock/tagscan";
 import { buildFileTree } from "../src/sidebar";
 import type { Fragment, TreeEntry } from "../src/types";
+import { excerptAround, foldText, groupByPath, highlightTerms, parseQuery, segments, segmentsHtml, termRanges } from "../src/excerpt";
+import { MockIndex, parseLinks } from "../src/mock/index";
 
 const f = (path: string): TreeEntry => ({ path, isDir: false, size: 1, mtimeMs: 1 });
 const d = (path: string): TreeEntry => ({ path, isDir: true, size: 0, mtimeMs: 1 });
@@ -220,5 +222,139 @@ describe("mock tag scanner (contract rules)", () => {
   });
   it("ignores code, wikilinks, URLs and numeric tags", () => {
     expect(frags.map((x) => x.tag).sort()).toEqual(["alpha", "beta/b1", "cell", "dans/titre", "liste/tag", "para/tag", "q"]);
+  });
+});
+
+describe("excerpt segments (UTF-16 ranges)", () => {
+  it("splits into plain and highlighted parts", () => {
+    expect(segments("un mot ici", [[3, 6]])).toEqual([
+      { text: "un ", hit: false },
+      { text: "mot", hit: true },
+      { text: " ici", hit: false },
+    ]);
+    expect(segments("abc", [])).toEqual([{ text: "abc", hit: false }]);
+    expect(segments("abc", [[0, 3]])).toEqual([{ text: "abc", hit: true }]);
+  });
+  it("sorts, merges and clamps ranges", () => {
+    expect(segments("abcdefgh", [[5, 7], [1, 3], [2, 4], [7, 99], [-3, 0], [4, 4]]).map((s) => (s.hit ? `[${s.text}]` : s.text)).join("")).toBe("a[bcd]e[fgh]");
+  });
+  it("counts in UTF-16 units and never cuts a surrogate pair", () => {
+    const s = "a😀b café";
+    expect(s.indexOf("b")).toBe(3);
+    expect(segments(s, [[3, 4]])[1]).toEqual({ text: "b", hit: true });
+    expect(segments(s, [[2, 4]]).map((x) => x.text)).toEqual(["a", "😀b", " café"]);
+    expect(segments(s, [[1, 2]]).map((x) => x.text)).toEqual(["a", "😀", "b café"]);
+  });
+  it("escapes HTML around the marks", () => {
+    expect(segmentsHtml("a<b> & c", [[1, 4]])).toBe("a<mark>&lt;b&gt;</mark> &amp; c");
+  });
+  it("cuts long lines around the match", () => {
+    const line = "x".repeat(500) + "CIBLE" + "y".repeat(500);
+    const ex = excerptAround(line, 500, 505);
+    expect(ex.text.length).toBe(240);
+    expect(ex.text.slice(500 - ex.shift, 505 - ex.shift)).toBe("CIBLE");
+    expect(excerptAround("court", 0, 2)).toEqual({ text: "court", shift: 0 });
+  });
+});
+
+describe("search query", () => {
+  it("folds case and accents without changing length", () => {
+    expect(foldText("Résumé ÉTÉ çà")).toBe("resume ete ca");
+    expect(foldText("İstanbul œuvre").length).toBe("İstanbul œuvre".length);
+  });
+  it("parses words, phrases, exclusions and filters", () => {
+    expect(parseQuery('Archi "plan de test" -brouillon path:Projets tag:#a/b')).toEqual({
+      words: ["archi"],
+      lastIsPrefix: false,
+      phrases: ["plan de test"],
+      exclude: ["brouillon"],
+      paths: ["projets"],
+      tags: ["a/b"],
+    });
+    expect(parseQuery("plan archi").lastIsPrefix).toBe(true);
+    expect(parseQuery("plan archi ").lastIsPrefix).toBe(false);
+    expect(parseQuery('"non fermée').phrases).toEqual(["non fermee"]);
+  });
+  it("derives the terms to highlight", () => {
+    expect(highlightTerms('Résumé "plan B" -x path:a tag:b a')).toEqual(["plan b", "resume"]);
+    expect(highlightTerms("œuvre snake_case")).toEqual(["oeuvre", "œuvre", "snake", "case"]);
+    expect(termRanges(foldText("Une Œuvre"), "œuvre")).toEqual([[4, 9]]);
+  });
+  it("finds terms at word starts", () => {
+    expect(termRanges("un plan, le planning et l'aplani", "plan")).toEqual([[3, 7], [12, 16]]);
+    expect(termRanges("un plan, le planning", "plan", true)).toEqual([[3, 7]]);
+  });
+  it("groups by path in order of appearance", () => {
+    const g = groupByPath([{ path: "b", n: 1 }, { path: "a", n: 2 }, { path: "b", n: 3 }]);
+    expect(g.map((x) => [x.path, x.items.map((i) => i.n)])).toEqual([["b", [1, 3]], ["a", [2]]]);
+  });
+});
+
+describe("mock search and links (contract semantics)", () => {
+  const entries = ["Projets/Plan.md", "Projets/Architecture cible.md", "Notes/Résumé.md", "Notes/Vide.md", "_ASSETS/schema.png"].map(f);
+  const idx = new MockIndex();
+  idx.reset("C:\\V", new FileIndex(entries));
+  idx.add("Projets/Plan.md", "# Plan\n\nVoir [[Architecture cible|l'archi]] et ![[schema.png]].\nLe résumé est dans [[Résumé#Points]] ; [[Absente]] manque.\n`[[code]]` ignoré, [site](https://x.test) aussi.\n", ["projet/alpha"]);
+  idx.add("Projets/Architecture cible.md", "Architecture du plan. Résumé : voir [le plan](Plan.md).\n\n```\n[[dans un bloc]]\n```\n", ["archi"]);
+  idx.add("Notes/Résumé.md", "Points clés du plan de test.\nUn brouillon de PLAN.\n", ["projet"]);
+  idx.add("Notes/Vide.md", "", []);
+  idx.searchReady = true;
+  const names = (q: string) => idx.search(q).hits.map((h) => h.path.split("\\").pop());
+
+  it("parses links, skipping code and URLs", () => {
+    const links = parseLinks("a [[X#T|al]] `[[no]]` ![[img.png]] [t](a%20b.md#s) [u](https://x)\n[[#interne]]");
+    expect(links.map((l) => [l.target, l.heading, l.alias, l.kind, l.col])).toEqual([
+      ["X", "T", "al", "link", 2],
+      ["img.png", null, null, "embed", 22],
+      ["a b.md", "s", "t", "link", 35],
+    ]);
+  });
+  it("returns nothing before the search index is ready", () => {
+    const cold = new MockIndex();
+    cold.reset("C:\\V", new FileIndex(entries));
+    expect(cold.search("plan")).toMatchObject({ searchReady: false, total: 0 });
+  });
+  it("is accent and case insensitive, ANDs words, prefixes the last one", () => {
+    expect(names("resume").sort()).toEqual(["Architecture cible.md", "Plan.md", "Résumé.md"]);
+    expect(names("archi")).toEqual(["Architecture cible.md", "Plan.md"]);
+    expect(names("archi ")).toEqual(["Plan.md"]);
+    expect(names("plan brouillon")).toEqual(["Résumé.md"]);
+    expect(names("zzz")).toEqual([]);
+  });
+  it("ranks file-name matches first and reports them", () => {
+    const r = idx.search("plan");
+    expect(r.hits[0].path.endsWith("Plan.md")).toBe(true);
+    expect(r.hits[0].nameMatch).toBe(true);
+    expect(r.total).toBe(3);
+  });
+  it("supports phrases, exclusions, path: and tag: filters", () => {
+    expect(names('"plan de test"')).toEqual(["Résumé.md"]);
+    expect(names("plan -brouillon").sort()).toEqual(["Architecture cible.md", "Plan.md"]);
+    expect(names("plan path:notes")).toEqual(["Résumé.md"]);
+    expect(names("tag:projet").sort()).toEqual(["Plan.md", "Résumé.md"]);
+    expect(names("tag:#projet/alpha")).toEqual(["Plan.md"]);
+  });
+  it("gives excerpts whose ranges cover the term in UTF-16 units", () => {
+    const hit = idx.search("plan").hits.find((h) => h.path.endsWith("Résumé.md"))!;
+    expect(hit.matchCount).toBe(2);
+    expect(hit.matches.map((m) => [m.line, m.col, m.len])).toEqual([[0, 15, 4], [1, 16, 4]]);
+    for (const m of hit.matches) for (const [a, b] of m.ranges) expect(foldText(m.excerpt.slice(a, b))).toBe("plan");
+    expect(idx.search("plan", 1).hits.length).toBe(1);
+  });
+  it("computes backlinks, outgoing and unresolved links", () => {
+    const back = idx.backlinks("Projets/Plan.md");
+    expect(back.map((b) => [b.path.split("\\").pop(), b.line, b.kind])).toEqual([["Architecture cible.md", 0, "link"]]);
+    expect(back[0].excerpt.slice(back[0].ranges[0][0], back[0].ranges[0][1])).toBe("[le plan](Plan.md)");
+    expect(idx.backlinks("_ASSETS/schema.png").map((b) => b.kind)).toEqual(["embed"]);
+    expect(idx.backlinks("Notes/Résumé.md")[0]).toMatchObject({ heading: "Points", line: 3 });
+    const out = idx.outgoing("Projets/Plan.md");
+    expect(out.map((o) => [o.target, o.resolved ? o.resolved.split("\\").pop() : null, o.kind])).toEqual([
+      ["Architecture cible", "Architecture cible.md", "link"],
+      ["schema.png", "schema.png", "embed"],
+      ["Résumé", "Résumé.md", "link"],
+      ["Absente", null, "link"],
+    ]);
+    expect(idx.unresolved()).toEqual([{ target: "Absente", count: 1, sources: ["C:\\V\\Projets\\Plan.md"] }]);
+    expect(idx.stats()).toEqual({ links: 5, unresolvedLinks: 1 });
   });
 });

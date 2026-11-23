@@ -15,7 +15,15 @@
 //!                   tag (index into the tag table) | source (0 inline, 1 frontmatter)
 //!                   start line | end line - start line | tag line - start line
 //!                   tag column (UTF-16) | excerpt (index into the file's excerpts)
+//!               links       : count, then each
+//!                   flags (bit 0 embed, bit 1 Markdown syntax, bit 2 has heading, bit 3 has alias)
+//!                   line | column (UTF-16) | target | heading? | alias?
+//!                   excerpt | range start | range length
+//!           other files : count, then each relative path (attachments, for link resolution)
 //! ```
+//!
+//! Version 2 added the links and the list of other files; a version 1 file
+//! is ignored like any other unusable file, and the index is rebuilt.
 //!
 //! Integers are LEB128 varints unless a width is given; strings are a varint
 //! byte length followed by UTF-8. Files without any tag are listed too, so
@@ -23,13 +31,14 @@
 //! decoding (truncation, bad checksum, other version, other root, index out
 //! of range) makes the whole file be ignored.
 
+use super::parse::RawLink;
 use super::store::{FileData, Inner, Occ};
 use super::TagSource;
 use crate::paths::{fnv1a64, join_rel, path_key};
 use std::path::{Path, PathBuf};
 
 const MAGIC: &[u8; 8] = b"RKTAGIDX";
-pub(super) const VERSION: u32 = 1;
+pub(super) const VERSION: u32 = 2;
 const HEADER_LEN: usize = 8 + 4 + 8 + 8;
 
 /// Location of the persisted tag index of `root` inside `data_dir`.
@@ -111,6 +120,31 @@ pub(super) fn encode(inner: &Inner) -> Option<Vec<u8>> {
             put_varint(&mut p, u64::from(o.tag_col));
             put_varint(&mut p, u64::from(o.excerpt));
         }
+        put_varint(&mut p, f.links.len() as u64);
+        for l in &f.links {
+            p.push(
+                u8::from(l.embed)
+                    | (u8::from(l.markdown) << 1)
+                    | (u8::from(l.heading.is_some()) << 2)
+                    | (u8::from(l.alias.is_some()) << 3),
+            );
+            put_varint(&mut p, u64::from(l.line));
+            put_varint(&mut p, u64::from(l.col));
+            put_str(&mut p, &l.target);
+            if let Some(h) = &l.heading {
+                put_str(&mut p, h);
+            }
+            if let Some(a) = &l.alias {
+                put_str(&mut p, a);
+            }
+            put_str(&mut p, &l.excerpt);
+            put_varint(&mut p, u64::from(l.range.0));
+            put_varint(&mut p, u64::from(l.range.1.saturating_sub(l.range.0)));
+        }
+    }
+    put_varint(&mut p, inner.others.len() as u64);
+    for other in &inner.others {
+        put_str(&mut p, other);
     }
 
     let mut out = Vec::with_capacity(HEADER_LEN + p.len());
@@ -243,6 +277,36 @@ pub(super) fn decode(bytes: &[u8], root: &str) -> Option<Inner> {
             }
             occs.push(Occ { tag, start_line, end_line, tag_line, tag_col, excerpt, source });
         }
+        let link_count = r.count(6)?;
+        let mut links: Vec<RawLink> = Vec::with_capacity(link_count);
+        for _ in 0..link_count {
+            let link_flags = r.u8()?;
+            if link_flags > 15 {
+                return None;
+            }
+            let line = r.u32()?;
+            let col = r.u32()?;
+            let target = r.str()?.to_string();
+            if target.is_empty() {
+                return None;
+            }
+            let heading = if link_flags & 4 != 0 { Some(r.str()?.to_string()) } else { None };
+            let alias = if link_flags & 8 != 0 { Some(r.str()?.to_string()) } else { None };
+            let excerpt = r.str()?.to_string();
+            let start = r.u32()?;
+            let end = start.checked_add(r.u32()?)?;
+            links.push(RawLink {
+                target,
+                heading,
+                alias,
+                embed: link_flags & 1 != 0,
+                markdown: link_flags & 2 != 0,
+                line,
+                col,
+                excerpt,
+                range: (start, end),
+            });
+        }
 
         let path = join_rel(root, rel);
         let file = inner.files.len() as u32;
@@ -255,9 +319,19 @@ pub(super) fn decode(bytes: &[u8], root: &str) -> Option<Inner> {
             meta,
             present: true,
             unreadable: flags & 2 == 2,
+            links,
             ..FileData::default()
         });
         inner.attach(file, occs, excerpts);
+    }
+    let other_count = r.count(1)?;
+    inner.others.reserve(other_count);
+    for _ in 0..other_count {
+        let other = r.str()?;
+        if other.is_empty() {
+            return None;
+        }
+        inner.others.push(other.to_string());
     }
     if r.pos != payload.len() {
         return None;

@@ -6,6 +6,8 @@ import type { ApiError, BackendEvents, FileContent, Fragment, Session, TagCount,
 import { basename, joinAbs, samePath, toRel } from "../paths";
 import { DEMO_BLOCKS, DEMO_CALLOUTS, DEMO_CANVAS, DEMO_LIVE_PREVIEW, DEMO_OUTSIDE, bigNote, hash, smallNote, svgImage, treeFiles } from "./gen";
 import { scanTags } from "./tagscan";
+import { MockIndex } from "./index";
+import { FileIndex } from "../resolve";
 
 const ROOT = "C:\\Vaults\\Demo";
 const ROOT2 = "D:\\Vaults\\Second";
@@ -30,6 +32,7 @@ export interface MockControl {
   touch(path: string, text?: string): void;
   emit<K extends keyof BackendEvents>(event: K, payload: BackendEvents[K]): void;
   tagsReady: boolean;
+  searchReady: boolean;
 }
 
 declare global {
@@ -146,6 +149,15 @@ export function createMockBackend(params: URLSearchParams): Backend {
   const fragsByFile = new Map<string, Fragment[]>();
   let tagCounts: TagCount[] | null = null;
   let tagRun = 0;
+  // Search and links: fed by the same pass as the tags (one read per note), search usable a little later.
+  const index = new MockIndex();
+  const searchDelay = Number(params.get("searchdelay") ?? 900);
+  let indexRoot = "";
+  const indexInfo = (ms: number, extra: Record<string, number> = {}) => {
+    let occurrences = 0;
+    for (const list of fragsByFile.values()) occurrences += list.length;
+    return { fromCache: false, files: index.size, tags: counts().length, occurrences, ...index.stats(), searchReady: index.searchReady, searchDocs: index.searchReady ? index.size : 0, ms, ...extra };
+  };
 
   function counts(): TagCount[] {
     if (tagCounts) return tagCounts;
@@ -172,8 +184,11 @@ export function createMockBackend(params: URLSearchParams): Backend {
     fragsByFile.clear();
     tagCounts = null;
     control.tagsReady = false;
+    control.searchReady = false;
     const tree = buildTree(root);
     const notes = tree.rels.filter((r) => /\.md$/i.test(r));
+    indexRoot = root;
+    index.reset(root, new FileIndex(tree.entries));
     let done = 0;
     let occurrences = 0;
     while (done < notes.length) {
@@ -185,6 +200,7 @@ export function createMockBackend(params: URLSearchParams): Backend {
           const fr = scanTags(abs, f.text);
           if (fr.length) fragsByFile.set(key(abs), fr);
           occurrences += fr.length;
+          index.add(notes[done], f.text, fr.map((x) => x.tag));
           // Generated notes are not kept in memory once scanned (10k notes would cost ~20 MB).
           if (!fixed[notes[done]] && samePath(root, ROOT)) files.delete(key(abs));
         }
@@ -196,7 +212,16 @@ export function createMockBackend(params: URLSearchParams): Backend {
       if (run !== tagRun) return;
     }
     control.tagsReady = true;
-    emit("tags-ready", { files: notes.length, tags: counts().length, occurrences, ms: Math.round(performance.now() - started) });
+    const ms = Math.round(performance.now() - started);
+    emit("tags-ready", { files: notes.length, tags: counts().length, occurrences, ms, fromCache: false });
+    emit("index-ready", indexInfo(ms));
+    // The full-text index becomes available after tags and links.
+    setTimeout(() => {
+      if (run !== tagRun) return;
+      index.searchReady = true;
+      control.searchReady = true;
+      emit("index-ready", indexInfo(Math.round(performance.now() - started)));
+    }, searchDelay * delayFactor);
   }
 
   const control: MockControl = {
@@ -209,6 +234,7 @@ export function createMockBackend(params: URLSearchParams): Backend {
     calls: [],
     genMs: {},
     tagsReady: false,
+    searchReady: false,
     touch(path, text) {
       const f = load(path);
       if (!f) return;
@@ -267,7 +293,13 @@ export function createMockBackend(params: URLSearchParams): Backend {
       f.mtimeMs = Math.max(Date.now(), f.mtimeMs + 1);
       control.saves.push({ path, size: text.length, expectedMtimeMs });
       if (fragsByFile.size && vaultOf(path)) {
-        fragsByFile.set(key(path), scanTags(path, text));
+        const fr = scanTags(path, text);
+        const rel = indexRoot ? toRel(indexRoot, path) : null;
+        if (rel != null) {
+          index.add(rel, text, fr.map((x) => x.tag));
+          setTimeout(() => emit("index-ready", indexInfo(1, { reread: 1, removed: 0 })), 30);
+        }
+        fragsByFile.set(key(path), fr);
         tagCounts = null;
       }
       return { mtimeMs: f.mtimeMs, size: text.length };
@@ -300,6 +332,7 @@ export function createMockBackend(params: URLSearchParams): Backend {
           tree.byRel.set(extra.path.toLowerCase(), extra);
         }
         emit("tree-updated", { root: path, fromSnapshot: false, entries });
+        if (samePath(path, indexRoot)) index.setFiles(new FileIndex(entries));
       }, 700 * delayFactor);
       return { root: path, fromSnapshot: true, entries: tree.entries };
     },
@@ -325,6 +358,28 @@ export function createMockBackend(params: URLSearchParams): Backend {
         }
       }
       return out;
+    },
+    async search(query, limit) {
+      control.calls.push("search");
+      await sleep(2);
+      return index.search(query, limit);
+    },
+    async backlinks(path) {
+      control.calls.push("backlinks");
+      await sleep(2);
+      const rel = indexRoot ? toRel(indexRoot, path) : null;
+      return rel == null ? [] : index.backlinks(rel);
+    },
+    async outgoingLinks(path) {
+      control.calls.push("outgoing_links");
+      await sleep(2);
+      const rel = indexRoot ? toRel(indexRoot, path) : null;
+      return rel == null ? [] : index.outgoing(rel);
+    },
+    async unresolvedLinks(limit) {
+      control.calls.push("unresolved_links");
+      await sleep(2);
+      return index.unresolved(limit);
     },
     async fileTags(path, text) {
       control.calls.push("file_tags");

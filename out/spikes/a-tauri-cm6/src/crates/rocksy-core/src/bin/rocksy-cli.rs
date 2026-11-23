@@ -6,6 +6,9 @@
 //!   rocksy-cli tags-persist <vault> [--data-dir D] [--work-dir W] [--modify N] [--threads N]
 //!   rocksy-cli watch <vault> [--seconds N] [--debounce-ms N] [--max-wait-ms N] [--max-paths N]
 //!   rocksy-cli watch-bench <vault> [--work-dir W] [--burst N]
+//!   rocksy-cli search <vault> <query> [--data-dir D] [--limit N] [--hold-seconds N]
+//!   rocksy-cli links <vault> <file> [--data-dir D]
+//!   rocksy-cli search-bench <vault> [--data-dir D] [--work-dir W] [--modify N]
 //!   rocksy-cli fragments <file.md>
 
 use rocksy_core::{
@@ -24,6 +27,9 @@ const USAGE: &str = "usage:
   rocksy-cli tags-persist <vault> [--data-dir D] [--work-dir W] [--modify N] [--threads N]
   rocksy-cli watch <vault> [--seconds N] [--debounce-ms N] [--max-wait-ms N] [--max-paths N]
   rocksy-cli watch-bench <vault> [--work-dir W] [--burst N]
+  rocksy-cli search <vault> <query> [--data-dir D] [--limit N] [--hold-seconds N]
+  rocksy-cli links <vault> <file> [--data-dir D]
+  rocksy-cli search-bench <vault> [--data-dir D] [--work-dir W] [--modify N]
   rocksy-cli fragments <file.md>";
 
 fn ms(start: Instant) -> f64 {
@@ -551,6 +557,342 @@ fn cmd_watch_bench(vault: &Path, work_dir: Option<&str>, burst: usize) -> Result
     }))
 }
 
+fn dir_size(dir: &Path) -> (u64, usize) {
+    let mut total = (0, 0);
+    if let Ok(entries) = std::fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                let (bytes, files) = dir_size(&path);
+                total = (total.0 + bytes, total.1 + files);
+            } else if let Ok(meta) = entry.metadata() {
+                total = (total.0 + meta.len(), total.1 + 1);
+            }
+        }
+    }
+    total
+}
+
+/// Resident memory of this process in kB (Linux only; `null` elsewhere).
+fn resident_kb() -> Option<u64> {
+    let status = std::fs::read_to_string("/proc/self/status").ok()?;
+    let line = status.lines().find(|l| l.starts_with("VmRSS:"))?;
+    line.split_whitespace().nth(1)?.parse().ok()
+}
+
+/// Opens the persisted index of a vault as a new process would, then
+/// reconciles. Returns the index and the timings.
+fn open_index(vault: &Path, data: &Path) -> Result<(TagIndex, Value), String> {
+    let index = TagIndex::new();
+    let start = Instant::now();
+    let loaded = index.load_persisted(data, vault);
+    index.open_search(data, vault);
+    let load_ms = ms(start);
+    let start = Instant::now();
+    let report = reconcile(&index, data, vault, None)?;
+    let reconcile_ms = ms(start);
+    let state = index.index_ready(false, report.ms, Some(&report));
+    let timings = json!({
+        "loadPersistedMs": load_ms, "fromCache": loaded.is_some(),
+        "reconcileMs": reconcile_ms, "reconcile": report, "index": state,
+    });
+    Ok((index, timings))
+}
+
+fn cmd_search(vault: &Path, query: &str, data_dir: Option<&str>, limit: Option<usize>, hold: Option<usize>) -> Result<Value, String> {
+    let data = DataDir::new(data_dir);
+    let index = TagIndex::new();
+    let start = Instant::now();
+    let loaded = index.load_persisted(&data.path, vault);
+    let load_ms = ms(start);
+    let start = Instant::now();
+    let ready = index.open_search(&data.path, vault);
+    let open_search_ms = ms(start);
+    // First query of the process, before any reconcile: the cold path.
+    let start = Instant::now();
+    let cold = index.search(query, limit);
+    let cold_ms = ms(start);
+    let start = Instant::now();
+    let report = reconcile(&index, &data.path, vault, None)?;
+    let reconcile_ms = ms(start);
+    let result = index.search(query, limit);
+    let resident = resident_kb();
+    if let Some(seconds) = hold {
+        std::thread::sleep(std::time::Duration::from_secs(seconds as u64));
+    }
+    Ok(json!({
+        "command": "search",
+        "loadPersistedMs": load_ms, "fromCache": loaded.is_some(),
+        "openSearchMs": open_search_ms, "searchReadyAfterOpen": ready,
+        "coldSearch": { "ms": cold_ms, "total": cold.total, "searchReady": cold.search_ready },
+        "reconcileMs": reconcile_ms, "reconcile": report,
+        "index": index.index_ready(loaded.is_some(), report.ms, Some(&report)),
+        "residentKb": resident,
+        "result": result,
+    }))
+}
+
+fn cmd_links(vault: &Path, file: &str, data_dir: Option<&str>) -> Result<Value, String> {
+    let data = DataDir::new(data_dir);
+    let (index, timings) = open_index(vault, &data.path)?;
+    let path = if Path::new(file).is_absolute() { PathBuf::from(file) } else { vault.join(file) };
+    Ok(json!({
+        "command": "links",
+        "path": path,
+        "open": timings,
+        "outgoing": index.outgoing_links(&path),
+        "backlinks": index.backlinks(&path),
+        "unresolvedInVault": index.unresolved_links(Some(20)),
+    }))
+}
+
+/// Words of a text (letters and digits), lowercased, at least `min` long.
+fn words(text: &str, min: usize) -> Vec<String> {
+    text.split(|c: char| !c.is_alphanumeric())
+        .filter(|w| w.chars().count() >= min && w.chars().all(char::is_alphabetic))
+        .map(str::to_lowercase)
+        .collect()
+}
+
+fn cmd_search_bench(vault: &Path, data_dir: Option<&str>, work_dir: Option<&str>, modify: usize) -> Result<Value, String> {
+    let data = DataDir::new(data_dir);
+    let io = |e: std::io::Error| format!("I/O error: {e}");
+    let root = rocksy_core::paths::absolute_string(vault).map_err(err)?;
+
+    // 1. Full indexing from nothing: tags, links and full text in one pass.
+    let tags_file = tags_index_path(&data.path, &root);
+    let search_dir = data.path.join("search").join(tags_file.file_stem().unwrap_or_default());
+    let _ = std::fs::remove_file(&tags_file);
+    let _ = std::fs::remove_dir_all(&search_dir);
+    let index = TagIndex::new();
+    let start = Instant::now();
+    let full = reconcile(&index, &data.path, vault, None)?;
+    let full_ms = ms(start);
+    let state = index.index_ready(false, full.ms, Some(&full));
+    let tags_bytes = std::fs::metadata(&tags_file).map(|m| m.len()).unwrap_or(0);
+    let (search_bytes_after_build, search_files_after_build) = dir_size(&search_dir);
+    let resident_after_build = resident_kb();
+
+    // Sample notes to pick realistic query words and link targets.
+    let tree = list_tree(vault).map_err(err)?;
+    let notes: Vec<PathBuf> = tree
+        .entries
+        .iter()
+        .filter(|e| !e.is_dir && e.path.to_lowercase().ends_with(".md"))
+        .map(|e| {
+            let mut p = PathBuf::from(&tree.root);
+            e.path.split('/').for_each(|c| p.push(c));
+            p
+        })
+        .collect();
+    let mut candidates: Vec<String> = Vec::new();
+    let mut phrase = String::new();
+    for note in notes.iter().step_by((notes.len() / 12).max(1)).take(12) {
+        if let Ok(text) = std::fs::read_to_string(note) {
+            let w = words(&text, 5);
+            if phrase.is_empty() {
+                if let Some(pair) = w.windows(2).find(|p| text.to_lowercase().contains(&format!("{} {}", p[0], p[1]))) {
+                    phrase = format!("\"{} {}\"", pair[0], pair[1]);
+                }
+            }
+            candidates.extend(w.into_iter().take(40));
+        }
+    }
+    candidates.sort();
+    candidates.dedup();
+    let mut counted: Vec<(usize, String)> =
+        candidates.iter().map(|w| (index.search(&format!("\"{w}\""), Some(1)).total, w.clone())).filter(|(n, _)| *n > 0).collect();
+    counted.sort();
+    let frequent = counted.last().map(|c| c.1.clone()).unwrap_or_default();
+    let rare = counted.first().map(|c| c.1.clone()).unwrap_or_default();
+    let middle = counted.get(counted.len() / 2).map(|c| c.1.clone()).unwrap_or_default();
+    let letter: String = frequent.chars().take(1).collect();
+    let top_tag = index.tags_list("").first().map(|t| t.tag.clone()).unwrap_or_default();
+    let folder = tree.entries.iter().find(|e| e.is_dir).map(|e| e.path.clone()).unwrap_or_default();
+    let stem: String = frequent.chars().take(3).collect();
+    let queries: Vec<(&str, String)> = vec![
+        ("frequentWord", format!("\"{frequent}\"")),
+        ("frequentWordAsPrefix", frequent.clone()),
+        ("rareWord", rare.clone()),
+        ("oneLetterPrefix", letter.clone()),
+        ("oneLetterThenWord", format!("{letter} {middle}")),
+        ("wordThenOneLetter", format!("{middle} {letter}")),
+        ("threeLetterPrefix", stem),
+        ("twoWords", format!("{frequent} {middle}")),
+        ("phrase", phrase.clone()),
+        ("tagFilter", format!("tag:{top_tag} {middle}")),
+        ("pathFilter", format!("path:{folder} {frequent}")),
+        ("exclusion", format!("-{rare} {frequent}")),
+        ("tagOnly", format!("tag:{top_tag}")),
+        ("noResult", "zzzzqqqq".to_string()),
+    ];
+    let measure = |index: &TagIndex| -> Vec<Value> {
+        queries
+            .iter()
+            .map(|(name, query)| {
+                let (median, max, result) = bench(20, || index.search(query, Some(50)));
+                let (json_median, _, bytes) = bench(5, || serde_json::to_string(&index.search(query, Some(50))).map(|s| s.len()).unwrap_or(0));
+                json!({ "name": name, "query": query, "total": result.total, "hits": result.hits.len(),
+                        "medianMs": median, "maxMs": max, "withJsonMs": json_median, "jsonBytes": bytes })
+            })
+            .collect()
+    };
+    let queries_after_build = measure(&index);
+
+    // 2. Links: the note with the most outgoing links among a sample, and
+    // the most linked file among their targets.
+    let mut busiest = notes.first().cloned().unwrap_or_default();
+    let mut most = 0;
+    let mut targets: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+    for note in notes.iter().take(2000) {
+        let out = index.outgoing_links(note);
+        if out.len() > most {
+            most = out.len();
+            busiest = note.clone();
+        }
+        for link in out {
+            if let Some(resolved) = link.resolved {
+                *targets.entry(resolved).or_default() += 1;
+            }
+        }
+    }
+    let popular = targets.iter().max_by_key(|(_, n)| **n).map(|(p, _)| PathBuf::from(p)).unwrap_or_else(|| busiest.clone());
+    let (out_median, out_max, out) = bench(100, || index.outgoing_links(&busiest));
+    let (back_median, back_max, back) = bench(100, || index.backlinks(&popular));
+    let (unres_median, unres_max, unres) = bench(20, || index.unresolved_links(Some(5000)));
+
+    // 3. Reconcile with nothing changed.
+    let (same_median, same_max, same) = bench(5, || reconcile(&index, &data.path, vault, None));
+    let same = same?;
+    drop(index);
+    // Let background merges of the initial indexing settle before sizing.
+    let (search_bytes, search_files) = dir_size(&search_dir);
+
+    // 4. What a new process does: load, resolve links, first query.
+    let mut loads = Vec::new();
+    let mut opens = Vec::new();
+    let mut graphs = Vec::new();
+    let mut firsts = Vec::new();
+    let mut resident_after_load = None;
+    let mut reopened = None;
+    for _ in 0..10 {
+        drop(reopened.take());
+        let fresh = TagIndex::new();
+        let start = Instant::now();
+        let loaded = fresh.load_persisted(&data.path, vault);
+        loads.push(ms(start));
+        if loaded.is_none() {
+            return Err("persisted index could not be loaded".into());
+        }
+        let start = Instant::now();
+        fresh.open_search(&data.path, vault);
+        opens.push(ms(start));
+        // The first link query builds the whole link graph.
+        let start = Instant::now();
+        let _ = fresh.backlinks(&popular);
+        graphs.push(ms(start));
+        let start = Instant::now();
+        let _ = fresh.search(&frequent, Some(50));
+        firsts.push(ms(start));
+        resident_after_load = resident_kb();
+        reopened = Some(fresh);
+    }
+    let stat = |mut v: Vec<f64>| {
+        v.sort_by(|a, b| a.total_cmp(b));
+        json!({ "median": v[v.len() / 2], "max": v[v.len() - 1], "reps": v.len() })
+    };
+    let reopened = reopened.ok_or("no index")?;
+    let ready_after_load = reopened.search_ready();
+    let queries_after_load = measure(&reopened);
+    drop(reopened);
+
+    // 5. On a temporary copy: reconcile after N modified notes, and the
+    // cost of reflecting one save.
+    let base = work_dir.map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
+    let work = base.join(format!("rocksy-cli-search-{}", std::process::id()));
+    let changed = (|| -> Result<Value, String> {
+        let copy = work.join("vault");
+        let copy_data = work.join("data");
+        let files = copy_markdown(vault, &copy)?;
+        let session = TagIndex::new();
+        let start = Instant::now();
+        let first = reconcile(&session, &copy_data, &copy, None)?;
+        let first_ms = ms(start);
+        let n = modify.min(files.len());
+        let mut rounds = Vec::new();
+        let mut times = Vec::new();
+        for round in 0..3 {
+            for k in 0..n {
+                let target = &files[(k * files.len() / n.max(1) + round) % files.len()];
+                let mut bytes = std::fs::read(target).map_err(io)?;
+                bytes.extend_from_slice(format!("\nligne ajoutée rocksyclimodif{round} #rocksy-cli/modif{round} [[Lien ajouté {round}]]\n").as_bytes());
+                std::fs::write(target, bytes).map_err(io)?;
+            }
+            let start = Instant::now();
+            let report = reconcile(&session, &copy_data, &copy, None)?;
+            let wall = ms(start);
+            times.push(wall);
+            let visible = session.search(&format!("rocksyclimodif{round}"), Some(1)).total;
+            rounds.push(json!({ "wallMs": wall, "reread": report.reread, "unchanged": report.unchanged, "searchableAfter": visible }));
+        }
+        // One save by the application: text in memory into the three.
+        let mut saves = Vec::new();
+        for k in 0..10 {
+            let target = &files[(k * 7919) % files.len()];
+            let Ok(mut text) = std::fs::read_to_string(target) else { continue };
+            text.push_str(&format!("\nenregistrement rocksyclisave{k}\n"));
+            let saved = rocksy_core::save_file(target, &text, None).map_err(err)?;
+            let start = Instant::now();
+            session.update_file_with_meta(target, &text, saved.size, saved.mtime_ms);
+            saves.push(ms(start));
+            if session.search(&format!("rocksyclisave{k}"), Some(1)).total != 1 {
+                return Err("a saved note was not searchable right away".into());
+            }
+        }
+        let start = Instant::now();
+        let after_saves = reconcile(&session, &copy_data, &copy, None)?;
+        let after_saves_ms = ms(start);
+        Ok(json!({
+            "copiedMarkdownFiles": files.len(),
+            "firstIndexing": { "wallMs": first_ms, "report": first },
+            "modifiedFiles": n,
+            "reconcileMs": stat(times),
+            "rounds": rounds,
+            "updateFileWithMetaMs": stat(saves),
+            "reconcileAfterSaves": { "wallMs": after_saves_ms, "reread": after_saves.reread },
+        }))
+    })();
+    let _ = std::fs::remove_dir_all(&work);
+    let changed = changed?;
+
+    Ok(json!({
+        "command": "search-bench",
+        "vault": root,
+        "dataDir": data.path,
+        "fullIndexing": { "wallMs": full_ms, "report": full, "index": state },
+        "persisted": {
+            "tagsAndLinksBytes": tags_bytes,
+            "searchBytesRightAfterIndexing": search_bytes_after_build, "searchFilesRightAfterIndexing": search_files_after_build,
+            "searchBytes": search_bytes, "searchFiles": search_files,
+        },
+        "residentKb": { "afterIndexing": resident_after_build, "afterLoad": resident_after_load },
+        "queriesUsed": { "frequent": frequent, "rare": rare, "middle": middle, "phrase": phrase, "tag": top_tag, "folder": folder },
+        "queriesAfterIndexing": queries_after_build,
+        "links": {
+            "outgoing": { "medianMs": out_median, "maxMs": out_max, "links": out.len() },
+            "backlinks": { "medianMs": back_median, "maxMs": back_max, "links": back.len() },
+            "unresolved": { "medianMs": unres_median, "maxMs": unres_max, "targets": unres.len() },
+        },
+        "reconcileNoChangeMs": { "median": same_median, "max": same_max, "reps": 5, "reread": same.reread, "persisted": same.persisted },
+        "newProcess": {
+            "loadPersistedMs": stat(loads), "openSearchMs": stat(opens), "linkGraphMs": stat(graphs), "firstSearchMs": stat(firsts),
+            "searchReady": ready_after_load,
+        },
+        "queriesAfterLoad": queries_after_load,
+        "onCopy": changed,
+    }))
+}
+
 fn cmd_fragments(file: &Path) -> Result<Value, String> {
     let content = read_file(file).map_err(err)?;
     let start = Instant::now();
@@ -589,6 +931,20 @@ fn run(raw: &[String]) -> Result<Value, String> {
             cmd_watch(&target, args.usize_opt("seconds")?, options, args.usize_opt("max-paths")?.unwrap_or(20))
         }
         "watch-bench" => cmd_watch_bench(&target, args.opt("work-dir"), args.usize_opt("burst")?.unwrap_or(300)),
+        "search" => {
+            let query = args.positional.get(2).cloned().unwrap_or_default();
+            cmd_search(&target, &query, args.opt("data-dir"), args.usize_opt("limit")?, args.usize_opt("hold-seconds")?)
+        }
+        "links" => {
+            let file = args.positional.get(2).ok_or(USAGE)?;
+            cmd_links(&target, file, args.opt("data-dir"))
+        }
+        "search-bench" => cmd_search_bench(
+            &target,
+            args.opt("data-dir"),
+            args.opt("work-dir"),
+            args.usize_opt("modify")?.unwrap_or(50),
+        ),
         "fragments" => cmd_fragments(&target),
         other => Err(format!("unknown command: {other}\n{USAGE}")),
     }

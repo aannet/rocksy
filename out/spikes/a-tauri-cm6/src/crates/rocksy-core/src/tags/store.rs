@@ -4,7 +4,7 @@
 //! number of occurrences of itself and of its descendants, so listing and
 //! filtering never touch the fragments.
 
-use super::parse::Parsed;
+use super::parse::{Parsed, RawLink};
 use super::TagSource;
 use crate::paths::{key_rel, path_key};
 use std::collections::HashMap;
@@ -37,6 +37,8 @@ pub(super) struct FileData {
     pub unreadable: bool,
     pub occs: Vec<Occ>,
     pub excerpts: Vec<Box<str>>,
+    /// Links and embeds, in document order.
+    pub links: Vec<RawLink>,
 }
 
 pub(super) struct TagNode {
@@ -58,6 +60,7 @@ pub(super) struct FileParsed {
     pub tags: Vec<String>,
     pub occs: Vec<Occ>,
     pub excerpts: Vec<Box<str>>,
+    pub links: Vec<RawLink>,
 }
 
 impl FileParsed {
@@ -83,7 +86,26 @@ impl FileParsed {
             });
         }
         let excerpts = parsed.excerpts.into_iter().map(String::into_boxed_str).collect();
-        Self { tags, occs, excerpts }
+        Self { tags, occs, excerpts, links: parsed.links }
+    }
+
+    /// Lowercased tags of the file together with all their ancestors
+    /// (`a/b/c` gives `a/b/c`, `a/b`, `a`), without duplicates.
+    pub fn tags_with_ancestors(&self) -> Vec<String> {
+        let mut out: Vec<String> = Vec::new();
+        for tag in &self.tags {
+            let mut t = tag.to_lowercase();
+            loop {
+                if !out.contains(&t) {
+                    out.push(t.clone());
+                }
+                match t.rfind('/') {
+                    Some(pos) => t.truncate(pos),
+                    None => break,
+                }
+            }
+        }
+        out
     }
 }
 
@@ -96,6 +118,9 @@ pub(super) struct Inner {
     pub by_path: HashMap<String, u32>,
     pub tags: Vec<TagNode>,
     pub by_key: HashMap<String, u32>,
+    /// Relative paths of the other visible files of the vault (attachments),
+    /// sorted; link targets are resolved against notes and these.
+    pub others: Vec<String>,
     pub occurrences: usize,
     /// Incremented by every change.
     pub generation: u64,
@@ -219,6 +244,7 @@ impl Inner {
         }
         self.attach(file, occs, parsed.excerpts);
         let data = &mut self.files[file as usize];
+        data.links = parsed.links;
         data.meta = meta;
         data.unreadable = unreadable;
         self.generation += 1;
@@ -230,6 +256,7 @@ impl Inner {
         let src = &mut old.files[old_file as usize];
         let mut occs = std::mem::take(&mut src.occs);
         let excerpts = std::mem::take(&mut src.excerpts);
+        let links = std::mem::take(&mut src.links);
         let (meta, unreadable) = (src.meta, src.unreadable);
         for o in &mut occs {
             let slot = &mut tag_map[o.tag as usize];
@@ -241,8 +268,20 @@ impl Inner {
         let file = self.file_id(path, rel);
         self.attach(file, occs, excerpts);
         let data = &mut self.files[file as usize];
+        data.links = links;
         data.meta = meta;
         data.unreadable = unreadable;
+    }
+
+    /// Replaces the list of non-Markdown files. Returns whether it changed.
+    pub fn set_others(&mut self, mut others: Vec<String>) -> bool {
+        others.sort_unstable();
+        if others == self.others {
+            return false;
+        }
+        self.others = others;
+        self.generation += 1;
+        true
     }
 
     /// Forgets a deleted file. Returns whether it was known.
@@ -253,6 +292,7 @@ impl Inner {
         }
         self.clear_occs(file);
         let data = &mut self.files[file as usize];
+        data.links = Vec::new();
         data.present = false;
         data.meta = None;
         data.unreadable = false;

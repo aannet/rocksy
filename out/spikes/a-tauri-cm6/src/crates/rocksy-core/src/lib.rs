@@ -10,9 +10,11 @@
 //! `CONTRACT.md`.
 
 mod atomic;
+mod excerpt;
 pub mod error;
 pub mod files;
 pub mod paths;
+pub mod search;
 pub mod session;
 pub mod tags;
 pub mod tree;
@@ -24,10 +26,12 @@ pub(crate) mod testutil;
 
 pub use error::{ApiError, ErrorKind, Result};
 pub use files::{read_file, save_file, FileContent, SaveResult};
+pub use search::{SearchHit, SearchMatch, SearchResult};
 pub use session::{load_session, save_session, Session};
 pub use tags::{
-    file_tags, tags_index_path, BuildOptions, CancelToken, Fragment, ReconcileReport, TagCount,
-    TagIndex, TagSource, TagStats, TagsProgress, TagsReady,
+    file_tags, tags_index_path, BuildOptions, CancelToken, Fragment, IndexReady, LinkKind, LinkRef,
+    OutLink, ReconcileReport, TagCount, TagIndex, TagSource, TagStats, TagsProgress, TagsReady,
+    UnresolvedLink, VaultIndex,
 };
 pub use tree::{
     list_tree, load_tree_snapshot, open_tree, reconcile_tree, save_tree_snapshot,

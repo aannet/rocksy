@@ -1,0 +1,50 @@
+{
+  "scenario": "is-w1",
+  "saved": {
+    "attachMs": 694,
+    "entries": 1052,
+    "indexEvents_firstIndexing_w1": "[{\"fromCache\":false,\"files\":491,\"tags\":616,\"occurrences\":2899,\"links\":1414,\"unresolvedLinks\":28,\"searchReady\":true,\"searchDocs\":491,\"reread\":491,\"removed\":0,\"ms\":436,\"atMs\":692}]",
+    "P4_statusTextForEachIndexState": "{\"{\\\"fromCache\\\":true,\\\"searchReady\\\":false}\":\"Index : tags ✓ liens ✓ · recherche…\",\"{\\\"fromCache\\\":true,\\\"searchReady\\\":true}\":\"Index : vérification…\",\"{\\\"fromCache\\\":false,\\\"searchReady\\\":true,\\\"reread\\\":0,\\\"removed\\\":0}\":\"Index ✓\"}",
+    "P1_LF_results": "{\"info\":\"1 fichier · 1,387 ms\",\"rows\":[[\"Recherche LF.md\",2,22,11],[\"Recherche LF.md\",2,22,11],[\"Recherche LF.md\",8,15,11]]}",
+    "P1_LF_opened": "{\"doc\":\"Recherche LF\",\"line0\":2,\"col\":22,\"selected\":\"zygomatique\",\"flash\":1,\"marks\":2,\"bom\":false,\"eol\":\"lf\"}",
+    "P1_CRLF_secondMatch_results": "{\"info\":\"1 fichier · 0,997 ms\",\"rows\":[[\"Recherche CRLF.md\",2,22,8],[\"Recherche CRLF.md\",2,22,8],[\"Recherche CRLF.md\",8,15,8]]}",
+    "P1_CRLF_secondMatch_opened": "{\"doc\":\"Recherche CRLF\",\"line0\":8,\"col\":15,\"selected\":\"crlfzygo\",\"flash\":1,\"marks\":2,\"bom\":false,\"eol\":\"crlf\"}",
+    "P1_BOM_line0_results": "{\"info\":\"1 fichier · 0,975 ms\",\"rows\":[[\"Recherche BOM.md\",0,1,7],[\"Recherche BOM.md\",0,1,7],[\"Recherche BOM.md\",2,14,7]]}",
+    "P1_BOM_line0_opened": "{\"doc\":\"Recherche BOM\",\"line0\":0,\"col\":0,\"selected\":\"bomzygo\",\"flash\":1,\"marks\":2,\"bom\":true,\"eol\":\"lf\"}",
+    "P1_BOM_line2_results": "{\"info\":\"1 fichier · 0,976 ms\",\"rows\":[[\"Recherche BOM.md\",0,1,7],[\"Recherche BOM.md\",0,1,7],[\"Recherche BOM.md\",2,14,7]]}",
+    "P1_BOM_line2_opened": "{\"doc\":\"Recherche BOM\",\"line0\":2,\"col\":14,\"selected\":\"bomzygo\",\"flash\":0,\"marks\":2,\"bom\":true,\"eol\":\"lf\"}",
+    "P1_accents_ligature_results": "{\"info\":\"2 fichiers · 1,225 ms\",\"rows\":[[\"Recherche CRLF.md\",3,0,3],[\"Recherche CRLF.md\",3,0,3],[\"Recherche LF.md\",3,0,3],[\"Recherche LF.md\",3,0,3]]}",
+    "P1_accents_ligature_opened": "{\"doc\":\"Recherche CRLF\",\"line0\":3,\"col\":0,\"selected\":\"Été\",\"flash\":1,\"marks\":3,\"bom\":false,\"eol\":\"crlf\"}",
+    "P1_accents_termMarksInNote": "{\"marks\":[\"Été\",\"résumé\",\"œuvre\"]}",
+    "P2_before": "{\"back\":0,\"out\":[\"Décision plan 0043400_INBOX\",\"Note à créer par le watchernon résolu [X]\"]}",
+    "P2_ctrlS_ms": 50,
+    "P2_afterSave_outgoing": "{\"out\":[\"Décision plan 0043400_INBOX\",\"Note à créer par le watchernon résolu [X]\",\"Format bilan 0010300_INBOX\"],\"events\":1}",
+    "P2_targetBacklinks_afterSave": "{\"note\":\"Format bilan 00103\",\"sources\":[\"Recherche LF\",\"__DAILY NOTES SYNTH\"],\"back\":2}",
+    "P2_watcher_unresolvedBefore": "[\"Note à créer par le watchernon résolu\"]",
+    "P2_watcher_resolvedAfterMs": 498,
+    "P2_watcher_state": "{\"out\":[\"Décision plan 0043400_INBOX\",\"Note à créer par le watcher00_INBOX\",\"Format bilan 0010300_INBOX\"],\"searchFindsNewFile\":1,\"stillUnresolved\":false,\"treeHasFile\":true,\"lastEvent\":{\"fromCache\":false,\"files\":492,\"tags\":616,\"occurrences\":2899,\"links\":1415,\"unresolvedLinks\":27,\"searchReady\":true,\"searchDocs\":492,\"reread\":1,\"removed\":0,\"ms\":56,\"atMs\":7274}}",
+    "P3_list": "{\"placeholder\":\"Liens non résolus (27 cibles)…\",\"first\":\"Missing 000-03 liens · 00_INBOX/équipe 000-00/Décision revue 00395 (+2)\"}",
+    "P3_pick_cursorOnUnresolvedLink": "{\"doc\":\"Décision revue 00395\",\"line0\":31,\"col\":2,\"selected\":\"[[Missing 000-0]]\\n\\n### Forma\",\"flash\":1,\"marks\":1,\"bom\":false,\"eol\":\"lf\"}",
+    "P5_ctrlS_bigNote_ms": [
+      86,
+      109,
+      76,
+      103,
+      69
+    ],
+    "P5_saveFile_invokeOnly_bigNote_ms": "[65.9,63.8,60.9,62.9,67.6]",
+    "autosaveOn": true,
+    "P5_typingDuringAutosave_bigNote": "{\"latency\":{\"n\":360,\"update\":{\"median\":2.1,\"p95\":3.1,\"max\":5.5},\"withLayout\":{\"median\":2.2,\"p95\":3.2,\"max\":5.5}},\"autosaves\":[69.8],\"dirty\":false}",
+    "mem_w1": {
+      "webviewMb": 507,
+      "appPrivateMb": 14,
+      "appMb": 37,
+      "webviewProcs": 6
+    }
+  },
+  "errors": [],
+  "pids": [
+    16304
+  ],
+  "ourPidsStillAlive": []
+}

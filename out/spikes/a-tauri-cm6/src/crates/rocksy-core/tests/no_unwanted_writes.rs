@@ -170,9 +170,14 @@ fn persisting_and_reconciling_tags_do_not_touch_the_vault() {
 
     assert_eq!(fingerprint(&vault), before, "vault untouched, nothing created in it");
 
-    // The persisted index (which holds excerpts of notes) is in the data directory only.
+    // The persisted index and the full-text index (which hold text of the
+    // notes) are in the data directory only. Both indexes are closed first:
+    // on Windows the full-text index keeps its lock file open.
+    drop(session);
+    drop(index);
     let data_files = fingerprint(&data);
     let names: Vec<&str> = data_files.keys().map(String::as_str).collect();
-    assert_eq!(names.len(), 2, "{names:?}");
-    assert!(names.contains(&"tags/") && names.iter().any(|n| n.starts_with("tags/") && n.ends_with(".tags")));
+    assert!(names.iter().all(|n| n.starts_with("tags/") || n.starts_with("search/")), "{names:?}");
+    assert_eq!(names.iter().filter(|n| n.ends_with(".tags")).count(), 1);
+    assert!(names.iter().any(|n| n.starts_with("search/") && n.ends_with("meta.json")));
 }

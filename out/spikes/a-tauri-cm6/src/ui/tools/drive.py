@@ -321,6 +321,37 @@ def py_step(step, mem, results):
         assert step["path"].lower().startswith(IT.lower())
         shutil.rmtree(step["path"], ignore_errors=True)
         return True
+    if kind == "mem":
+        # Working set of the app process we launched and of its WebView2 children (matched by our data dir).
+        pid = mem["__pid"]
+        data = mem["__data"].replace("\\", "\\\\")
+        ps = ("$p=Get-Process -Id %d; $wv=Get-CimInstance Win32_Process -Filter \"Name='msedgewebview2.exe'\" | Where-Object { $_.CommandLine -like '*%s*' };"
+              "@{appMb=[int]($p.WorkingSet64/1MB); appPrivateMb=[int]($p.PrivateMemorySize64/1MB); webviewProcs=($wv|Measure-Object).Count; webviewMb=[int](($wv|Measure-Object WorkingSetSize -Sum).Sum/1MB)} | ConvertTo-Json -Compress") % (pid, mem["__data"])
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True)
+        return json.loads(r.stdout.strip() or "{}")
+    if kind == "close":
+        # Asks the main window to close (graceful exit), then waits for the process to end.
+        pid = mem["__pid"]
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", "$p=Get-Process -Id %d; $ok=$p.CloseMainWindow(); $w=$p.WaitForExit(%d); \"$ok $w\"" % (pid, step.get("wait", 8000))], capture_output=True, text=True)
+        return r.stdout.strip()
+    if kind == "alive":
+        r = subprocess.run(["tasklist", "/FI", "PID eq %d" % mem["__pid"], "/NH", "/FO", "CSV"], capture_output=True, text=True)
+        return str(mem["__pid"]) in r.stdout
+    if kind == "jsonl":
+        out = {}
+        try:
+            with open(step["path"], encoding="utf-8") as f:
+                for line in f:
+                    j = json.loads(line)
+                    out.setdefault(j["name"], round(j.get("sinceProcessStartMs", j.get("ms", 0))))
+        except FileNotFoundError:
+            pass
+        if step.get("delete"):
+            try:
+                os.remove(step["path"])
+            except OSError:
+                pass
+        return out
     if kind == "targets":
         with urllib.request.urlopen("http://127.0.0.1:9223/json", timeout=2) as r:
             return [{"type": t.get("type"), "url": t.get("url", "")[:80]} for t in json.load(r)]
@@ -361,8 +392,6 @@ def main():
     cdp = None
     try:
         if app:
-            if rocksy_running():
-                raise RuntimeError("another rocksy.exe is running: the single instance would absorb the test launch")
             if app.get("fresh", True):
                 import shutil
                 assert app["dataDir"].lower().startswith(IT.lower())
@@ -373,6 +402,9 @@ def main():
                     results["saved"][st["save"]] = r
             t_launch = time.time()
             proc = launch_app(app, port)
+            mem["__pid"] = proc.pid
+            mem["__data"] = app["dataDir"]
+            results["pids"] = [proc.pid]
             cdp = attach(port, timeout=30)
             results["saved"]["attachMs"] = round((time.time() - t_launch) * 1000)
         else:
@@ -414,6 +446,8 @@ def main():
                         results["saved"][step["save"]] = v
                 elif "eval" in step:
                     v = cdp.evaluate(step["eval"])
+                    if step.get("collect_eval"):
+                        results["saved"].setdefault(step["collect_eval"], []).append(v)
                     if step.get("save"):
                         results["saved"][step["save"]] = v
                 elif "type" in step:
@@ -431,7 +465,11 @@ def main():
                     click(cdp, step)
                 elif "shot" in step:
                     time.sleep(step.get("settle", 150) / 1000)
-                    r = cdp.call("Page.captureScreenshot", format="png")
+                    if app:
+                        dims = cdp.evaluate("[innerWidth, innerHeight, devicePixelRatio]")
+                        r = cdp.call("Page.captureScreenshot", format="png", clip={"x": 0, "y": 0, "width": dims[0], "height": dims[1], "scale": 1 / dims[2]})
+                    else:
+                        r = cdp.call("Page.captureScreenshot", format="png")
                     with open(os.path.join(out, step["shot"]), "wb") as f:
                         f.write(base64.b64decode(r["data"]))
                 elif "sleep" in step:
@@ -441,7 +479,9 @@ def main():
                     cdp.call("Emulation.setDeviceMetricsOverride", width=w, height=h, deviceScaleFactor=1, mobile=False)
                 elif "py" in step:
                     r = py_step(step, mem, results)
-                    if step.get("save") and step["py"] not in ("hash", "snap"):
+                    if step.get("collect"):
+                        results["saved"].setdefault(step["collect"], []).append(r)
+                    elif step.get("save") and step["py"] not in ("hash", "snap"):
                         results["saved"][step["save"]] = r
                     elif step.get("report"):
                         results["saved"][step["report"]] = r
@@ -454,6 +494,8 @@ def main():
                     time.sleep(0.5)
                     t_launch = time.time()
                     proc = launch_app(app, port, step["restart"].get("args", app.get("args", [])))
+                    mem["__pid"] = proc.pid
+                    results["pids"].append(proc.pid)
                     cdp = attach(port, timeout=30)
                     if step.get("save"):
                         results["saved"][step["save"]] = round((time.time() - t_launch) * 1000)
@@ -489,6 +531,13 @@ def main():
         kill(proc)
         for p2 in extra:
             kill(p2)
+    if app:
+        alive = []
+        for pid in results.get("pids", []):
+            r = subprocess.run(["tasklist", "/FI", "PID eq %d" % pid, "/NH", "/FO", "CSV"], capture_output=True, text=True)
+            if ('"%d"' % pid) in r.stdout:
+                alive.append(pid)
+        results["ourPidsStillAlive"] = alive
     with open(os.path.join(out, name + ".json"), "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
     sys.stdout.reconfigure(encoding="utf-8")

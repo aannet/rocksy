@@ -1,0 +1,13 @@
+{
+  "scenario": "is-auto",
+  "saved": {
+    "attachMs": 577,
+    "entries": 1053,
+    "P5_typingWhileSaving_bigNote": "{\"latency\":{\"n\":474,\"update\":{\"median\":2.6,\"p95\":4.1,\"max\":13.9},\"withLayout\":{\"median\":2.7,\"p95\":4.3,\"max\":14.5}},\"saves\":11,\"saveMs\":{\"min\":72.9,\"median\":89,\"max\":90.6},\"keystrokesDuringSaves\":86,\"conflict\":null,\"error\":null}"
+  },
+  "errors": [],
+  "pids": [
+    25904
+  ],
+  "ourPidsStillAlive": []
+}

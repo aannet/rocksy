@@ -1,0 +1,164 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-is-f7",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\x1",
+   "dst": "{IT}\\v7"
+  },
+  {
+   "py": "hash",
+   "dir": "{IT}\\v7",
+   "save": "h0"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('v7'))",
+   "save": "entries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>e.searchReady)",
+   "timeout": 30000
+  },
+  {
+   "eval": "(async()=>{const out=[];for(const p of [['01_WORK','__DAILY NOTES SYNTH.md'],['00_INBOX','Décision plan 00434.md'],['MEETINGS','Architecture plan 00341.md'],['01_WORK','Canvas simple.canvas']]){const r=await T.open(T.vault(...p));await new Promise(r=>setTimeout(r,300));out.push([p[1],r.loaded])}return JSON.stringify(out)})()",
+   "save": "opened"
+  },
+  {
+   "key": "f",
+   "mods": "ctrl+shift"
+  },
+  {
+   "wait": "rocksy.sidebar && rocksy.sidebar.tab==='search'",
+   "timeout": 5000
+  },
+  {
+   "click": ".search-panel .tags-search input"
+  },
+  {
+   "type": "plan budget",
+   "delay": 60
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "key": "ArrowDown",
+   "times": 2
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "click": ".search-panel .tags-search input"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "type": "tag:projet \"plan\"",
+   "delay": 60
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "click": "#rb-links"
+  },
+  {
+   "wait": "rocksy.sidebar.tab==='links' && document.querySelector('.links-sec')",
+   "timeout": 6000
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md')).then(()=>new Promise(r=>setTimeout(r,500))).then(()=>JSON.stringify({back:rocksy.metrics.backlinks,out:rocksy.metrics.outgoing}))",
+   "save": "linksOfBigNote"
+  },
+  {
+   "click": ".links-content .sr-match"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "(()=>{rocksy.runCommand('links.unresolved');return 1})()"
+  },
+  {
+   "wait": "document.querySelector('.picker-item')",
+   "timeout": 6000
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "click": "#rb-tags"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({tabs:rocksy.docs().map(d=>[d.name,d.dirty]), searches:rocksy.sidebar.search.samples.length, events:rocksy.indexEvents.length})",
+   "save": "session"
+  },
+  {
+   "sleep": 3000
+  },
+  {
+   "py": "close",
+   "save": "closeMainWindow(ok exited)"
+  },
+  {
+   "kill": true
+  },
+  {
+   "py": "hash",
+   "dir": "{IT}\\v7",
+   "save": "h1"
+  },
+  {
+   "py": "diff",
+   "a": "h0",
+   "b": "h1",
+   "save": "P6_F7_diff_afterSession"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-is-f7",
+   "save": "P6_dataDir"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-is-f7\\search",
+   "save": "P6_search"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-is-f7\\tags",
+   "save": "P6_tags"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\v7",
+   "save": "P6_vaultRootListing"
+  }
+ ]
+}

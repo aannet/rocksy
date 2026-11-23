@@ -12,10 +12,14 @@
 //! the text exactly as given (a leading byte-order mark counts for one).
 
 mod frontmatter;
+mod graph;
 mod index;
+mod links;
 mod parse;
 mod persist;
 mod store;
+#[cfg(test)]
+mod link_tests;
 #[cfg(test)]
 mod persist_tests;
 #[cfg(test)]
@@ -24,6 +28,9 @@ mod tests;
 use serde::{Deserialize, Serialize};
 
 pub use index::{BuildOptions, CancelToken, TagIndex};
+
+/// The index holds tags, links and full-text search; this is its real name.
+pub type VaultIndex = TagIndex;
 pub use persist::tags_index_path;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -102,6 +109,82 @@ pub struct ReconcileReport {
     pub unchanged: usize,
     /// Whether the persisted file was (re)written.
     pub persisted: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum LinkKind {
+    Link,
+    Embed,
+}
+
+/// An incoming link: where another note points to a file.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LinkRef {
+    /// Source note, absolute path.
+    pub path: String,
+    pub kind: LinkKind,
+    /// Position of the link in the source (0-based line, UTF-16 column of
+    /// its first character), in the text as `read_file` returns it.
+    pub line: u32,
+    pub col: u32,
+    /// The line of the link, as a one-line excerpt of at most 240 characters.
+    pub excerpt: String,
+    /// The link inside `excerpt` (UTF-16 units, end excluded).
+    pub ranges: Vec<(u32, u32)>,
+    /// Heading or block aimed at (`#heading`, `#^block`), without the `#`.
+    pub heading: Option<String>,
+    pub alias: Option<String>,
+}
+
+/// A link or embed contained in a note.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OutLink {
+    /// Target as written, without heading nor alias.
+    pub target: String,
+    /// Absolute path of the file it points to, `None` if there is none.
+    pub resolved: Option<String>,
+    pub kind: LinkKind,
+    pub line: u32,
+    pub col: u32,
+    pub heading: Option<String>,
+    pub alias: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnresolvedLink {
+    /// Target as written (same string as `OutLink::target`).
+    pub target: String,
+    /// Number of links with this target.
+    pub count: u32,
+    /// Notes containing it (absolute paths), at most five.
+    pub sources: Vec<String>,
+}
+
+/// Payload of the `index-ready` event.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IndexReady {
+    pub from_cache: bool,
+    /// Notes indexed.
+    pub files: usize,
+    pub tags: usize,
+    pub occurrences: usize,
+    /// Links and embeds found in the notes.
+    pub links: usize,
+    /// Distinct targets that match no file.
+    pub unresolved_links: usize,
+    pub search_ready: bool,
+    /// Notes in the full-text index.
+    pub search_docs: usize,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub reread: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub removed: Option<usize>,
+    pub ms: u64,
 }
 
 /// Current content of the index.

@@ -1,0 +1,365 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-is-w1",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave();return T.addVault(T.it('w1'))})()",
+   "save": "entries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>e.searchReady)",
+   "timeout": 30000
+  },
+  {
+   "eval": "JSON.stringify(rocksy.indexEvents)",
+   "save": "indexEvents_firstIndexing_w1"
+  },
+  {
+   "eval": "(()=>{const out={};const evs=[{fromCache:true,searchReady:false},{fromCache:true,searchReady:true},{fromCache:false,searchReady:true,reread:0,removed:0}];const keep=rocksy.indexInfo;for(const e of evs){rocksy.indexInfo={...keep,...e};rocksy.updateTagsStatus();out[JSON.stringify(e)]=document.querySelector('#statusbar span:nth-child(4)').textContent}rocksy.indexInfo=keep;rocksy.updateTagsStatus();return JSON.stringify(out)})()",
+   "save": "P4_statusTextForEachIndexState"
+  },
+  {
+   "click": "#rb-search"
+  },
+  {
+   "wait": "rocksy.sidebar && rocksy.sidebar.tab==='search'",
+   "timeout": 5000
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;sp.input.value=\"zygomatique\";await sp.run();return JSON.stringify({info:document.querySelector('.search-info').textContent, rows:sp.rows.map(r=>[r.path.split('\\\\').pop(),r.line,r.col,r.len])})})()",
+   "save": "P1_LF_results"
+  },
+  {
+   "click": ".search-list [data-r='1']"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const s=T.view().state;const m=s.selection.main;const l=s.doc.lineAt(m.from);return {doc:rocksy.activeDoc().name,line0:l.number-1,col:m.from-l.from,selected:s.sliceDoc(m.from,m.to),flash:T.count('.cm-lp-flash'),marks:T.count('.cm-term-hl'),bom:rocksy.activeDoc().bom,eol:rocksy.activeDoc().eol==='\\r\\n'?'crlf':'lf'}})())",
+   "save": "P1_LF_opened"
+  },
+  {
+   "shot": "is-search-lf-selected.png",
+   "settle": 200
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;sp.input.value=\"crlfzygo\";await sp.run();return JSON.stringify({info:document.querySelector('.search-info').textContent, rows:sp.rows.map(r=>[r.path.split('\\\\').pop(),r.line,r.col,r.len])})})()",
+   "save": "P1_CRLF_secondMatch_results"
+  },
+  {
+   "click": ".search-list [data-r='2']"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const s=T.view().state;const m=s.selection.main;const l=s.doc.lineAt(m.from);return {doc:rocksy.activeDoc().name,line0:l.number-1,col:m.from-l.from,selected:s.sliceDoc(m.from,m.to),flash:T.count('.cm-lp-flash'),marks:T.count('.cm-term-hl'),bom:rocksy.activeDoc().bom,eol:rocksy.activeDoc().eol==='\\r\\n'?'crlf':'lf'}})())",
+   "save": "P1_CRLF_secondMatch_opened"
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;sp.input.value=\"bomzygo\";await sp.run();return JSON.stringify({info:document.querySelector('.search-info').textContent, rows:sp.rows.map(r=>[r.path.split('\\\\').pop(),r.line,r.col,r.len])})})()",
+   "save": "P1_BOM_line0_results"
+  },
+  {
+   "click": ".search-list [data-r='1']"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const s=T.view().state;const m=s.selection.main;const l=s.doc.lineAt(m.from);return {doc:rocksy.activeDoc().name,line0:l.number-1,col:m.from-l.from,selected:s.sliceDoc(m.from,m.to),flash:T.count('.cm-lp-flash'),marks:T.count('.cm-term-hl'),bom:rocksy.activeDoc().bom,eol:rocksy.activeDoc().eol==='\\r\\n'?'crlf':'lf'}})())",
+   "save": "P1_BOM_line0_opened"
+  },
+  {
+   "shot": "is-search-bom-line0.png",
+   "settle": 200
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;sp.input.value=\"bomzygo\";await sp.run();return JSON.stringify({info:document.querySelector('.search-info').textContent, rows:sp.rows.map(r=>[r.path.split('\\\\').pop(),r.line,r.col,r.len])})})()",
+   "save": "P1_BOM_line2_results"
+  },
+  {
+   "click": ".search-list [data-r='2']"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const s=T.view().state;const m=s.selection.main;const l=s.doc.lineAt(m.from);return {doc:rocksy.activeDoc().name,line0:l.number-1,col:m.from-l.from,selected:s.sliceDoc(m.from,m.to),flash:T.count('.cm-lp-flash'),marks:T.count('.cm-term-hl'),bom:rocksy.activeDoc().bom,eol:rocksy.activeDoc().eol==='\\r\\n'?'crlf':'lf'}})())",
+   "save": "P1_BOM_line2_opened"
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;sp.input.value=\"ete resume oeuvre\";await sp.run();return JSON.stringify({info:document.querySelector('.search-info').textContent, rows:sp.rows.map(r=>[r.path.split('\\\\').pop(),r.line,r.col,r.len])})})()",
+   "save": "P1_accents_ligature_results"
+  },
+  {
+   "click": ".search-list [data-r='0']"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify((()=>{const s=T.view().state;const m=s.selection.main;const l=s.doc.lineAt(m.from);return {doc:rocksy.activeDoc().name,line0:l.number-1,col:m.from-l.from,selected:s.sliceDoc(m.from,m.to),flash:T.count('.cm-lp-flash'),marks:T.count('.cm-term-hl'),bom:rocksy.activeDoc().bom,eol:rocksy.activeDoc().eol==='\\r\\n'?'crlf':'lf'}})())",
+   "save": "P1_accents_ligature_opened"
+  },
+  {
+   "shot": "is-search-accents.png",
+   "settle": 200
+  },
+  {
+   "eval": "JSON.stringify({marks:[...document.querySelectorAll('.cm-term-hl')].map(e=>e.textContent)})",
+   "save": "P1_accents_termMarksInNote"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Recherche LF.md')).then(JSON.stringify)"
+  },
+  {
+   "click": "#rb-links"
+  },
+  {
+   "wait": "rocksy.sidebar.tab==='links' && document.querySelector('.lk-out')",
+   "timeout": 6000
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify({back:rocksy.metrics.backlinks,out:[...document.querySelectorAll('.lk-out')].map(e=>e.textContent+(e.classList.contains('is-missing')?' [X]':''))})",
+   "save": "P2_before"
+  },
+  {
+   "shot": "is-links-before.png"
+  },
+  {
+   "eval": "T.lineEnd(T.view().state.doc.lines,false)"
+  },
+  {
+   "type": "\nAjout [[Format bilan 00103]] ici.\n"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "eval": "(()=>{window.__s0=performance.now();return 1})()"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty&&!rocksy.activeDoc().saving,5000).then(()=>Math.round(performance.now()-window.__s0))",
+   "save": "P2_ctrlS_ms"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({out:[...document.querySelectorAll('.lk-out')].map(e=>e.textContent+(e.classList.contains('is-missing')?' [X]':'')), events:rocksy.indexEvents.length})",
+   "save": "P2_afterSave_outgoing"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Format bilan 00103.md')).then(()=>new Promise(r=>setTimeout(r,500))).then(()=>JSON.stringify({note:document.querySelector('.links-head').textContent, sources:[...document.querySelectorAll('.links-content .sr-name')].map(e=>e.textContent), back:rocksy.metrics.backlinks}))",
+   "save": "P2_targetBacklinks_afterSave"
+  },
+  {
+   "shot": "is-links-after-save.png"
+  },
+  {
+   "eval": "T.open(T.vault('00_INBOX','Recherche LF.md')).then(()=>new Promise(r=>setTimeout(r,400))).then(()=>JSON.stringify([...document.querySelectorAll('.lk-out.is-missing')].map(e=>e.textContent)))",
+   "save": "P2_watcher_unresolvedBefore"
+  },
+  {
+   "py": "write",
+   "path": "{IT}\\w1\\00_INBOX\\Note à créer par le watcher.md",
+   "text": "# Créée hors de l'app\n\nMot unique : watcherzygo.\n"
+  },
+  {
+   "eval": "(()=>{window.__w0=performance.now();return T.wait(()=>document.querySelectorAll('.lk-out.is-missing').length===0 && document.querySelectorAll('.lk-out').length>=3,10000).then(()=>Math.round(performance.now()-window.__w0))})()",
+   "save": "P2_watcher_resolvedAfterMs"
+  },
+  {
+   "eval": "(async()=>{const r=await T.inv('search',{query:'watcherzygo'});const u=await T.inv('unresolved_links',{limit:5000});return JSON.stringify({out:[...document.querySelectorAll('.lk-out')].map(e=>e.textContent+(e.classList.contains('is-missing')?' [X]':'')), searchFindsNewFile:r.total, stillUnresolved:u.some(x=>x.target==='Note à créer par le watcher'), treeHasFile:rocksy.tree.entries.some(e=>e.path.endsWith('Note à créer par le watcher.md')), lastEvent:rocksy.indexEvents[rocksy.indexEvents.length-1]})})()",
+   "save": "P2_watcher_state"
+  },
+  {
+   "shot": "is-links-watcher-resolved.png"
+  },
+  {
+   "sleep": 2800
+  },
+  {
+   "eval": "(()=>{rocksy.runCommand('links.unresolved');return 1})()"
+  },
+  {
+   "wait": "document.querySelector('.picker-item')",
+   "timeout": 6000
+  },
+  {
+   "eval": "JSON.stringify({placeholder:document.querySelector('.picker input').placeholder, first:document.querySelector('.picker-item').textContent})",
+   "save": "P3_list"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 6000
+  },
+  {
+   "eval": "JSON.stringify((()=>{const s=T.view().state;const m=s.selection.main;const l=s.doc.lineAt(m.from);return {doc:rocksy.activeDoc().name,line0:l.number-1,col:m.from-l.from,selected:s.sliceDoc(m.from,m.from+28),flash:T.count('.cm-lp-flash'),marks:T.count('.cm-term-hl'),bom:rocksy.activeDoc().bom,eol:rocksy.activeDoc().eol==='\\r\\n'?'crlf':'lf'}})())",
+   "save": "P3_pick_cursorOnUnresolvedLink"
+  },
+  {
+   "eval": "T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md')).then(()=>{T.lineEnd(2185,true);return 1})"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "type": "x"
+  },
+  {
+   "eval": "(()=>{window.__s0=performance.now();return 1})()"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty&&!rocksy.activeDoc().saving,8000).then(()=>Math.round(performance.now()-window.__s0))",
+   "collect_eval": "P5_ctrlS_bigNote_ms"
+  },
+  {
+   "type": "x"
+  },
+  {
+   "eval": "(()=>{window.__s0=performance.now();return 1})()"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty&&!rocksy.activeDoc().saving,8000).then(()=>Math.round(performance.now()-window.__s0))",
+   "collect_eval": "P5_ctrlS_bigNote_ms"
+  },
+  {
+   "type": "x"
+  },
+  {
+   "eval": "(()=>{window.__s0=performance.now();return 1})()"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty&&!rocksy.activeDoc().saving,8000).then(()=>Math.round(performance.now()-window.__s0))",
+   "collect_eval": "P5_ctrlS_bigNote_ms"
+  },
+  {
+   "type": "x"
+  },
+  {
+   "eval": "(()=>{window.__s0=performance.now();return 1})()"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty&&!rocksy.activeDoc().saving,8000).then(()=>Math.round(performance.now()-window.__s0))",
+   "collect_eval": "P5_ctrlS_bigNote_ms"
+  },
+  {
+   "type": "x"
+  },
+  {
+   "eval": "(()=>{window.__s0=performance.now();return 1})()"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "eval": "T.wait(()=>!rocksy.activeDoc().dirty&&!rocksy.activeDoc().saving,8000).then(()=>Math.round(performance.now()-window.__s0))",
+   "collect_eval": "P5_ctrlS_bigNote_ms"
+  },
+  {
+   "eval": "(async()=>{const d=rocksy.activeDoc();const s=rocksy.stateOf(d);const text=s.doc.toString();const ts=[];for(let i=0;i<5;i++){const t=performance.now();const r=await T.inv('save_file',{path:d.path,text,expectedMtimeMs:d.mtimeMs});d.mtimeMs=r.mtimeMs;ts.push(+(performance.now()-t).toFixed(1))}return JSON.stringify(ts)})()",
+   "save": "P5_saveFile_invokeOnly_bigNote_ms"
+  },
+  {
+   "eval": "(()=>{if(!rocksy.autosave) rocksy.toggleAutosave();T.lineEnd(2186,true);window.__saves=[];const orig=rocksy.backend.saveFile;rocksy.backend.saveFile=(...a)=>{const t=performance.now();return orig(...a).then(r=>{window.__saves.push(+(performance.now()-t).toFixed(1));return r})};rocksy.latencyStart();return rocksy.autosave})()",
+   "save": "autosaveOn"
+  },
+  {
+   "type": "vingt caracteres ici ",
+   "delay": 6
+  },
+  {
+   "sleep": 1930
+  },
+  {
+   "type": "frappe pendant que l'enregistrement automatique part en arriere plan ",
+   "delay": 6
+  },
+  {
+   "type": "vingt caracteres ici ",
+   "delay": 6
+  },
+  {
+   "sleep": 1930
+  },
+  {
+   "type": "frappe pendant que l'enregistrement automatique part en arriere plan ",
+   "delay": 6
+  },
+  {
+   "type": "vingt caracteres ici ",
+   "delay": 6
+  },
+  {
+   "sleep": 1930
+  },
+  {
+   "type": "frappe pendant que l'enregistrement automatique part en arriere plan ",
+   "delay": 6
+  },
+  {
+   "type": "vingt caracteres ici ",
+   "delay": 6
+  },
+  {
+   "sleep": 1930
+  },
+  {
+   "type": "frappe pendant que l'enregistrement automatique part en arriere plan ",
+   "delay": 6
+  },
+  {
+   "sleep": 2600
+  },
+  {
+   "eval": "JSON.stringify({latency:rocksy.latencyStop(), autosaves:window.__saves, dirty:rocksy.activeDoc().dirty})",
+   "save": "P5_typingDuringAutosave_bigNote"
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave();return 1})()"
+  },
+  {
+   "py": "mem",
+   "save": "mem_w1"
+  }
+ ]
+}

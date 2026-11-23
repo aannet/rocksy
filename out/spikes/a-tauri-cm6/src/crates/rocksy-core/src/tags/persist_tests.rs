@@ -320,7 +320,7 @@ fn damaged_persisted_file_is_ignored_then_rebuilt() {
 }
 
 #[test]
-fn cancelled_reconcile_keeps_a_consistent_index_and_writes_nothing() {
+fn cancelled_reconcile_keeps_a_consistent_index_and_a_loadable_checkpoint() {
     let dir = TempDir::new("persist-cancel");
     for i in 0..300 {
         dir.write(&format!("v/d{}/n{i:03}.md", i % 7), format!("note {i} #t/{} #all\n", i % 5));
@@ -347,12 +347,16 @@ fn cancelled_reconcile_keeps_a_consistent_index_and_writes_nothing() {
         })
         .unwrap();
     assert_eq!(res, None);
-    assert!(!data.exists(), "no partial file");
     // The files already read are kept, and the index is coherent.
     let partial = index.tag_fragments("all", None).len();
     assert!(partial > 0 && partial < 300, "{partial}");
     assert_consistent(&index);
-    assert!(index.is_dirty());
+    // What was done is on disk as a complete, loadable checkpoint.
+    assert!(!index.is_dirty());
+    let checkpoint = TagIndex::new();
+    assert_eq!(checkpoint.load_persisted(&data, &vault).unwrap().files, partial);
+    assert_eq!(dump(&checkpoint), dump(&index));
+    drop(checkpoint);
 
     // The next reconcile reads only the rest and reaches the full state.
     let report = reconcile(&index, &data, &vault);
@@ -360,7 +364,7 @@ fn cancelled_reconcile_keeps_a_consistent_index_and_writes_nothing() {
     assert_eq!((report.files, report.unchanged, report.persisted), (300, partial, true));
     assert_eq!(dump(&index), fresh_dump(&vault));
 
-    // Partial progress can also be saved (application closing) and resumed.
+    // Partial progress is resumed by another session.
     let other = TagIndex::new();
     let cancel = CancelToken::new();
     let calls = AtomicUsize::new(0);
@@ -373,7 +377,8 @@ fn cancelled_reconcile_keeps_a_consistent_index_and_writes_nothing() {
         })
         .unwrap();
     let partial = other.tag_fragments("all", None).len();
-    assert!(other.save(&data2).unwrap());
+    assert!(!other.save(&data2).unwrap(), "already saved by the cancelled reconcile");
+    drop(other);
     let resumed = TagIndex::new();
     assert_eq!(resumed.load_persisted(&data2, &vault).unwrap().files, partial);
     let report = reconcile(&resumed, &data2, &vault);
@@ -529,14 +534,15 @@ fn clear_forgets_the_vault_and_another_vault_gets_its_own_file() {
     assert_eq!((report.files, report.reread, report.removed, report.persisted), (1, 1, 0, true));
     assert_eq!(index.root().as_deref(), other.to_str());
     assert_eq!(index.tags_list("").len(), 1);
-    assert_eq!(all_files(&data).len(), 2);
+    let tag_files = |data: &Path| all_files(data).into_iter().filter(|f| f.starts_with("tags/")).count();
+    assert_eq!(tag_files(&data), 2);
     assert_eq!(fs::read(persisted_file(&data, &vault)).unwrap(), first, "the first vault's file is untouched");
 
     index.clear();
     assert_eq!(index.root(), None);
     assert!(index.tags_list("").is_empty());
     assert!(!index.save(&data).unwrap());
-    assert_eq!(all_files(&data).len(), 2, "clear does not delete persisted files");
+    assert_eq!(tag_files(&data), 2, "clear does not delete persisted files");
     // Without a vault, loose updates are accepted but never persisted.
     assert!(index.update_file(&dir.path().join("loose.md"), "#x"));
     assert!(!index.save(&data).unwrap());

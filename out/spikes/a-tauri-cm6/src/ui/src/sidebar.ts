@@ -4,6 +4,10 @@ import type { Fragment, TagCount, Tree } from "./types";
 import { basename, extname, joinAbs, toRel } from "./paths";
 import { buildTagTree, countTags, filterTags, tagMatches, type TagNode } from "./tagtree";
 import { iconSvg } from "./icons";
+import { SearchPanel } from "./searchpanel";
+import { LinksPanel } from "./linkspanel";
+
+export type SidebarTab = "files" | "tags" | "search" | "links";
 
 const ROW_H = 26;
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => (c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : "&quot;"));
@@ -63,7 +67,9 @@ export function buildFileTree(tree: Tree): TNode[] {
 export class Sidebar {
   private head = document.createElement("div");
   private vaultBtn = document.createElement("button");
-  private tabBtns: Record<"files" | "tags", HTMLButtonElement>;
+  private tabBtns: Record<SidebarTab, HTMLButtonElement>;
+  readonly search: SearchPanel;
+  readonly links: LinksPanel;
   private filesBody = document.createElement("div");
   private tagsBody = document.createElement("div");
   // tree
@@ -96,7 +102,8 @@ export class Sidebar {
   private listReq = 0;
   private fragReq = 0;
   private progressRefresh = 0;
-  tab: "files" | "tags" = "files";
+  tab: SidebarTab = "files";
+  private searchRoot: string | null = null;
 
   constructor(
     private el: HTMLElement,
@@ -110,7 +117,7 @@ export class Sidebar {
     spacer.className = "sb-spacer";
     const tabs = document.createElement("div");
     tabs.className = "sb-tabs";
-    const mk = (tab: "files" | "tags", icon: string, title: string) => {
+    const mk = (tab: SidebarTab, icon: string, title: string) => {
       const b = document.createElement("button");
       b.innerHTML = iconSvg(icon, 16);
       b.title = title;
@@ -119,7 +126,14 @@ export class Sidebar {
       tabs.appendChild(b);
       return b;
     };
-    this.tabBtns = { files: mk("files", "files", "Fichiers"), tags: mk("tags", "tag", "Tags") };
+    this.tabBtns = {
+      files: mk("files", "files", "Fichiers"),
+      search: mk("search", "search", "Recherche (Ctrl+Maj+F)"),
+      tags: mk("tags", "tag", "Tags"),
+      links: mk("links", "link", "Liens de la note"),
+    };
+    this.search = new SearchPanel(app);
+    this.links = new LinksPanel(app);
     this.head.append(this.vaultBtn, spacer, tabs);
 
     this.filesBody.className = "sb-body";
@@ -204,22 +218,36 @@ export class Sidebar {
       window.addEventListener("mousemove", move);
       window.addEventListener("mouseup", up);
     });
-    this.el.append(this.head, this.filesBody, this.tagsBody, resizer);
+    this.el.append(this.head, this.filesBody, this.tagsBody, this.search.body, this.links.body, resizer);
     this.setTree(app.tree);
     if (app.tagsProgress) this.onTagsProgress(app.tagsProgress);
   }
 
-  setTab(tab: "files" | "tags"): void {
+  setTab(tab: SidebarTab, focus = true): void {
     this.tab = tab;
     this.app.sidebarTab = tab;
     this.filesBody.hidden = tab !== "files";
     this.tagsBody.hidden = tab !== "tags";
-    this.tabBtns.files.classList.toggle("is-on", tab === "files");
-    this.tabBtns.tags.classList.toggle("is-on", tab === "tags");
-    document.getElementById("rb-files")?.classList.toggle("is-on", tab === "files");
-    document.getElementById("rb-tags")?.classList.toggle("is-on", tab === "tags");
+    this.search.body.hidden = tab !== "search";
+    this.links.body.hidden = tab !== "links";
+    for (const k of ["files", "tags", "search", "links"] as const) {
+      this.tabBtns[k].classList.toggle("is-on", tab === k);
+      document.getElementById("rb-" + k)?.classList.toggle("is-on", tab === k);
+    }
     if (tab === "files") this.queueRender(true);
-    else void this.refreshTags(true);
+    else if (tab === "tags") void this.refreshTags(true);
+    else if (tab === "search") this.search.show(focus);
+    else void this.links.refresh();
+  }
+
+  /** `index-ready`: search may have become available, links may have changed. */
+  onIndexReady(): void {
+    this.search.onIndex();
+    if (this.tab === "links") void this.links.refresh();
+  }
+
+  onDocSaved(): void {
+    if (this.tab === "links") void this.links.refresh();
   }
 
   // ------------------------------------------------------------ file tree
@@ -230,6 +258,11 @@ export class Sidebar {
 
   setTree(tree: Tree | null): void {
     const root = this.app.vaultRoot;
+    if (root !== this.searchRoot) {
+      this.searchRoot = root;
+      this.search.reset();
+      if (this.tab === "links") void this.links.refresh();
+    }
     this.vaultBtn.innerHTML = `${iconSvg("vault", 15)}<span>${esc(root ? (this.app.vaults.find((v) => v.path === root)?.name ?? basename(root)) : "Aucun vault")}</span>`;
     if (!tree) {
       this.roots = [];
@@ -374,6 +407,7 @@ export class Sidebar {
 
   onActiveDoc(): void {
     if (this.syncActive(true)) this.queueRender(true);
+    if (this.tab === "links") void this.links.refresh();
     if (this.tab === "tags" && (this.tagMode === "file" || !this.app.vaultRoot)) void this.refreshTags(true);
   }
 

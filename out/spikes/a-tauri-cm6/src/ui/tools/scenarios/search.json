@@ -1,0 +1,162 @@
+{
+ "steps": [
+  {
+   "nav": "{DIST}?tree=19000&searchdelay=5000"
+  },
+  {
+   "wait": "window.rocksyReady && window.rocksy.tree && rocksyMock.tagsReady",
+   "timeout": 60000
+  },
+  {
+   "eval": "JSON.stringify({metrics:rocksy.metrics, calls:rocksyMock.calls, status:document.querySelector('#statusbar span:nth-child(4)').textContent, title:document.querySelector('#statusbar span:nth-child(4)').title})",
+   "save": "startup_and_status_beforeSearchReady"
+  },
+  {
+   "key": "f",
+   "mods": "ctrl+shift"
+  },
+  {
+   "wait": "rocksy.sidebar && rocksy.sidebar.tab==='search' && document.activeElement===rocksy.sidebar.search.input",
+   "timeout": 5000
+  },
+  {
+   "shot": "search-empty-preparing.png"
+  },
+  {
+   "type": "plan",
+   "delay": 30
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify({msg:document.querySelector('.search-list').textContent.slice(0,120), ready:rocksy.searchReady, calls:rocksyMock.calls.filter(c=>c==='search').length})",
+   "save": "whileNotReady"
+  },
+  {
+   "shot": "search-preparing.png"
+  },
+  {
+   "wait": "rocksyMock.searchReady && document.querySelector('.sr-file')",
+   "timeout": 15000,
+   "save": "autoReplayWaitMs"
+  },
+  {
+   "sleep": 200
+  },
+  {
+   "eval": "JSON.stringify({info:document.querySelector('.search-info').textContent, files:document.querySelectorAll('.sr-file').length, matches:document.querySelectorAll('.sr-match').length, marks:document.querySelectorAll('.sr-text mark').length, status:document.querySelector('#statusbar span:nth-child(4)').textContent})",
+   "save": "resultsAfterReady"
+  },
+  {
+   "shot": "search-results.png"
+  },
+  {
+   "key": "ArrowDown",
+   "times": 3
+  },
+  {
+   "sleep": 100
+  },
+  {
+   "shot": "search-keyboard-nav.png"
+  },
+  {
+   "eval": "JSON.stringify({sel:document.querySelector('.search-list .is-sel').textContent.slice(0,80), row:rocksy.sidebar.search.rows[rocksy.sidebar.search.sel]})",
+   "save": "selectedRow"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 8000,
+   "save": "enterToFlashMs"
+  },
+  {
+   "eval": "(()=>{const s=rocksy.focused.view.state;const l=s.doc.lineAt(s.selection.main.head);const row=rocksy.sidebar.search.rows[rocksy.sidebar.search.sel];return JSON.stringify({doc:rocksy.activeDoc().path.slice(-50), expected:row, cursorLine0:l.number-1, cursorCol:s.selection.main.head-l.from, lineText:l.text.slice(0,80), atCursor:s.sliceDoc(s.selection.main.head,s.selection.main.head+6), termMarks:document.querySelectorAll('.cm-term-hl').length, flash:document.querySelectorAll('.cm-lp-flash').length, focusInInput:document.activeElement===rocksy.sidebar.search.input})})()",
+   "save": "openedFromResult"
+  },
+  {
+   "shot": "search-open-result.png",
+   "settle": 250
+  },
+  {
+   "click": ".sr-match:nth-of-type(8)"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "(()=>{const s=rocksy.focused.view.state;const l=s.doc.lineAt(s.selection.main.head);return JSON.stringify({doc:rocksy.activeDoc().name, cursorLine0:l.number-1, atCursor:s.sliceDoc(s.selection.main.head,s.selection.main.head+6)})})()",
+   "save": "openedByClick"
+  },
+  {
+   "click": ".search-panel .tags-search input"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "eval": "JSON.stringify({value:rocksy.sidebar.search.input.value, rows:document.querySelectorAll('.sr-file').length, termMarks:document.querySelectorAll('.cm-term-hl').length, help:!!document.querySelector('.search-help')})",
+   "save": "afterEscape"
+  },
+  {
+   "eval": "(()=>{rocksy.sidebar.search.samples.length=0;return 1})()"
+  },
+  {
+   "type": "architecture budget revue",
+   "delay": 140
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "type": " ",
+   "delay": 140
+  },
+  {
+   "key": "Backspace",
+   "times": 26
+  },
+  {
+   "type": "suivi projet planning",
+   "delay": 140
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "key": "Backspace",
+   "times": 21
+  },
+  {
+   "type": "réunion décision tag:projet/alpha",
+   "delay": 140
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "(()=>{const a=rocksy.sidebar.search.samples;const st=(k)=>{const s=a.map(x=>x[k]).sort((x,y)=>x-y);const q=p=>s[Math.min(s.length-1,Math.floor(p*s.length))];return {median:q(.5),p95:q(.95),max:q(1)}};return JSON.stringify({n:a.length, keystrokeToPainted:st('total'), callRoundTrip:st('call'), backend:st('backend'), docs:rocksyMock.calls.filter(c=>c==='search').length, info:document.querySelector('.search-info').textContent})})()",
+   "save": "searchLatency(typed 140ms apart, 8976 notes)"
+  },
+  {
+   "shot": "search-filter-tag.png"
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;const out={};for(const q of ['\"plan de\"','plan -budget','path:00__demo tableau','zzzzqq','tag:demo','resume']){sp.input.value=q;await sp.run();out[q]={info:document.querySelector('.search-info').textContent, files:document.querySelectorAll('.sr-file').length, first:(document.querySelector('.sr-name')||{}).textContent, msg:(document.querySelector('.search-msg')||{}).textContent}}return JSON.stringify(out)})()",
+   "save": "syntaxCases"
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;sp.input.value='zzzzqq';await sp.run();return 1})()"
+  },
+  {
+   "shot": "search-no-result.png"
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;sp.input.value='plan';const p1=sp.run();sp.input.value='planning budget';const p2=sp.run();await Promise.all([p1,p2]);return JSON.stringify({lastQuery:sp.lastQuery, info:document.querySelector('.search-info').textContent, first:document.querySelector('.sr-text').textContent.slice(0,60)})})()",
+   "save": "staleAnswerIgnored"
+  }
+ ]
+}

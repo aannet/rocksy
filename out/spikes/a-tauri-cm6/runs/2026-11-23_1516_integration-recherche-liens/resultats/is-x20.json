@@ -1,0 +1,124 @@
+{
+  "scenario": "is-x20",
+  "saved": {
+    "attachMs": 933,
+    "autosave_off": false,
+    "P1_firstIndexing_stateWhileTyping": "{\"sinceAddVaultMs\":452,\"ready\":false,\"msg\":\"Index de recherche en préparation… La recherche se lancera dès qu'il sera prêt.\",\"status\":\"Index : 6 693 / 9 760 notes\"}",
+    "P1_autoReplay_and_indexEvents_firstIndexing": "{\"firstResultsAfterAddVaultMs\":1699,\"info\":\"3 685 fichiers · 5,884 ms · 50 premiers affichés\",\"events\":[{\"fromCache\":false,\"files\":9760,\"tags\":4199,\"occurrences\":46208,\"links\":19257,\"unresolvedLinks\":398,\"searchReady\":true,\"searchDocs\":9760,\"reread\":9760,\"removed\":0,\"ms\":1492,\"atMs\":1873}],\"status\":\"Index ✓\",\"statusTitle\":\"9 760 notes · 4 199 tags · 19 257 liens (398 non résolus) · recherche : 9 760 notes\"}",
+    "P5_memAfterFirstIndexing_x20": {
+      "webviewMb": 411,
+      "appPrivateMb": 95,
+      "appMb": 152,
+      "webviewProcs": 6
+    },
+    "P1_selectedRow": "{\"path\":\"C:\\\\Users\\\\aleca\\\\rocksy-test\\\\vaults\\\\x20\\\\TASKS\\\\format 005-27\\\\Plan plan 02767.md\",\"line\":94,\"col\":5,\"len\":4}",
+    "P1_enterToFlashMs": 85,
+    "P1_openedFromKeyboard": "{\"doc\":\"Plan plan 02767\",\"line0\":94,\"col\":5,\"selected\":\"Plan\",\"selectedIsTerm\":true,\"termMarks\":1,\"flash\":1}",
+    "P1_searchLatency_realTyping": "{\"searches\":86,\"keystrokeToPainted\":{\"median\":99.9,\"p95\":115.7,\"max\":122.1},\"callRoundTrip\":{\"median\":7.2,\"p95\":16.7,\"max\":20},\"backendMs\":{\"median\":4.329,\"p95\":12.987,\"max\":17.142},\"uiOverhead\":{\"median\":12.5,\"p95\":22.8},\"filesMax\":9760}",
+    "P1_tenRandomResults_checkedAgainstFile": "[{\"q\":\"plan\",\"total\":3685,\"ms\":3.094,\"file\":\"Qualité plan 01955.md\",\"line\":11,\"col\":11,\"len\":4,\"atPos\":\"Plan\",\"ok\":true,\"excerptMarks\":[\"Plan\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"budget\",\"total\":3612,\"ms\":2.495,\"file\":\"Décision budget 03809.md\",\"line\":29,\"col\":247,\"len\":6,\"atPos\":\"budget\",\"ok\":true,\"excerptMarks\":[\"budget\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"strategie\",\"total\":3575,\"ms\":2.64,\"file\":\"Audit stratégie 03355.md\",\"line\":3,\"col\":13,\"len\":9,\"atPos\":\"stratégie\",\"ok\":true,\"excerptMarks\":[\"stratégie\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"reunion audit\",\"total\":1720,\"ms\":3.693,\"file\":\"Audit bilan 09551.md\",\"line\":62,\"col\":4,\"len\":5,\"atPos\":\"Audit\",\"ok\":true,\"excerptMarks\":[\"Audit\"],\"marksOk\":true,\"nameMatch\":false,\"matchCount\":3},{\"q\":\"\\\"plan decision\\\"\",\"total\":26,\"ms\":3.119,\"file\":\"Revue scénario 00382.md\",\"line\":19,\"col\":4,\"len\":13,\"atPos\":\"Plan décision\",\"ok\":true,\"excerptMarks\":[\"Plan décision\"],\"marksOk\":true,\"nameMatch\":false,\"matchCount\":1},{\"q\":\"archi\",\"total\":3676,\"ms\":5.02,\"file\":\"Architecture projet 06303.md\",\"line\":32,\"col\":2,\"len\":12,\"atPos\":\"Architecture\",\"ok\":true,\"excerptMarks\":[\"Architecture\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"kolueux\",\"total\":3769,\"ms\":2.28,\"file\":\"Roadmap données 05490.md\",\"line\":23,\"col\":37,\"len\":7,\"atPos\":\"kolueux\",\"ok\":true,\"excerptMarks\":[\"kolueux\"],\"marksOk\":true,\"nameMatch\":false,\"matchCount\":2},{\"q\":\"tag:projet risque\",\"total\":1451,\"ms\":3.829,\"file\":\"Atelier risque 06601.md\",\"line\":38,\"col\":5,\"len\":6,\"atPos\":\"Risque\",\"ok\":true,\"excerptMarks\":[\"Risque\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":1},{\"q\":\"path:meetings client\",\"total\":573,\"ms\":12.561,\"file\":\"Client cadre 02065.md\",\"line\":45,\"col\":25,\"len\":6,\"atPos\":\"client\",\"ok\":true,\"excerptMarks\":[\"client\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":2},{\"q\":\"equipe\",\"total\":4501,\"ms\":2.688,\"file\":\"Note équipe 00148.md\",\"line\":39,\"col\":5,\"len\":6,\"atPos\":\"Équipe\",\"ok\":true,\"excerptMarks\":[\"Équipe\"],\"marksOk\":true,\"nameMatch\":true,\"matchCount\":2}]",
+    "P7_weirdQueries": "{\"\\\"\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,003 ms\",\"msg\":\"Aucun résultat pour « \\\" »\"},\"-\":{\"ms\":3,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,002 ms\",\"msg\":\"Aucun résultat pour « - »\"},\"tag:\":{\"ms\":3,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,002 ms\",\"msg\":\"Aucun résultat pour « tag: »\"},\"path:\":{\"ms\":3,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,002 ms\",\"msg\":\"Aucun résultat pour « path: »\"},\"\\\"non fermé\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,14 ms\",\"msg\":\"Aucun résultat pour « \\\"non fermé »\"},\"-mot\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,004 ms\",\"msg\":\"Aucun résultat pour « -mot »\"},\"(a+b)*[c]?^$.\\\\\\\\|\":{\"ms\":6,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 1,367 ms\",\"msg\":\"Aucun résultat pour « (a+b)*[c]?^$.\\\\\\\\| »\"},\"😀 plan\":{\"ms\":29,\"err\":null,\"direct\":{\"total\":3685,\"ready\":true},\"info\":\"3 685 fichiers · 2,716 ms · 50 premiers affichés\",\"msg\":null},\"plan 😀\":{\"ms\":14,\"err\":null,\"direct\":{\"total\":3685,\"ready\":true},\"info\":\"3 685 fichiers · 1,466 ms · 50 premiers affichés\",\"msg\":null},\"   \":{\"ms\":3,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"\",\"msg\":null},\"xxxxxxxxxxxxxxxxxxxxxxxx\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,012 ms\",\"msg\":\"Aucun résultat pour « xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx »\"},\"tag:#\":{\"ms\":4,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,002 ms\",\"msg\":\"Aucun résultat pour « tag:# »\"},\"\\\"\\\"\":{\"ms\":3,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,004 ms\",\"msg\":\"Aucun résultat pour « \\\"\\\" »\"},\"path:\\\\\\\\ plan\":{\"ms\":25,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 10,133 ms\",\"msg\":\"Aucun résultat pour « path:\\\\\\\\ plan »\"},\"*\":{\"ms\":5,\"err\":null,\"direct\":{\"total\":0,\"ready\":true},\"info\":\"0 fichier · 0,004 ms\",\"msg\":\"Aucun résultat pour « * »\"},\"a\":{\"ms\":34,\"err\":null,\"direct\":{\"total\":9720,\"ready\":true},\"info\":\"9 720 fichiers · 8,433 ms · 50 premiers affichés\",\"msg\":null}}",
+    "openBig": "{\"loaded\":true,\"error\":null,\"ms\":26,\"name\":\"__DAILY NOTES SYNTH\"}",
+    "P2_bigNote_linksPanel": "{\"refreshMs\":[33.3,68.5,39.8,37.3,39.1],\"outgoingIpcMs\":13.6,\"back\":35,\"out\":446,\"unresolvedShown\":15,\"domNodes\":3585,\"sections\":[\"Liens entrants35\",\"Liens sortants15 non résolus446\"]}",
+    "P5_typingLatency_linksPanelOpen": "{\"n\":151,\"update\":{\"median\":2.4,\"p95\":3.4,\"max\":7.8},\"withLayout\":{\"median\":2.5,\"p95\":3.6,\"max\":8.2}}",
+    "termMarksInBigNote": 0,
+    "P5_typingLatency_searchPanelOpen_termsHighlighted": "{\"n\":156,\"update\":{\"median\":2.2,\"p95\":2.8,\"max\":3.3},\"withLayout\":{\"median\":2.3,\"p95\":2.9,\"max\":3.4}}",
+    "P2_backlinksOfNote": "{\"note\":\"Audit processus 00402\",\"back\":2,\"out\":0,\"sources\":[\"__DAILY NOTES SYNTH\",\"Réunion arbitrage 00302\"]}",
+    "P2_backlinkClick_cursorOnLink": "{\"doc\":\"__DAILY NOTES SYNTH\",\"atCursor\":\"[[Audit processus 00402]]\\n- [[\"}",
+    "P2_backlinksOfImage": "{\"doc\":\"Pasted image 0000397.png\",\"back\":1,\"embeds\":1,\"sections\":[\"Liens entrants1\"]}",
+    "P2_embedBacklinkClick_cursorOnBang": "{\"doc\":\"__DAILY NOTES SYNTH\",\"atCursor\":\"![[Pasted image 0000397.png]]\\n\"}",
+    "P3_unresolvedList": "{\"placeholder\":\"Liens non résolus (398 cibles)…\",\"first\":[\"Missing 001-304 liens · 01_WORK/hypothèse 001-01/données 001-23/backlog 001-35/Séance hypothèse 00568 (+3)\",\"Missing 001-64 liens · 01_WORK/hypothèse 001-01/données 001-23/backlog 001-35/plan 001-60/Revue qualité 00795 (+3)\",\"Missing 000-03 liens · 00_INBOX/équipe 000-00/Décision revue 00395 (+2)\"]}",
+    "P3_unresolvedPick_cursorOnLink": "{\"doc\":\"__DAILY NOTES SYNTH\",\"atCursor\":\"![[Pasted image 0000397.png]]\\n\"}",
+    "sessionForRelaunch": "[\"__DAILY NOTES SYNTH\",\"Séance hypothèse 00568\"]",
+    "P6_dataDir": [
+      "search",
+      "session.json",
+      "tags",
+      "timings.jsonl",
+      "trees",
+      "vaults.json",
+      "webview"
+    ],
+    "P6_dataDir_search": [
+      "57700874d62271c7"
+    ],
+    "timings_firstLaunch": {
+      "tree-ready": 753
+    },
+    "P5_startup_5launches_x20_session": [
+      {
+        "editor-ready": 508,
+        "editor-ready-since-navigation": 509,
+        "editor-painted-since-navigation": 578,
+        "tree-ready": 640
+      },
+      {
+        "editor-ready": 782,
+        "editor-ready-since-navigation": 783,
+        "editor-painted-since-navigation": 859,
+        "tree-ready": 931
+      },
+      {
+        "editor-ready": 547,
+        "editor-ready-since-navigation": 547,
+        "editor-painted-since-navigation": 627,
+        "tree-ready": 710
+      },
+      {
+        "editor-ready": 541,
+        "editor-ready-since-navigation": 542,
+        "editor-painted-since-navigation": 615,
+        "tree-ready": 683
+      },
+      {
+        "editor-ready": 560,
+        "editor-ready-since-navigation": 560,
+        "editor-painted-since-navigation": 646,
+        "tree-ready": 705
+      }
+    ],
+    "P4_relaunch_1_indexEvents": "{\"metrics\":{\"editorReadyMs\":156,\"treeReadyMs\":289,\"openVaultMs\":83},\"fromSnapshot\":true,\"events\":[{\"atMs\":378,\"fromCache\":true,\"searchReady\":false,\"ms\":42,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":394,\"fromCache\":true,\"searchReady\":true,\"ms\":59,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":442,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":46,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+    "P4_relaunch_2_indexEvents": "{\"metrics\":{\"editorReadyMs\":150,\"treeReadyMs\":298,\"openVaultMs\":90},\"fromSnapshot\":true,\"events\":[{\"atMs\":383,\"fromCache\":true,\"searchReady\":false,\"ms\":39,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":399,\"fromCache\":true,\"searchReady\":true,\"ms\":55,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":445,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":44,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+    "P4_relaunch_3_indexEvents": "{\"metrics\":{\"editorReadyMs\":167,\"treeReadyMs\":331,\"openVaultMs\":101},\"fromSnapshot\":true,\"events\":[{\"atMs\":418,\"fromCache\":true,\"searchReady\":false,\"ms\":47,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":434,\"fromCache\":true,\"searchReady\":true,\"ms\":62,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":479,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":42,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+    "P4_relaunch_4_indexEvents": "{\"metrics\":{\"editorReadyMs\":160,\"treeReadyMs\":303,\"openVaultMs\":91},\"fromSnapshot\":true,\"events\":[{\"atMs\":376,\"fromCache\":true,\"searchReady\":false,\"ms\":33,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":391,\"fromCache\":true,\"searchReady\":true,\"ms\":48,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":439,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":45,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+    "P4_relaunch_5_indexEvents": "{\"metrics\":{\"editorReadyMs\":167,\"treeReadyMs\":313,\"openVaultMs\":86},\"fromSnapshot\":true,\"events\":[{\"atMs\":390,\"fromCache\":true,\"searchReady\":false,\"ms\":35,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":0},{\"atMs\":407,\"fromCache\":true,\"searchReady\":true,\"ms\":51,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760},{\"atMs\":452,\"fromCache\":false,\"searchReady\":true,\"reread\":0,\"removed\":0,\"ms\":43,\"files\":9760,\"links\":19257,\"unresolved\":398,\"searchDocs\":9760}]}",
+    "P5_memAfterRelaunch_x20": {
+      "webviewMb": 388,
+      "appPrivateMb": 37,
+      "appMb": 57,
+      "webviewProcs": 6
+    },
+    "P4_statusAfterRelaunch": "{\"ready\":true,\"total\":3685,\"ms\":4.199,\"roundTrip\":7.9,\"status\":\"Index ✓\",\"title\":\"9 760 notes · 4 199 tags · 19 257 liens (398 non résolus) · recherche : 9 760 notes\"}",
+    "x20_bigNoteUntouched": {
+      "before": {
+        "size": 318443,
+        "sha1": "99a3f8c58e6c74c7066c4b9c00c3360e6665e14c",
+        "bom": false,
+        "crlf": 0,
+        "lf": 4371,
+        "endsWithNewline": true,
+        "tailHex": "6c736f6c206575786d61720a"
+      },
+      "after": {
+        "size": 318443,
+        "sha1": "99a3f8c58e6c74c7066c4b9c00c3360e6665e14c",
+        "bom": false,
+        "crlf": 0,
+        "lf": 4371,
+        "endsWithNewline": true,
+        "tailHex": "6c736f6c206575786d61720a"
+      },
+      "changedBlocks": 0,
+      "changes": []
+    }
+  },
+  "errors": [],
+  "pids": [
+    32668,
+    17456,
+    13584,
+    21000,
+    12156,
+    31580
+  ],
+  "ourPidsStillAlive": []
+}

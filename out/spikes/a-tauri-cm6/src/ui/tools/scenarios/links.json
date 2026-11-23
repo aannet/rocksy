@@ -1,0 +1,170 @@
+{
+ "steps": [
+  {
+   "nav": "{DIST}?open=00__DEMO/Live%20Preview.md&searchdelay=300"
+  },
+  {
+   "wait": "window.rocksyReady && window.rocksy.tree && rocksyMock.searchReady",
+   "timeout": 30000
+  },
+  {
+   "eval": "JSON.stringify({calls:rocksyMock.calls.filter(c=>/backlinks|outgoing|search|unresolved/.test(c)), status:document.querySelector('#statusbar span:nth-child(4)').textContent, title:document.querySelector('#statusbar span:nth-child(4)').title})",
+   "save": "noLinkCallsBeforePanel"
+  },
+  {
+   "click": "#rb-links"
+  },
+  {
+   "wait": "rocksy.sidebar.tab==='links' && document.querySelector('.links-sec')",
+   "timeout": 5000
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify({back:rocksy.metrics.backlinks, out:rocksy.metrics.outgoing, sections:[...document.querySelectorAll('.links-sec')].map(e=>e.textContent), sources:[...document.querySelectorAll('.links-content .sr-name')].map(e=>e.textContent), outgoing:[...document.querySelectorAll('.lk-out')].map(e=>e.textContent+(e.classList.contains('is-missing')?' [X]':'')), calls:rocksyMock.calls.filter(c=>/backlinks|outgoing/.test(c))})",
+   "save": "linksOfLivePreview"
+  },
+  {
+   "shot": "links-panel.png"
+  },
+  {
+   "click": ".links-content .sr-match"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 6000
+  },
+  {
+   "eval": "(()=>{const s=rocksy.focused.view.state;const l=s.doc.lineAt(s.selection.main.head);return JSON.stringify({doc:rocksy.activeDoc().name, line0:l.number-1, atCursor:s.sliceDoc(s.selection.main.head,s.selection.main.head+16), panelNote:document.querySelector('.links-head').textContent, back:rocksy.metrics.backlinks, out:rocksy.metrics.outgoing})})()",
+   "save": "backlinkClick_opensSourceAtLink"
+  },
+  {
+   "shot": "links-backlink-opened.png",
+   "settle": 250
+  },
+  {
+   "eval": "(()=>{const v=rocksy.focused.view;v.dispatch({selection:{anchor:v.state.doc.length}});v.focus();return rocksy.activeDoc().name})()",
+   "save": "editing"
+  },
+  {
+   "type": "\nNouveau lien vers [[Journal]] et [[Cible absente]].\n"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "key": "s",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "!rocksy.activeDoc().dirty",
+   "timeout": 5000
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({out:rocksy.metrics.outgoing, outgoing:[...document.querySelectorAll('.lk-out')].map(e=>e.textContent+(e.classList.contains('is-missing')?' [X]':'')).slice(-3), sec:[...document.querySelectorAll('.links-sec')].map(e=>e.textContent)})",
+   "save": "afterSave_outgoingUpdated"
+  },
+  {
+   "click": ".lk-out:not(.is-missing)"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify({active:rocksy.activeDoc().name})",
+   "save": "outgoingClick_opens"
+  },
+  {
+   "eval": "rocksy.openPath(rocksyMock.root+'\\\\00__DEMO\\\\Journal.md').then(()=>new Promise(r=>setTimeout(r,400))).then(()=>JSON.stringify({note:document.querySelector('.links-head').textContent, sources:[...document.querySelectorAll('.links-content .sr-name')].map(e=>e.textContent), back:rocksy.metrics.backlinks}))",
+   "save": "journalBacklinks_afterSave"
+  },
+  {
+   "shot": "links-after-save.png"
+  },
+  {
+   "eval": "rocksy.openPath(rocksyMock.root+'\\\\_ASSETS\\\\schema.png').then(()=>new Promise(r=>setTimeout(r,500))).then(()=>JSON.stringify({note:document.querySelector('.links-head').textContent, sections:[...document.querySelectorAll('.links-sec')].map(e=>e.textContent), sources:[...document.querySelectorAll('.links-content .sr-name')].map(e=>e.textContent), embeds:document.querySelectorAll('.lk-kind').length}))",
+   "save": "imageBacklinks"
+  },
+  {
+   "shot": "links-image-backlinks.png"
+  },
+  {
+   "eval": "rocksy.openPath(rocksyMock.outside).then(()=>new Promise(r=>setTimeout(r,300))).then(()=>document.querySelector('.links-content').textContent)",
+   "save": "outsideFileMessage"
+  },
+  {
+   "shot": "links-outside-file.png"
+  },
+  {
+   "eval": "(()=>{rocksy.runCommand('links.unresolved');return 1})()"
+  },
+  {
+   "wait": "document.querySelector('.picker-item')",
+   "timeout": 5000
+  },
+  {
+   "eval": "JSON.stringify({placeholder:document.querySelector('.picker input').placeholder, first:[...document.querySelectorAll('.picker-item')].slice(0,3).map(e=>e.textContent)})",
+   "save": "unresolvedList"
+  },
+  {
+   "type": "inexist"
+  },
+  {
+   "sleep": 150
+  },
+  {
+   "shot": "unresolved-links.png"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 6000
+  },
+  {
+   "eval": "(()=>{const s=rocksy.focused.view.state;const l=s.doc.lineAt(s.selection.main.head);return JSON.stringify({doc:rocksy.activeDoc().name, atCursor:s.sliceDoc(s.selection.main.head,s.selection.main.head+20)})})()",
+   "save": "unresolvedPick_opensSource"
+  },
+  {
+   "key": "p",
+   "mods": "ctrl"
+  },
+  {
+   "wait": "document.querySelector('.picker input')",
+   "timeout": 4000
+  },
+  {
+   "type": "liens"
+  },
+  {
+   "sleep": 150
+  },
+  {
+   "shot": "palette-links-commands.png"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "eval": "(()=>{rocksy.closeVault();return 1})()"
+  },
+  {
+   "click": "#rb-search"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({disabled:rocksy.sidebar.search.input.disabled, msg:document.querySelector('.search-list').textContent, sidebarHidden:document.getElementById('sidebar').hidden})",
+   "save": "searchWithoutVault"
+  },
+  {
+   "shot": "search-no-vault.png"
+  }
+ ]
+}

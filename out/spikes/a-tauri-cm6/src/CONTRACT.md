@@ -36,6 +36,10 @@ src/
 | `tags_list` | `query` (peut être vide) | `TagCount[]` triés ; un parent `a` agrège `a/b` |
 | `tag_fragments` | `tag`, `limit?` | `Fragment[]` (le tag et ses descendants) |
 | `file_tags` | `path`, `text` | `Fragment[]` pour un texte en mémoire (fichier hors vault ou non enregistré) |
+| `search` | `query`, `limit?` (défaut 50 fichiers) | `SearchResult` : recherche plein texte dans le vault indexé (voir « Recherche ») |
+| `backlinks` | `path` | `LinkRef[]` : liens et embeds des autres notes du vault qui pointent vers ce fichier (note ou pièce jointe), triés par chemin puis ligne |
+| `outgoing_links` | `path` | `OutLink[]` : liens et embeds contenus dans cette note, dans l'ordre du texte, résolus ou non |
+| `unresolved_links` | `limit?` (défaut 500) | `UnresolvedLink[]` : cibles introuvables dans le vault, avec leur nombre d'occurrences |
 | `set_session` | `session: Session` | `void` (persisté dans `data_dir`) |
 | `pick_folder` / `pick_file` | — | `string \| null` |
 | `log_timing` | `name`, `ms` | `void` (jalons de démarrage mesurés par l'UI) |
@@ -49,7 +53,26 @@ src/
 | `tree-updated` | `Tree` |
 | `tags-progress` | `{ done, total }` |
 | `tags-ready` | `{ files, tags, occurrences, ms, fromCache, reread?, removed?, persisted? }` ; peut être émis deux fois par `build_tags` (index persisté, puis réconcilié) |
+| `index-ready` | `IndexReady` : état de l'index du vault (tags, liens, recherche). Émis par `build_tags` quand l'index persisté est chargé (`fromCache: true`), après la réconciliation, quand la recherche plein texte devient disponible (`searchReady: true`), puis après chaque mise à jour due à un changement externe |
 | `file-changed` | `{ path, mtimeMs }` : changement externe d'un fichier ouvert |
+
+## Index du vault : une seule passe de lecture
+
+`build_tags` (nom conservé) construit et entretient **tout** l'index d'un vault : tags, liens, recherche plein texte. Lire une note est l'opération coûteuse (Google Drive) : chaque note nouvelle ou modifiée est lue **une seule fois** et alimente les trois. Tags et liens sont disponibles dès le chargement de l'index persisté ; la recherche plein texte peut l'être un peu plus tard (`searchReady`). `tags-ready` reste émis comme avant. `save_file` met à jour les trois sans relire le disque.
+
+## Recherche
+
+- Insensible à la casse et aux accents (`resume` trouve `Résumé`). Les mots sont combinés par ET. Le dernier mot saisi est un préfixe (recherche à la frappe : `archi` trouve `architecture`).
+- `"expression exacte"` ; `-mot` exclut ; `path:texte` restreint aux chemins contenant ce texte ; `tag:a/b` (ou `tag:#a/b`) restreint aux notes portant ce tag ou un descendant. Une requête faite seulement de filtres liste les notes correspondantes.
+- Le nom du fichier compte plus que le corps. Résultats triés par pertinence.
+- Les extraits viennent de l'index, sans relire les fichiers.
+- Tant que la recherche n'est pas disponible, `search` ne renvoie pas d'erreur : `hits` vide, `total` 0, `searchReady: false`. Une requête vide renvoie un résultat vide.
+- `line`, `col` et `len` suivent le texte exact renvoyé par `read_file` (BOM compris), comme les positions des tags.
+
+## Liens
+
+- Reconnus : `[[cible]]`, `[[cible#titre]]`, `[[cible#^bloc]]`, `[[cible|alias]]`, embeds `![[...]]`, liens Markdown `[texte](chemin.md)` et images `![alt](chemin.png)` vers un fichier local (les URL `http:`, `https:`, `mailto:` etc. sont ignorées). Pas dans le code inline ni les blocs de code. `[[#titre]]` (lien interne à la note) est ignoré.
+- Résolution d'une cible wikilink, comme Obsidian : chemin exact depuis la racine du vault, sinon suffixe de chemin, sinon nom de fichier (extension `.md` facultative), sans tenir compte de la casse ; en cas d'ambiguïté, le chemin le plus court, puis l'ordre alphabétique. Un lien Markdown est résolu relativement au dossier de la note, puis depuis la racine. La résolution porte sur tous les fichiers visibles du vault (notes et pièces jointes) et est recalculée quand des fichiers apparaissent ou disparaissent, sans relire les notes.
 
 ## Suivi des changements externes
 
@@ -81,6 +104,49 @@ type Fragment = {
   tagLine: number;             // ligne du tag
   tagCol: number;              // colonne en unités UTF-16 (comme CodeMirror)
   excerpt: string;             // ≤ 240 caractères, une ligne
+};
+type SearchResult = { query: string; total: number; hits: SearchHit[]; ms: number; searchReady: boolean };  // total = nombre de fichiers correspondants (peut dépasser hits.length)
+type SearchHit = {
+  path: string;                // absolu
+  score: number;
+  nameMatch: boolean;          // la requête correspond au nom du fichier
+  matchCount: number;          // occurrences dans le corps
+  matches: SearchMatch[];      // 3 au plus par fichier, dans l'ordre du texte
+};
+type SearchMatch = {
+  line: number;                // 0-based, modèle de lignes de CodeMirror
+  col: number;                 // unités UTF-16, début de la première occurrence sur la ligne
+  len: number;                 // longueur de cette occurrence dans la ligne, en unités UTF-16 (pour la sélectionner)
+  excerpt: string;             // ≤ 240 caractères, une ligne
+  ranges: [number, number][];  // plages à surligner dans excerpt (unités UTF-16, fin exclue)
+};
+type LinkKind = "link" | "embed";
+type LinkRef = {               // un lien entrant
+  path: string;                // note source, absolu
+  kind: LinkKind;
+  line: number; col: number;   // position du lien dans la source (0-based, UTF-16)
+  excerpt: string;             // ≤ 240 caractères, une ligne
+  ranges: [number, number][];  // plage du lien dans excerpt
+  heading: string | null;      // titre ou bloc visé (`#titre`, `#^bloc`), sans le `#`
+  alias: string | null;
+};
+type OutLink = {
+  target: string;              // cible telle qu'écrite, sans titre ni alias
+  resolved: string | null;     // chemin absolu du fichier visé, null si introuvable
+  kind: LinkKind;
+  line: number; col: number;
+  heading: string | null;
+  alias: string | null;
+};
+type UnresolvedLink = { target: string; count: number; sources: string[] };  // sources : 5 chemins au plus
+type IndexReady = {
+  fromCache: boolean;
+  files: number;               // notes indexées
+  tags: number; occurrences: number;
+  links: number; unresolvedLinks: number;
+  searchReady: boolean; searchDocs: number;
+  reread?: number; removed?: number;
+  ms: number;
 };
 type ApiError = { kind: "not_found" | "not_utf8" | "conflict" | "io" | "invalid"; message: string };
 ```

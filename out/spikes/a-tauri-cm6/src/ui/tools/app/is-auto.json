@@ -1,0 +1,43 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-is-auto",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('w1'))",
+   "save": "entries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>e.searchReady)",
+   "timeout": 30000
+  },
+  {
+   "eval": "T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md')).then(()=>{T.lineEnd(2186,true);if(rocksy.autosave) rocksy.toggleAutosave();window.__saves=[];const orig=rocksy.backend.saveFile.bind(rocksy.backend);rocksy.backend.saveFile=(...a)=>{const t=performance.now();const rec={start:Math.round(t)};window.__saves.push(rec);return orig(...a).then(r=>{rec.ms=+(performance.now()-t).toFixed(1);return r})};window.__keys=[];window.addEventListener('keydown',()=>window.__keys.push(Math.round(performance.now())),true);return 1})"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "eval": "(()=>{window.__iv=setInterval(()=>{const d=rocksy.activeDoc();if(d.dirty&&!d.saving)rocksy.save(d)},400);rocksy.latencyStart();return 1})()"
+  },
+  {
+   "type": "Frappe continue pendant que des enregistrements partent en arriere plan toutes les quatre cents millisecondes sur la note de trois cent dix huit kilo octets. Frappe continue pendant que des enregistrements partent en arriere plan toutes les quatre cents millisecondes sur la note de trois cent dix huit kilo octets. Frappe continue pendant que des enregistrements partent en arriere plan toutes les quatre cents millisecondes sur la note de trois cent dix huit kilo octets. ",
+   "delay": 6
+  },
+  {
+   "eval": "(()=>{clearInterval(window.__iv);const sv=window.__saves.filter(s=>s.ms!=null);const during=sv.map(s=>window.__keys.filter(k=>k>=s.start&&k<=s.start+s.ms).length);const ms=sv.map(s=>s.ms).sort((a,b)=>a-b);return JSON.stringify({latency:rocksy.latencyStop(), saves:sv.length, saveMs:{min:ms[0],median:ms[Math.floor(ms.length/2)],max:ms[ms.length-1]}, keystrokesDuringSaves:during.reduce((a,b)=>a+b,0), conflict:rocksy.activeDoc().conflict, error:rocksy.activeDoc().error})})()",
+   "save": "P5_typingWhileSaving_bigNote"
+  },
+  {
+   "sleep": 500
+  }
+ ]
+}

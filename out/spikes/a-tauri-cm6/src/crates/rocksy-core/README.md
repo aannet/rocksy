@@ -1,8 +1,8 @@
 # rocksy-core
 
-Cœur de Rocksy, sans aucune dépendance d'interface (ni tauri, ni runtime asynchrone). Dépendances : `serde`, `serde_json`, `memchr`, et `notify` 9 pour le watcher. Les types publics se sérialisent dans le JSON `camelCase` de `../../CONTRACT.md`. Les fonctions sont bloquantes : c'est à l'appelant (commandes Tauri) de lancer `reconcile_tree` et `TagIndex::build` sur un thread.
+Cœur de Rocksy, sans aucune dépendance d'interface (ni tauri, ni runtime asynchrone). Dépendances : `serde`, `serde_json`, `memchr`, `notify` 9 pour le watcher et `tantivy` 0.27 pour la recherche plein texte. Les types publics se sérialisent dans le JSON `camelCase` de `../../CONTRACT.md`. Les fonctions sont bloquantes : c'est à l'appelant (commandes Tauri) de lancer `reconcile_tree` et `TagIndex::build` sur un thread.
 
-Règle de base : la crate n'écrit dans un vault que par `save_file`. Tout le reste (registre, session, snapshots d'arbre, index des tags) va dans `data_dir`, fourni par l'appelant.
+Règle de base : la crate n'écrit dans un vault que par `save_file`. Tout le reste (registre, session, snapshots d'arbre, index des tags et des liens, index plein texte) va dans `data_dir`, fourni par l'appelant.
 
 ## API
 
@@ -47,6 +47,17 @@ impl TagIndex {                                                          // à p
     fn remove_file(&self, path: &Path);
     fn clear(&self);                                                      // oublie aussi la racine
     fn stats(&self) -> TagStats;                                          // { files, tags, occurrences, skipped }
+}
+
+// Index du vault : liens et recherche (mêmes objets que les tags ; VaultIndex = TagIndex)
+impl TagIndex {
+    fn open_search(&self, data_dir: &Path, vault: &Path) -> bool;        // ouvre l'index plein texte persisté ; true si prêt
+    fn search_ready(&self) -> bool;
+    fn search(&self, query: &str, limit: Option<usize>) -> SearchResult; // 50 fichiers par défaut, ne renvoie jamais d'erreur
+    fn backlinks(&self, path: &Path) -> Vec<LinkRef>;                    // note ou pièce jointe
+    fn outgoing_links(&self, path: &Path) -> Vec<OutLink>;
+    fn unresolved_links(&self, limit: Option<usize>) -> Vec<UnresolvedLink>;   // 500 par défaut
+    fn index_ready(&self, from_cache: bool, ms: u64, report: Option<&ReconcileReport>) -> IndexReady;
 }
 
 // Watcher (watch.rs)
@@ -103,6 +114,36 @@ charge  : racine du vault
 
 Entiers en varint LEB128 sauf largeur indiquée ; chaînes = longueur en varint puis UTF-8. Écriture atomique (temporaire + `fsync` + `rename`).
 
+## Index du vault : tags, liens, plein texte
+
+Une note nouvelle ou modifiée est lue une seule fois par `reconcile`, et ce texte alimente les trois : tags et liens dans l'index en mémoire (un fichier `data_dir/tags/<hash>.tags`), texte dans l'index plein texte (`data_dir/search/<hash>/`). `update_file_with_meta` fait de même à partir du texte en mémoire, sans lire le disque, et la recherche reflète le nouveau texte au retour de l'appel.
+
+Séquence dans l'app : `load_persisted` (tags et liens, aucune note lue), `open_search` (index plein texte, mappé en mémoire), puis `reconcile` sur un thread. `index_ready` fournit la charge de l'événement `index-ready` à chacune de ces étapes.
+
+### Liens
+
+- Extraits dans la même analyse ligne à ligne que les tags : `[[cible]]`, `[[cible#titre]]`, `[[cible#^bloc]]`, `[[cible|alias]]`, `![[...]]`, `[texte](chemin.md)`, `![alt](chemin.png)`. Ignorés : URL avec schéma, liens internes (`[[#titre]]`, `[x](#titre)`), code inline, blocs de code, frontmatter.
+- Stockés bruts avec chaque note (cible, titre, alias, type, ligne, colonne UTF-16, extrait et plage). La résolution est recalculée en mémoire quand le contenu de l'index a changé, sans lire aucune note ; elle porte sur les notes et sur les autres fichiers visibles, dont la liste est rafraîchie par `reconcile` et persistée.
+- Wikilink : chemin exact depuis la racine, sinon suffixe de chemin, sinon nom de fichier ; `.md` facultatif ; casse ignorée ; à égalité le chemin le plus court puis l'ordre alphabétique. Lien Markdown : relatif au dossier de la note, puis depuis la racine ; `%20` décodé.
+- `UnresolvedLink.target` est exactement le texte de `OutLink.target`. Un lien d'une note vers elle-même n'est pas un backlink.
+
+### Recherche
+
+- Moteur : tantivy, isolé dans `src/search/engine.rs`. Découpage en mots, langage de requête et extraits sont indépendants du moteur (`fold.rs`, `query.rs`, `highlight.rs`).
+- Un mot est une suite de lettres et de chiffres, comparée en minuscules et sans accents latins. Les mots de plus de 64 octets ne sont pas indexés.
+- Requête : mots combinés par ET ; le dernier mot est un préfixe s'il termine la saisie (un mot suivi d'un filtre est un mot entier) ; `"expression"` ; `-mot`, `-"expression"` ; `path:texte`, `tag:a/b` (descendants compris), tous deux niables par `-`. Une requête sans rien de positif ne renvoie rien.
+- Le nom du fichier pèse 6 fois le corps ; le mot exact pèse 2 fois ses prolongements par préfixe.
+- Le texte des notes est stocké dans l'index (compressé LZ4) : extraits, `line`, `col` et `len` en sortent sans relire le vault. Positions dans le texte exact de `read_file`, BOM compris.
+- `searchReady` devient vrai quand une passe complète du vault a été validée ; avant, `search` renvoie ce qui est déjà indexé.
+
+### Cohérence entre les deux fichiers
+
+Les deux stockages ne sont jamais supposés synchrones. Chacun retient, pour chaque note, la taille et le mtime de ce qu'il contient (dans l'index plein texte, ce sont deux champs rapides relus à l'ouverture). `reconcile` compare chacun au disque et relit une note si l'un des deux est en retard. Après un arrêt brutal entre les deux écritures, un index plein texte supprimé, endommagé ou en retard, seules les notes concernées sont relues. Pendant une longue passe, les deux sont validés toutes les 5 secondes, et aussi à l'annulation : une première indexation interrompue reprend où elle s'est arrêtée.
+
+### Format du fichier `.tags` (version 2)
+
+Par rapport à la version 1 : après les occurrences de chaque fichier, ses liens (drapeaux, ligne, colonne, cible, titre et alias facultatifs, extrait, plage) ; en fin de fichier, la liste des autres fichiers du vault. Un fichier de version 1 est ignoré et l'index reconstruit.
+
 ## Watcher
 
 `watch_vault` écoute la racine récursivement et appelle `on_batch` avec des lots regroupés. C'est un déclencheur, pas une source de vérité : à chaque lot, relancer `reconcile_tree` et `TagIndex::reconcile`, et les relancer aussi périodiquement, car rien ne garantit que tous les systèmes de fichiers (lecteur virtuel de Drive) notifient.
@@ -138,6 +179,9 @@ $BIN tags ~/rocksy-vaults/x20 [--threads N] [--reps N]   # construction de l'ind
 $BIN tags-persist ~/rocksy-vaults/x20 [--data-dir D] [--work-dir W] [--modify N]   # persistance de l'index
 $BIN watch ~/rocksy-vaults/x20 --seconds 30          # une ligne JSON par lot (lecture seule)
 $BIN watch-bench ~/rocksy-vaults/x20 [--work-dir W] [--burst N]   # délais du watcher, sur une copie temporaire
+$BIN search ~/rocksy-vaults/x20 "mot" --data-dir D     # recherche, avec les temps d'un processus neuf
+$BIN links ~/rocksy-vaults/x20 chemin/note.md --data-dir D   # liens sortants et entrants
+$BIN search-bench ~/rocksy-vaults/x20 [--data-dir D] [--work-dir W]   # indexation, tailles, latences
 $BIN fragments note.md                               # fragments d'un fichier
 ```
 
@@ -171,3 +215,25 @@ Options par défaut (400 ms / 3 000 ms), build release. Rien n'est mesuré sur G
 | Délai entre une écriture et son lot (5 essais) | 400,1 à 405,4 ms | 400,8 à 408,6 ms |
 | Rafale de 300 réécritures | 1 lot, 300 chemins, 422 ms après le début (écritures en 22 ms) | 1 lot, 300 chemins, 2 761 ms après le début (écritures en 2 354 ms) |
 | 30 s d'écoute au repos | 0 tick CPU, 4,4 Mo résidents, 3 threads | 0 ms CPU, 4,4 Mo de working set, 3 threads |
+
+### Index du vault : mesures du 23/11/2026
+
+Build release, cache chaud, 20x (9 760 notes, 64 Mo de texte, 19 257 liens). Linux = WSL2 sur ext4, Windows = NTFS local. Rien n'est mesuré sur Google Drive.
+
+| Mesure (médiane) | Linux 20x | Windows 20x |
+|---|---|---|
+| Indexation complète (tags + liens + plein texte) | 1,1 à 1,4 s | 2,0 à 2,5 s |
+| Fichier `.tags` (tags + liens) | 6,7 Mo | 6,7 Mo |
+| Index plein texte | 63 Mo | 63 Mo |
+| `load_persisted` | 18 à 27 ms | 34 à 37 ms |
+| `open_search` | 10 à 12 ms | 16 à 17 ms |
+| Recalcul de la résolution des liens | 25 à 29 ms | 32 à 33 ms |
+| `backlinks` / `outgoing_links` | < 0,05 ms | < 0,05 ms |
+| Requête : mot fréquent (5 496 fichiers) | 0,7 à 1,4 ms | 0,9 à 2,0 ms |
+| Requête : préfixe d'une lettre (9 720 fichiers) | 10 ms | 12 ms |
+| Requête : mot puis préfixe d'une lettre | 7,6 ms | 8,9 ms |
+| Requête : expression | 1,2 ms | 1,3 ms |
+| Requête : filtre `path:` + mot | 9,2 ms | 10,8 ms |
+| `reconcile` sans changement | 31 ms | 43 à 46 ms |
+| `reconcile` après 50 notes modifiées | 164 à 285 ms | 220 à 331 ms |
+| `update_file_with_meta` (validation du plein texte comprise) | 36 à 44 ms | 59 à 73 ms |

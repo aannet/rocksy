@@ -141,6 +141,37 @@ fn cli_commands_print_json() {
     assert!(persist["persistedBytes"].as_u64().unwrap() > 0);
     assert!(std::fs::read_dir(&work).map(|mut d| d.next().is_none()).unwrap_or(true), "work copy removed");
 
+    let (ok, search, stderr) = cli(&["search", vault.to_str().unwrap(), "bienvenu", "--data-dir", data.to_str().unwrap()]);
+    assert!(ok, "{stderr}");
+    assert_eq!(search["result"]["total"], 1);
+    assert_eq!(search["result"]["searchReady"], true);
+    assert_eq!(search["result"]["hits"][0]["matches"][0]["line"], 5);
+    assert_eq!(search["result"]["hits"][0]["matches"][0]["len"], 9);
+    assert_eq!(search["index"]["searchDocs"], 5);
+    let (ok, search, stderr) = cli(&["search", vault.to_str().unwrap(), "bienvenu", "--data-dir", data.to_str().unwrap()]);
+    assert!(ok, "{stderr}");
+    assert_eq!(search["fromCache"], true);
+    assert_eq!(search["coldSearch"]["total"], 1, "answered from the persisted index before any reconcile");
+    assert_eq!(search["reconcile"]["reread"], 0);
+
+    let (ok, links, stderr) = cli(&["links", vault.to_str().unwrap(), "Accueil.md", "--data-dir", data.to_str().unwrap()]);
+    assert!(ok, "{stderr}");
+    assert!(links["outgoing"].as_array().unwrap().is_empty());
+    assert!(links["backlinks"].as_array().unwrap().is_empty());
+
+    let (ok, bench, stderr) = cli(&[
+        "search-bench", vault.to_str().unwrap(), "--data-dir", data.to_str().unwrap(),
+        "--work-dir", work.to_str().unwrap(), "--modify", "2",
+    ]);
+    assert!(ok, "{stderr}");
+    assert_eq!(bench["fullIndexing"]["report"]["reread"], 6);
+    assert_eq!(bench["newProcess"]["searchReady"], true);
+    assert_eq!(bench["reconcileNoChangeMs"]["reread"], 0);
+    assert_eq!(bench["onCopy"]["rounds"][0]["reread"], 2);
+    assert_eq!(bench["onCopy"]["rounds"][0]["searchableAfter"], 2);
+    assert_eq!(bench["onCopy"]["reconcileAfterSaves"]["reread"], 0);
+    assert!(bench["persisted"]["searchBytes"].as_u64().unwrap() > 0);
+
     let note = vault.join("01 Travail/Reunions/Point.md");
     let (ok, fragments, stderr) = cli(&["fragments", note.to_str().unwrap()]);
     assert!(ok, "{stderr}");

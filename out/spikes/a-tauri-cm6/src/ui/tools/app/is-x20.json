@@ -1,0 +1,487 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-is-x20",
+  "args": []
+ },
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(()=>{if(rocksy.autosave) rocksy.toggleAutosave();return rocksy.autosave})()",
+   "save": "autosave_off"
+  },
+  {
+   "py": "snap",
+   "path": "{VAULTS}\\x20\\01_WORK\\__DAILY NOTES SYNTH.md",
+   "save": "bigBefore"
+  },
+  {
+   "eval": "(()=>{window.__t0=performance.now();T.addVault(T.ref('x20'));return 1})()"
+  },
+  {
+   "key": "f",
+   "mods": "ctrl+shift"
+  },
+  {
+   "wait": "rocksy.sidebar && rocksy.sidebar.tab==='search' && !rocksy.sidebar.search.input.disabled",
+   "timeout": 8000
+  },
+  {
+   "click": ".search-panel .tags-search input"
+  },
+  {
+   "type": "plan",
+   "delay": 20
+  },
+  {
+   "sleep": 200
+  },
+  {
+   "eval": "JSON.stringify({sinceAddVaultMs:Math.round(performance.now()-window.__t0), ready:rocksy.searchReady, msg:document.querySelector('.search-list').textContent.slice(0,90), status:document.querySelector('#statusbar span:nth-child(4)').textContent})",
+   "save": "P1_firstIndexing_stateWhileTyping"
+  },
+  {
+   "shot": "is-search-preparing.png",
+   "settle": 0
+  },
+  {
+   "eval": "T.wait(()=>document.querySelector('.sr-file'),30000).then(()=>JSON.stringify({firstResultsAfterAddVaultMs:Math.round(performance.now()-window.__t0), info:document.querySelector('.search-info').textContent, events:rocksy.indexEvents, status:document.querySelector('#statusbar span:nth-child(4)').textContent, statusTitle:document.querySelector('#statusbar span:nth-child(4)').title}))",
+   "save": "P1_autoReplay_and_indexEvents_firstIndexing"
+  },
+  {
+   "shot": "is-search-results.png"
+  },
+  {
+   "py": "mem",
+   "save": "P5_memAfterFirstIndexing_x20"
+  },
+  {
+   "key": "ArrowDown",
+   "times": 4
+  },
+  {
+   "sleep": 100
+  },
+  {
+   "shot": "is-search-keyboard.png"
+  },
+  {
+   "eval": "JSON.stringify(rocksy.sidebar.search.rows[rocksy.sidebar.search.sel])",
+   "save": "P1_selectedRow"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 8000,
+   "save": "P1_enterToFlashMs"
+  },
+  {
+   "eval": "(()=>{const F=s=>s.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/œ/g,'oe');const s=T.view().state;const m=s.selection.main;const l=s.doc.lineAt(m.from);return JSON.stringify({doc:rocksy.activeDoc().name, line0:l.number-1, col:m.from-l.from, selected:s.sliceDoc(m.from,m.to), selectedIsTerm:F(s.sliceDoc(m.from,m.to)).startsWith('plan'), termMarks:T.count('.cm-term-hl'), flash:T.count('.cm-lp-flash')})})()",
+   "save": "P1_openedFromKeyboard"
+  },
+  {
+   "shot": "is-search-open-result.png",
+   "settle": 200
+  },
+  {
+   "click": ".search-panel .tags-search input"
+  },
+  {
+   "key": "Escape"
+  },
+  {
+   "eval": "(()=>{rocksy.sidebar.search.samples.length=0;return 1})()"
+  },
+  {
+   "type": "plan",
+   "delay": 150
+  },
+  {
+   "sleep": 350
+  },
+  {
+   "key": "Backspace",
+   "times": 4
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "kolueux",
+   "delay": 150
+  },
+  {
+   "sleep": 350
+  },
+  {
+   "key": "Backspace",
+   "times": 7
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "architec",
+   "delay": 150
+  },
+  {
+   "sleep": 350
+  },
+  {
+   "key": "Backspace",
+   "times": 8
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "\"plan décision\"",
+   "delay": 150
+  },
+  {
+   "sleep": 350
+  },
+  {
+   "key": "Backspace",
+   "times": 15
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "tag:projet budget",
+   "delay": 150
+  },
+  {
+   "sleep": 350
+  },
+  {
+   "key": "Backspace",
+   "times": 17
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "path:01_WORK audit",
+   "delay": 150
+  },
+  {
+   "sleep": 350
+  },
+  {
+   "key": "Backspace",
+   "times": 18
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "type": "strategie reunion",
+   "delay": 150
+  },
+  {
+   "sleep": 350
+  },
+  {
+   "key": "Backspace",
+   "times": 17
+  },
+  {
+   "sleep": 250
+  },
+  {
+   "eval": "(()=>{const a=rocksy.sidebar.search.samples;const stt=(k)=>{const s=a.map(x=>x[k]).sort((x,y)=>x-y);const q=p=>s[Math.min(s.length-1,Math.floor(p*s.length))];return {median:q(.5),p95:q(.95),max:q(1)}};return JSON.stringify({searches:a.length, keystrokeToPainted:stt('total'), callRoundTrip:stt('call'), backendMs:stt('backend'), uiOverhead:(()=>{const s=a.map(x=>x.total-x.call-80).sort((x,y)=>x-y);return {median:+s[Math.floor(s.length/2)].toFixed(1), p95:+s[Math.floor(s.length*.95)].toFixed(1)}})(), filesMax:Math.max(...a.map(x=>x.files))})})()",
+   "save": "P1_searchLatency_realTyping"
+  },
+  {
+   "eval": "(async()=>{const F=s=>s.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/œ/g,'oe');const out=[];let seed=11;const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff};const cache={};for(const [q,term] of [['plan','plan'],['budget','budget'],['strategie','strategie'],['reunion audit','reunion|audit'],['\"plan decision\"','plan decision'],['archi','archi'],['kolueux','kolueux'],['tag:projet risque','risque'],['path:meetings client','client'],['equipe','equipe']]){const r=await T.inv('search',{query:q,limit:50});if(!r.hits.length){out.push({q,total:r.total,none:true});continue}const withM=r.hits.filter(h=>h.matches.length);if(!withM.length){out.push({q,total:r.total,noBodyMatch:true});continue}const h=withM[Math.floor(rnd()*withM.length)];const m=h.matches[Math.floor(rnd()*h.matches.length)];const text=cache[h.path]||(cache[h.path]=(await T.inv('read_file',{path:h.path})).text);const L=text.split(/\\r\\n|\\n/);const at=(L[m.line]||'').substr(m.col,m.len);const ex=m.ranges.map(([a,b])=>m.excerpt.slice(a,b));out.push({q,total:r.total,ms:r.ms,file:h.path.split('\\\\').pop(),line:m.line,col:m.col,len:m.len,atPos:at,ok:new RegExp('^('+term+')').test(F(at)),excerptMarks:ex.slice(0,3),marksOk:ex.every(x=>new RegExp('^('+term.replace(' ','|')+')').test(F(x))),nameMatch:h.nameMatch,matchCount:h.matchCount})}return JSON.stringify(out)})()",
+   "save": "P1_tenRandomResults_checkedAgainstFile"
+  },
+  {
+   "eval": "(async()=>{const sp=rocksy.sidebar.search;const out={};const qs=['\"','-','tag:','path:','\"non fermé','-mot','(a+b)*[c]?^$.\\\\\\\\|','😀 plan','plan 😀','   ','x'.repeat(500),'tag:#','\"\"','path:\\\\\\\\ plan','*','a'];for(const q of qs){sp.input.value=q;let err=null;const t=performance.now();try{await sp.run()}catch(e){err=String(e)}let direct=null;try{const r=await T.inv('search',{query:q});direct={total:r.total,ready:r.searchReady}}catch(e){direct={rejected:JSON.stringify(e)}}out[q.slice(0,24)]={ms:Math.round(performance.now()-t),err,direct,info:document.querySelector('.search-info').textContent,msg:(document.querySelector('.search-msg')||{}).textContent||null}}sp.clear();return JSON.stringify(out)})()",
+   "save": "P7_weirdQueries"
+  },
+  {
+   "eval": "T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md')).then(JSON.stringify)",
+   "save": "openBig"
+  },
+  {
+   "click": "#rb-links"
+  },
+  {
+   "wait": "rocksy.sidebar.tab==='links' && document.querySelector('.lk-out')",
+   "timeout": 8000
+  },
+  {
+   "eval": "(async()=>{const lp=rocksy.sidebar.links;const ts=[];for(let i=0;i<5;i++){const t=performance.now();await lp.refresh();void lp.body.offsetHeight;ts.push(+(performance.now()-t).toFixed(1))}const t1=performance.now();await T.inv('outgoing_links',{path:rocksy.activeDoc().path});const ipc=performance.now()-t1;return JSON.stringify({refreshMs:ts, outgoingIpcMs:+ipc.toFixed(1), back:rocksy.metrics.backlinks, out:rocksy.metrics.outgoing, unresolvedShown:T.count('.lk-out.is-missing'), domNodes:document.querySelectorAll('.links-content *').length, sections:[...document.querySelectorAll('.links-sec')].map(e=>e.textContent)})})()",
+   "save": "P2_bigNote_linksPanel"
+  },
+  {
+   "shot": "is-links-big-note.png"
+  },
+  {
+   "eval": "(()=>{T.lineEnd(2185,true);rocksy.latencyStart();return 1})()"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "type": "Le suivi du projet avance bien et les mesures restent stables pendant la saisie de ce texte de test avec le panneau des liens ouvert a cote de la note.",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "P5_typingLatency_linksPanelOpen"
+  },
+  {
+   "click": "#rb-search"
+  },
+  {
+   "click": ".search-panel .tags-search input"
+  },
+  {
+   "type": "plan",
+   "delay": 40
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "(()=>{T.lineEnd(2190,true);rocksy.latencyStart();return T.count('.cm-term-hl')})()",
+   "save": "termMarksInBigNote"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "type": "Le suivi du projet avance bien et les mesures restent stables pendant la saisie de ce texte de test avec le panneau de recherche ouvert et le plan surligne.",
+   "delay": 6
+  },
+  {
+   "eval": "JSON.stringify(rocksy.latencyStop())",
+   "save": "P5_typingLatency_searchPanelOpen_termsHighlighted"
+  },
+  {
+   "click": "#rb-links"
+  },
+  {
+   "eval": "(async()=>{const out=await T.inv('outgoing_links',{path:rocksy.activeDoc().path});const note=out.find(o=>o.resolved&&/\\.md$/.test(o.resolved)&&o.kind==='link');const img=out.find(o=>o.resolved&&/\\.png$/.test(o.resolved));window.__img=img.resolved;await rocksy.openPath(note.resolved);await new Promise(r=>setTimeout(r,500));return JSON.stringify({note:rocksy.activeDoc().name, back:rocksy.metrics.backlinks, out:rocksy.metrics.outgoing, sources:[...document.querySelectorAll('.links-content .sr-name')].map(e=>e.textContent).slice(0,5)})})()",
+   "save": "P2_backlinksOfNote"
+  },
+  {
+   "shot": "is-links-note.png"
+  },
+  {
+   "click": ".links-content .sr-match"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 6000
+  },
+  {
+   "eval": "(()=>{const s=T.view().state;const m=s.selection.main;return JSON.stringify({doc:rocksy.activeDoc().name, atCursor:s.sliceDoc(m.from,m.from+30)})})()",
+   "save": "P2_backlinkClick_cursorOnLink"
+  },
+  {
+   "eval": "(async()=>{await rocksy.openPath(window.__img);await new Promise(r=>setTimeout(r,600));return JSON.stringify({doc:rocksy.activeDoc().name, back:rocksy.metrics.backlinks, embeds:T.count('.lk-kind'), sections:[...document.querySelectorAll('.links-sec')].map(e=>e.textContent)})})()",
+   "save": "P2_backlinksOfImage"
+  },
+  {
+   "shot": "is-links-image.png"
+  },
+  {
+   "click": ".links-content .sr-match"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 6000
+  },
+  {
+   "eval": "(()=>{const s=T.view().state;const m=s.selection.main;return JSON.stringify({doc:rocksy.activeDoc().name, atCursor:s.sliceDoc(m.from,m.from+30)})})()",
+   "save": "P2_embedBacklinkClick_cursorOnBang"
+  },
+  {
+   "eval": "(()=>{rocksy.runCommand('links.unresolved');return 1})()"
+  },
+  {
+   "wait": "document.querySelector('.picker-item')",
+   "timeout": 6000
+  },
+  {
+   "eval": "JSON.stringify({placeholder:document.querySelector('.picker input').placeholder, first:[...document.querySelectorAll('.picker-item')].slice(0,3).map(e=>e.textContent)})",
+   "save": "P3_unresolvedList"
+  },
+  {
+   "shot": "is-unresolved.png"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "wait": "document.querySelector('.cm-lp-flash')",
+   "timeout": 6000
+  },
+  {
+   "eval": "(()=>{const s=T.view().state;const m=s.selection.main;return JSON.stringify({doc:rocksy.activeDoc().name, atCursor:s.sliceDoc(m.from,m.from+30)})})()",
+   "save": "P3_unresolvedPick_cursorOnLink"
+  },
+  {
+   "eval": "(async()=>{const d=rocksy.findDoc(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));await rocksy.activate(d);for(const x of rocksy.docs()){if(x!==d){x.dirty=false;await rocksy.closeDoc(x)}}d.dirty=false;rocksy.queueSession();await new Promise(r=>setTimeout(r,600));return JSON.stringify(rocksy.docs().map(d=>d.name))})()",
+   "save": "sessionForRelaunch"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-is-x20",
+   "save": "P6_dataDir"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-is-x20\\search",
+   "save": "P6_dataDir_search"
+  },
+  {
+   "py": "jsonl",
+   "path": "{IT}\\data-is-x20\\timings.jsonl",
+   "delete": true,
+   "save": "timings_firstLaunch"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.tree && rocksy.indexEvents.some(e=>!e.fromCache)",
+   "timeout": 30000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "py": "jsonl",
+   "path": "{IT}\\data-is-x20\\timings.jsonl",
+   "delete": true,
+   "collect": "P5_startup_5launches_x20_session"
+  },
+  {
+   "eval": "JSON.stringify({metrics:{editorReadyMs:rocksy.metrics.editorReadyMs,treeReadyMs:rocksy.metrics.treeReadyMs,openVaultMs:rocksy.metrics.openVaultMs}, fromSnapshot:rocksy.tree.fromSnapshot, events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,reread:e.reread,removed:e.removed,ms:e.ms,files:e.files,links:e.links,unresolved:e.unresolvedLinks,searchDocs:e.searchDocs}))})",
+   "save": "P4_relaunch_1_indexEvents"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.tree && rocksy.indexEvents.some(e=>!e.fromCache)",
+   "timeout": 30000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "py": "jsonl",
+   "path": "{IT}\\data-is-x20\\timings.jsonl",
+   "delete": true,
+   "collect": "P5_startup_5launches_x20_session"
+  },
+  {
+   "eval": "JSON.stringify({metrics:{editorReadyMs:rocksy.metrics.editorReadyMs,treeReadyMs:rocksy.metrics.treeReadyMs,openVaultMs:rocksy.metrics.openVaultMs}, fromSnapshot:rocksy.tree.fromSnapshot, events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,reread:e.reread,removed:e.removed,ms:e.ms,files:e.files,links:e.links,unresolved:e.unresolvedLinks,searchDocs:e.searchDocs}))})",
+   "save": "P4_relaunch_2_indexEvents"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.tree && rocksy.indexEvents.some(e=>!e.fromCache)",
+   "timeout": 30000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "py": "jsonl",
+   "path": "{IT}\\data-is-x20\\timings.jsonl",
+   "delete": true,
+   "collect": "P5_startup_5launches_x20_session"
+  },
+  {
+   "eval": "JSON.stringify({metrics:{editorReadyMs:rocksy.metrics.editorReadyMs,treeReadyMs:rocksy.metrics.treeReadyMs,openVaultMs:rocksy.metrics.openVaultMs}, fromSnapshot:rocksy.tree.fromSnapshot, events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,reread:e.reread,removed:e.removed,ms:e.ms,files:e.files,links:e.links,unresolved:e.unresolvedLinks,searchDocs:e.searchDocs}))})",
+   "save": "P4_relaunch_3_indexEvents"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.tree && rocksy.indexEvents.some(e=>!e.fromCache)",
+   "timeout": 30000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "py": "jsonl",
+   "path": "{IT}\\data-is-x20\\timings.jsonl",
+   "delete": true,
+   "collect": "P5_startup_5launches_x20_session"
+  },
+  {
+   "eval": "JSON.stringify({metrics:{editorReadyMs:rocksy.metrics.editorReadyMs,treeReadyMs:rocksy.metrics.treeReadyMs,openVaultMs:rocksy.metrics.openVaultMs}, fromSnapshot:rocksy.tree.fromSnapshot, events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,reread:e.reread,removed:e.removed,ms:e.ms,files:e.files,links:e.links,unresolved:e.unresolvedLinks,searchDocs:e.searchDocs}))})",
+   "save": "P4_relaunch_4_indexEvents"
+  },
+  {
+   "restart": {
+    "args": []
+   }
+  },
+  {
+   "wait": "window.rocksyReady && rocksy.tree && rocksy.indexEvents.some(e=>!e.fromCache)",
+   "timeout": 30000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "py": "jsonl",
+   "path": "{IT}\\data-is-x20\\timings.jsonl",
+   "delete": true,
+   "collect": "P5_startup_5launches_x20_session"
+  },
+  {
+   "eval": "JSON.stringify({metrics:{editorReadyMs:rocksy.metrics.editorReadyMs,treeReadyMs:rocksy.metrics.treeReadyMs,openVaultMs:rocksy.metrics.openVaultMs}, fromSnapshot:rocksy.tree.fromSnapshot, events:rocksy.indexEvents.map(e=>({atMs:e.atMs,fromCache:e.fromCache,searchReady:e.searchReady,reread:e.reread,removed:e.removed,ms:e.ms,files:e.files,links:e.links,unresolved:e.unresolvedLinks,searchDocs:e.searchDocs}))})",
+   "save": "P4_relaunch_5_indexEvents"
+  },
+  {
+   "py": "mem",
+   "save": "P5_memAfterRelaunch_x20"
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "(async()=>{const t=performance.now();const r=await T.inv('search',{query:'plan'});return JSON.stringify({ready:r.searchReady,total:r.total,ms:r.ms,roundTrip:+(performance.now()-t).toFixed(1), status:document.querySelector('#statusbar span:nth-child(4)').textContent, title:document.querySelector('#statusbar span:nth-child(4)').title})})()",
+   "save": "P4_statusAfterRelaunch"
+  },
+  {
+   "shot": "is-relaunch-status.png"
+  },
+  {
+   "py": "linediff",
+   "snap": "bigBefore",
+   "path": "{VAULTS}\\x20\\01_WORK\\__DAILY NOTES SYNTH.md",
+   "save": "x20_bigNoteUntouched"
+  }
+ ]
+}

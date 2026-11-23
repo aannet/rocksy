@@ -1,0 +1,16 @@
+{
+  "case": "integration-recherche-liens",
+  "date": "2026-11-23",
+  "app": "rocksy.exe 0.2.0 (11,6 Mo), reconstruit par out/tools/build-win.sh avec l'interface de src/ui",
+  "os": "Windows 11 (10.0.26200)",
+  "webview": "WebView2, Edg/157",
+  "window": { "cssWidth": 1280, "cssHeight": 820, "devicePixelRatio": 2, "captures": "réduites à l'échelle 1" },
+  "data": {
+    "x20": "vaults\\x20 en lecture seule (20 747 entrées, 9 760 notes, 4 199 tags, 19 257 liens, 398 cibles non résolues)",
+    "w1": "it\\w1, copie fraîche de x1 avec trois fichiers de test (LF, CRLF, BOM) : tests qui écrivent",
+    "v7": "it\\v7, copie fraîche de x1 : empreintes F7"
+  },
+  "disk": "C: local, cache chaud",
+  "driver": "src/ui/tools/drive.py (protocole DevTools, port 9223) ; un profil ROCKSY_DATA_DIR neuf par scénario sous it\\data-is-* ; seuls les processus lancés par le pilote sont arrêtés, par PID",
+  "scenarios": ["is-x20", "is-w1", "is-f7", "is-close", "is-auto"]
+}

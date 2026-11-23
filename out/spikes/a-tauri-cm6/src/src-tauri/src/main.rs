@@ -193,6 +193,12 @@ fn build_tags(app: AppHandle, state: State<'_, AppState>, vault_path: String) {
                 "tags-ready",
                 tags_ready_payload(ready.files, ready.tags, ready.occurrences, ready.ms, serde_json::json!({ "fromCache": true })),
             );
+            // Tags and links first; full-text search is opened next and announced separately.
+            let _ = app.emit("index-ready", index.index_ready(true, ready.ms, None));
+            let opened = now_ms();
+            if index.open_search(&data_dir, vault) {
+                let _ = app.emit("index-ready", index.index_ready(true, ready.ms + now_ms().saturating_sub(opened), None));
+            }
         }
         let progress_app = app.clone();
         let last_emit = std::sync::atomic::AtomicU64::new(0);
@@ -209,6 +215,7 @@ fn build_tags(app: AppHandle, state: State<'_, AppState>, vault_path: String) {
             Ok(Some(r)) => {
                 let extra = serde_json::json!({ "fromCache": false, "reread": r.reread, "removed": r.removed, "persisted": r.persisted });
                 let _ = app.emit("tags-ready", tags_ready_payload(r.files, r.tags, r.occurrences, r.ms, extra));
+                let _ = app.emit("index-ready", index.index_ready(false, r.ms, Some(&r)));
             }
             // Cancelled (vault switch or exit): keep what was already reread for next time.
             Ok(None) => {
@@ -229,6 +236,26 @@ fn tags_list(state: State<'_, AppState>, query: String) -> Vec<TagCount> {
 fn tag_fragments(state: State<'_, AppState>, tag: String, limit: Option<usize>) -> Vec<Fragment> {
     // Unbounded results can reach megabytes of JSON on a frequent tag.
     state.tags.tag_fragments(&tag, Some(limit.unwrap_or(500)))
+}
+
+#[tauri::command(async)]
+fn search(state: State<'_, AppState>, query: String, limit: Option<usize>) -> core::SearchResult {
+    state.tags.search(&query, limit)
+}
+
+#[tauri::command(async)]
+fn backlinks(state: State<'_, AppState>, path: String) -> Vec<core::LinkRef> {
+    state.tags.backlinks(Path::new(&path))
+}
+
+#[tauri::command(async)]
+fn outgoing_links(state: State<'_, AppState>, path: String) -> Vec<core::OutLink> {
+    state.tags.outgoing_links(Path::new(&path))
+}
+
+#[tauri::command(async)]
+fn unresolved_links(state: State<'_, AppState>, limit: Option<usize>) -> Vec<core::UnresolvedLink> {
+    state.tags.unresolved_links(limit)
 }
 
 #[tauri::command(async)]
@@ -352,6 +379,7 @@ fn spawn_refresh_worker(app: AppHandle) {
                         if r.reread > 0 || r.removed > 0 {
                             let extra = serde_json::json!({ "fromCache": false, "reread": r.reread, "removed": r.removed, "persisted": r.persisted });
                             let _ = app.emit("tags-ready", tags_ready_payload(r.files, r.tags, r.occurrences, r.ms, extra));
+                            let _ = app.emit("index-ready", state.tags.index_ready(false, r.ms, Some(&r)));
                         }
                     }
                 }
@@ -507,6 +535,10 @@ fn main() {
             tags_list,
             tag_fragments,
             file_tags,
+            search,
+            backlinks,
+            outgoing_links,
+            unresolved_links,
             set_session,
             pick_folder,
             pick_file,
