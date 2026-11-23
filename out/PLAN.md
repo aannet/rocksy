@@ -9,10 +9,11 @@ Remplacer Obsidian par **Rocksy**, une app rapide (démarrage ≤ 2 s pour écri
 ## 2. À lire d'abord, dans cet ordre
 
 1. `CLAUDE.md` : état, architecture, décisions, contraintes de l'audit, conventions.
-2. `out/docs/perimetre-fonctionnel.md` : ce que Rocksy doit faire (v1 / v1.x / plus tard / hors périmètre), questions ouvertes, irritants.
-3. `out/docs/m2-cahier-des-charges-spikes.md` : spikes A (Tauri 2 + CodeMirror 6) et B (Rune), cas F1–F9, KPI, règle de décision.
-4. `out/docs/m1-plugins-matrix.md` : mods, modes d'activation, jobs.
-5. `in/brief-obsidian-rapide.md` et `in/audit-vault-obsidian.md` (le `.json` brut : grep seulement).
+2. `out/docs/intent.md` : pourquoi le projet existe, objectif général, critères de réussite, principes (brouillon).
+3. `out/docs/perimetre-fonctionnel.md` : ce que Rocksy doit faire (v1 / v1.x / plus tard / hors périmètre), questions ouvertes, irritants.
+4. `out/docs/m2-cahier-des-charges-spikes.md` : spikes A (Tauri 2 + CodeMirror 6) et B (Rune), cas F1–F9, KPI, règle de décision.
+5. `out/docs/m1-plugins-matrix.md` : mods, modes d'activation, jobs.
+6. `in/brief-obsidian-rapide.md` et `in/audit-vault-obsidian.md` (le `.json` brut : grep seulement).
 
 ## 3. Décisions figées (ne pas les rouvrir)
 

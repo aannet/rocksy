@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Pre-code planning stage. There is no source code, build system or test suite yet, so there are no build/lint/test commands. A git repo exists (`main`, initialised 2026-11-24, first commit the same day; do not commit unless Alec asks). `in/` holds the inputs (French-language documents). `out/` holds the deliverables, organised as follows (see `out/README.md`):
 - `out/PLAN.md`: handoff plan with the ordered next steps. **Start here.**
-- `out/docs/`: `perimetre-fonctionnel.md`, `m1-plugins-matrix.md`, `m2-cahier-des-charges-spikes.md`.
+- `out/docs/`: `intent.md` (why, general objective, success criteria, principles; draft), `perimetre-fonctionnel.md`, `m1-plugins-matrix.md`, `m2-cahier-des-charges-spikes.md`.
 - `out/tools/`: `gen-vault.py`, `measure-coldstart.ps1`, `vault-kpis.ps1`, `scan-plugin-api.ps1`.
 - `out/data/`: raw measurements of the real vault (`vault-kpis.json`, `plugin-api-usage.json`).
 - `out/runs/`: Obsidian baseline measurements. `out/spikes/<spike>/`: the M2 spikes (`a-tauri-cm6`, `b-rune`) with `README.md`, `src/`, `grille.md` (F1-F9) and `runs/`; the comparative summary goes in `out/spikes/m2-resultats.md`.
