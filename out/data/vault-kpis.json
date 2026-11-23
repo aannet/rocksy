@@ -1,0 +1,193 @@
+﻿{
+    "generatedAt":  "2026-11-22T23:52:51",
+    "note":  "Compteurs uniquement : aucun contenu de note, nom de tag, de propriete ou de lien.",
+    "scope":  "hors dossiers a point (vue Obsidian)",
+    "files":  {
+                  "total":  953,
+                  "markdown":  488,
+                  "attachments":  465,
+                  "folders":  94,
+                  "totalBytes":  130888528,
+                  "attachmentsByExtension":  {
+                                                 ".png":  {
+                                                              "count":  420,
+                                                              "bytes":  115108228
+                                                          },
+                                                 ".pdf":  {
+                                                              "count":  10,
+                                                              "bytes":  4710169
+                                                          },
+                                                 ".canvas":  {
+                                                                 "count":  10,
+                                                                 "bytes":  113359
+                                                             },
+                                                 ".jpg":  {
+                                                              "count":  8,
+                                                              "bytes":  4514133
+                                                          },
+                                                 ".docx":  {
+                                                               "count":  7,
+                                                               "bytes":  207193
+                                                           },
+                                                 ".gdoc":  {
+                                                               "count":  5,
+                                                               "bytes":  985
+                                                           },
+                                                 ".excalidraw":  {
+                                                                     "count":  2,
+                                                                     "bytes":  65052
+                                                                 },
+                                                 ".excalidrawlib":  {
+                                                                        "count":  2,
+                                                                        "bytes":  56217
+                                                                    },
+                                                 ".odt":  {
+                                                              "count":  1,
+                                                              "bytes":  3171329
+                                                          }
+                                             }
+              },
+    "markdown":  {
+                     "bytes":  {
+                                   "count":  488,
+                                   "sum":  2941863,
+                                   "mean":  6028.4,
+                                   "median":  2536,
+                                   "p95":  20999,
+                                   "max":  326528
+                               },
+                     "words":  {
+                                   "count":  488,
+                                   "sum":  378172,
+                                   "mean":  774.9,
+                                   "median":  360,
+                                   "p95":  2663,
+                                   "max":  44749
+                               },
+                     "characters":  {
+                                        "count":  488,
+                                        "sum":  2887423,
+                                        "mean":  5916.9,
+                                        "median":  2533,
+                                        "p95":  20699,
+                                        "max":  321132
+                                    },
+                     "emptyFiles":  0,
+                     "excalidrawMd":  16,
+                     "readErrors":  0
+                 },
+    "structure":  {
+                      "headings":  {
+                                       "count":  488,
+                                       "sum":  5004,
+                                       "mean":  10.3,
+                                       "median":  6,
+                                       "p95":  26,
+                                       "max":  475
+                                   },
+                      "notesWithFrontmatter":  468,
+                      "frontmatterKeysPerNote":  {
+                                                     "count":  468,
+                                                     "sum":  2507,
+                                                     "mean":  5.4,
+                                                     "median":  5,
+                                                     "p95":  9,
+                                                     "max":  9
+                                                 },
+                      "distinctFrontmatterKeys":  19,
+                      "tasksOpen":  777,
+                      "tasksDone":  122
+                  },
+    "tags":  {
+                 "distinctInlineTags":  333,
+                 "inlineOccurrences":  908,
+                 "notesWithTags":  455
+             },
+    "links":  {
+                  "wikilinks":  362,
+                  "embeds":  381,
+                  "unresolvedOccurrences":  65,
+                  "unresolvedDistinctTargets":  58,
+                  "outgoingPerNote":  {
+                                          "count":  488,
+                                          "sum":  743,
+                                          "mean":  1.5,
+                                          "median":  0,
+                                          "p95":  5,
+                                          "max":  128
+                                      },
+                  "incomingPerLinkedTarget":  {
+                                                  "count":  547,
+                                                  "sum":  678,
+                                                  "mean":  1.2,
+                                                  "median":  1,
+                                                  "p95":  3,
+                                                  "max":  15
+                                              },
+                  "notesWithoutOutgoing":  330,
+                  "distinctLinkedTargets":  547,
+                  "caveat":  "Resolution par nom de base (homonymes non departages), liens Markdown [](...) non comptes."
+              },
+    "paths":  {
+                  "maxAbsoluteLength":  247,
+                  "maxRelativeLength":  218,
+                  "over240":  1
+              },
+    "growth":  {
+                   "caveat":  "Google Drive peut remettre CreationTime a la date de synchronisation : prends LastWriteTime avec prudence.",
+                   "mdCreatedByMonth":  {
+                                            "2024-11":  46,
+                                            "2024-12":  9,
+                                            "2025-01":  5,
+                                            "2025-02":  4,
+                                            "2025-03":  4,
+                                            "2025-04":  5,
+                                            "2025-05":  3,
+                                            "2025-06":  6,
+                                            "2025-07":  5,
+                                            "2025-09":  6,
+                                            "2025-10":  18,
+                                            "2025-11":  9,
+                                            "2025-12":  5,
+                                            "2026-01":  8,
+                                            "2026-02":  17,
+                                            "2026-03":  9,
+                                            "2026-04":  11,
+                                            "2026-05":  4,
+                                            "2026-06":  2,
+                                            "2026-07":  14,
+                                            "2026-08":  1,
+                                            "2026-09":  15,
+                                            "2026-10":  68,
+                                            "2026-11":  25
+                                        },
+                   "mdModifiedByMonth":  {
+                                             "2024-01":  1,
+                                             "2024-08":  1,
+                                             "2024-09":  1,
+                                             "2024-11":  10,
+                                             "2024-12":  3,
+                                             "2025-01":  1,
+                                             "2025-05":  1,
+                                             "2025-10":  11,
+                                             "2025-11":  1,
+                                             "2025-12":  1,
+                                             "2026-03":  1,
+                                             "2026-04":  1,
+                                             "2026-05":  3,
+                                             "2026-07":  113,
+                                             "2026-08":  4,
+                                             "2026-09":  4,
+                                             "2026-10":  10,
+                                             "2026-11":  321
+                                         }
+               },
+    "obsidianCache":  {
+                          "indexedDbBytes":  8239412,
+                          "path":  "C:\\Users\\aleca\\AppData\\Roaming\\obsidian\\IndexedDB"
+                      },
+    "timingsMs":  {
+                      "walk":  250,
+                      "readMd":  75544
+                  }
+}

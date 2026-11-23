@@ -1,0 +1,20 @@
+# Artefacts de build des spikes et du futur code
+target/
+node_modules/
+dist/
+*.exe
+*.pdb
+__pycache__/
+
+# Vaults synthétiques générés (peuvent peser plusieurs Go)
+vaults/
+.rocksy-synth/
+
+# Fichiers locaux
+.claude/settings.local.json
+.env
+*.log
+
+# Captures volumineuses des runs : versionner seulement ce qui est cité dans un rapport
+out/**/runs/**/*.mp4
+out/**/runs/**/*.mkv

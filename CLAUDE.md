@@ -1,0 +1,58 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## State of the repo
+
+Pre-code planning stage. There is no source code, build system or test suite yet, so there are no build/lint/test commands. A git repo exists (`main`, initialised 2026-11-24, first commit the same day; do not commit unless Alec asks). `in/` holds the inputs (French-language documents). `out/` holds the deliverables, organised as follows (see `out/README.md`):
+- `out/PLAN.md`: handoff plan with the ordered next steps. **Start here.**
+- `out/docs/`: `perimetre-fonctionnel.md`, `m1-plugins-matrix.md`, `m2-cahier-des-charges-spikes.md`.
+- `out/tools/`: `gen-vault.py`, `measure-coldstart.ps1`, `vault-kpis.ps1`, `scan-plugin-api.ps1`.
+- `out/data/`: raw measurements of the real vault (`vault-kpis.json`, `plugin-api-usage.json`).
+- `out/runs/`: Obsidian baseline measurements. `out/spikes/<spike>/`: the M2 spikes (`a-tauri-cm6`, `b-rune`) with `README.md`, `src/`, `grille.md` (F1-F9) and `runs/`; the comparative summary goes in `out/spikes/m2-resultats.md`.
+- **Runs are dated and never overwritten:** each measurement session writes to `<runs>/YYYY-MM-DD_HHMM_<case>/` (`coldstart.csv`, `meta.json`, optional `notes.md`, `captures/`). `measure-coldstart.ps1` creates this folder itself; pass `-RunsRoot` for a spike. Note the Drive cache state (cold/warm) in `notes.md`.
+
+Update this file once code lands (workspace layout, build and test commands).
+
+## Project: "Rocksy"
+
+A fast Obsidian replacement (Rust core, web UI in Tauri 2). Personal project by Alec; whether it is ever distributed is unresolved. The goal is a cold start that makes the last note editable in ≤ 2 s and the file tree navigable in ≤ 3 s, with no vault conversion and compatibility with existing community plugins. The vault must stay openable in real Obsidian at all times, so the app never writes proprietary data into `.obsidian/`.
+
+Inputs (read these before designing anything):
+- `in/brief-obsidian-rapide.md`: project brief v0.1 (goals, stack, milestones M0–M5, open questions marked "⚠️ À préciser").
+- `in/audit-vault-obsidian.md` and `.json`: read-only audit of Alec's real vault and Obsidian install (the JSON is the raw data, ~180 KB, so grep it rather than reading it whole). It contains no note content, only paths, sizes and counters.
+
+### Planned architecture (from the brief)
+
+- Direction change (Alec, 2026-11-23): compatibility with Obsidian plugins is now secondary / nice-to-have. The app has its own plugin system with hot loading; an Obsidian-plugin importer may come later, but it no longer drives the stack. This reopens the UI stack choice: Tauri 2 + CodeMirror 6 (WebView, keeps the DOM/JS door open) vs a native GPU-rendered UI such as Rune (`github.com/anomalyco/rune`, MIT, pre-release, no WebView, headless mode, Luau scripting; text editing, live preview and Windows maturity unverified). M2 should be a comparative spike on the real vault, not a Tauri-only one: spec in `out/docs/m2-cahier-des-charges-spikes.md`. Mermaid: Obsidian 1.15 replaced Mermaid.js with Pele (`obsidianmd/pele`, MIT, JS/TS, zero dependencies, synchronous Mermaid text -> SVG string, all Mermaid 12.1.0 types except ZenUML, `PeleError` with line/column). Pele is trivial in a WebView; a native UI needs an embedded JS engine for it, or a Rust engine (`mermaid-rs-renderer`, `merman`).
+- Shell (previous plan, pending the M2 comparison): Tauri 2. Editor: CodeMirror 6.
+- Rust core: Markdown parser, link/backlink graph, `tantivy` full-text index persisted on disk and loaded via mmap, `notify` watcher with incremental reindexing by hash or mtime.
+- Obsidian plugin compat (now optional, later): a JS shim of the `obsidian` API (public `obsidian.d.ts`) or an importer that converts plugins to native ones. Plugins that rely on undocumented internals (`app.internalPlugins`, private classes) are handled case by case or excluded. Do not decompile Obsidian's `app.js`. `out/data/plugin-api-usage.json` sizes the shim if it is ever built (59 `app.*.*` methods without Excalidraw, 85 with).
+- Store: client for `obsidianmd/obsidian-releases` and GitHub releases, using the same on-disk format as `.obsidian/plugins/` and `community-plugins.json`.
+- Startup order: (1) read the file referenced by the active leaf in `workspace.json` and show it without waiting for index or plugins, (2) build the tree from a plain filesystem listing, independent of the index, (3) load the persisted index and reconcile in the background, (4) load plugins lazily, critical ones after first render.
+- Mod architecture (Alec's decisions, 2026-11-23): everything stays a plugin/mod with one manifest and an activation mode: `post-paint` (after T1/T2, time-sliced in idle time), `on-file-type`, `on-command`/`on-event`, `admin` (launched from an admin panel), or `job` (scheduled batch run by the Rust core, no UI). Nothing loads before first render. Default-on mods: Custom Icons, Editing Toolbar, TagFolder (+ Outliner proposed). Excalidraw loads only when an `.excalidraw`/`.excalidraw.md` file opens. Tag Wrangler is admin-only. Templater is simple templates only (no `child_process`/user scripts). Wispr Flow Sync becomes a native Rust `job`, alongside a new orphan-media scan job built on the persisted link graph (read-only). Jobs that write to the vault must run on one designated machine only (Drive sync would duplicate their output). Mods that draw UI (Custom Icons, Editing Toolbar) must not shift the layout when they load. Extra KPI beyond T1/T2: typing latency while mods load. Full matrix in `out/docs/m1-plugins-matrix.md`.
+- Reference model for native mods: Herdr desktop (`herdrdev/herdr-app`, `defaults/AGENTS.md`). Mods are JS describing native GPU elements (no HTML/CSS/WebView/Node), one folder per mod (`main.js` exporting a View class with `init`/`render`, `mod.json` for placement), layouts as a JSON tree (block/row/column/stack), hot reload on save with fallback to the last valid version and `<name>.error` files, `check`/`status`/`shot` CLI commands so an agent can verify its own work, a generated `AGENTS.md` plus `.d.ts` files as the source of truth for agents, and no sandbox ("trusted code"). Rocksy should add declared permissions to the manifest (vault writes, network) since agents will write mods.
+- Out of scope: Obsidian Sync and Publish (proprietary).
+- Milestones: M0 baseline, M1 plugin audit, M2 comparative UI spike (Tauri+CM6 vs native/Rune, ≤ 1 s), M3 persisted Rust index, M4 native plugin system with hot loading (the `obsidian` shim/importer is optional and later), M5 store. Decision (Alec, 2026-11-22): the rewrite is going ahead and M0 is no longer a go/no-go gate, so don't block on it or propose plugin-config optimisation as an alternative. The gain is measured afterwards with `out/tools/measure-coldstart.ps1` (Windows PowerShell, semi-manual F8/F9 timing), run on real Obsidian for the baseline and rerun on the new app at each milestone.
+
+- Functional scope (Alec, 2026-11-24; top irritants of Obsidian: slow start, and no way to use it as a plain Markdown reader without a vault, draft in `out/docs/perimetre-fonctionnel.md`): Live Preview is mandatory in v1 (eliminatory criterion for M2), canvas is read-only in v1, no mobile for now (keep the Rust core UI-independent and portable), tags management must be as powerful as Obsidian's (nested tags, tag pane with counts, `tag:` search, TagFolder, global rename as an admin mod), tags apply to fragments of a file (index stores positions, results show the fragment) with instant search over the in-memory tag library, and Rocksy must open any Markdown file even outside a vault (CLI argument and double-click, single instance: a second launch opens a tab in the running process, no vault/index/`.obsidian/` created next to it, fastest startup path). A tag can sit anywhere; its fragment is the enclosing block (paragraph or list item with children) and clicking a result opens the note at that spot. A vault is recognised only if registered in Rocksy's own vault list (in its app data dir), via an "Add vault" command and a first-launch offer to import Obsidian's vaults (read-only); a file inside an unregistered vault folder opens as an isolated file.
+
+### Findings from the audit that constrain the design
+
+- Reference machine: Windows 11, i7-10750H, NVMe SSD. The vault is on Google Drive for Desktop (`G:\Mon Drive\MonVault`). The first recursive listing takes 57 s cold vs ~1.3 s warm, so the 3 s tree target needs a persisted tree snapshot restored at launch and reconciled in the background, not a synchronous scan.
+- Obsidian baseline is 5,984 ms total, 67 % of it from the 19 community plugins (Custom Icons 830 ms, Templater 574, Style Settings 291, Excalidraw 290). Without plugins it is about 2 s.
+- Dot-folders hold 79 % of all files (`.opencode/node_modules`). Skip them in both the walker and the watcher, as Obsidian does (953 visible files vs 4,621 total).
+- The active note, `01__WORK/daily-notes.md`, is 319 KB, the largest `.md` in the vault. Use it as the worst case for editor open time.
+- `.obsidian/` contains Google Drive sync-conflict files such as `community-plugins (conflict …).json`. The core must tolerate them. `core-plugins.json` is authoritative, while `core-plugins-migration.json` is stale.
+- Two plugins touch the file explorer (File Explorer Note Count by monkey-patch, File Color), which matters for a native tree.
+- Measured with `out/tools/vault-kpis.ps1` (results in `out/data/vault-kpis.json`): 488 notes, 2.9 MB of text, 378k words, median note 2.5 KB, 468 notes with frontmatter, sparse link graph (362 wikilinks, 381 embeds), Obsidian's own metadata cache is 8.2 MB. Reading all `.md` took 75 s on Drive (~155 ms/file) vs 250 ms to walk the tree: file access is the cost, not computation.
+- Synthetic test vault: `python3 out/tools/gen-vault.py --out <dir> --scale N` (1, 2, 5, 10, 20). Deterministic and prefix-stable (blocks of 488 notes / 465 attachments), so rerunning with a larger scale in the same dir only adds the delta. Calibrated on the KPIs above (sizes within ~15 %, link counts approximate). Attachments are small by default (`--attach-factor 1.0` for real sizes).
+- M1 deliverables: `out/docs/m1-plugins-matrix.md` (proposed verdicts, pending Alec's validation) and `out/tools/scan-plugin-api.ps1` (run on Windows, output `out/data/plugin-api-usage.json` sizes the `obsidian` shim). The vault is not reachable from WSL.
+- Scale requirement (Alec, 2026-11-22): the same startup performance must hold with 20x more files (~10k notes, ~60 MB of text, ~19k files). Startup cost must not grow with vault size: tree from a persisted snapshot, only the active note read synchronously, index mmap-loaded, reconciliation in the background and rate-limited.
+- The vault is synced across several machines by Google Drive, and an AI cleaner runs on one of them and can rewrite or move many files at once. Consequences: mtimes change in bulk (321 of 488 notes show November 2026), so change detection uses size + mtime and falls back to a hash only when in doubt, since reading is slow on Drive. The watcher must handle bursts (debounce, batched index commits, rename detection) and the index lives locally per machine (app data dir), never in the vault.
+- Plugin `data.json` files may contain secrets (Excalidraw API keys) and are synced by Drive. Never copy their values into docs, logs or fixtures.
+
+## Conventions
+
+- Documents are written in French. Keep new project docs in French, and answer Alec in the language they use.
+- The vault is real personal data. Treat it as read-only, and never reproduce note content or `data.json` values in repo files.

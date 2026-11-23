@@ -1,0 +1,1430 @@
+﻿{
+    "generatedAt":  "2026-11-23T00:09:10",
+    "note":  "Symboles d API et compteurs uniquement. Bundles minifies : ordres de grandeur.",
+    "plugins":  {
+                    "table-editor-obsidian":  {
+                                                  "mainJsKB":  266,
+                                                  "obsidianSymbols":  {
+                                                                          "Plugin":  1,
+                                                                          "PluginSettingTab":  1,
+                                                                          "Setting":  4,
+                                                                          "Modal":  1,
+                                                                          "Notice":  5,
+                                                                          "ItemView":  1,
+                                                                          "MarkdownView":  2,
+                                                                          "addIcon":  1,
+                                                                          "getIcon":  1,
+                                                                          "Platform":  1,
+                                                                          "debounce":  1,
+                                                                          "Hotkey":  1
+                                                                      },
+                                                  "registrations":  {
+                                                                        "registerView":  1,
+                                                                        "registerEditorExtension":  1,
+                                                                        "addCommand":  22,
+                                                                        "addRibbonIcon":  1,
+                                                                        "addSettingTab":  1,
+                                                                        "loadData":  1,
+                                                                        "saveData":  5
+                                                                    },
+                                                  "events":  {
+
+                                                             },
+                                                  "appPaths":  {
+                                                                   "app.workspace.getLeavesOfType":  2,
+                                                                   "app.workspace.revealLeaf":  2,
+                                                                   "app.workspace.getRightLeaf":  1,
+                                                                   "app.metadataCache.getFileCache":  1,
+                                                                   "app.workspace.getMostRecentLeaf":  1,
+                                                                   "app.workspace.getActiveViewOfType":  1
+                                                               },
+                                                  "codemirrorModules":  {
+                                                                            "@codemirror/view":  1,
+                                                                            "@codemirror/state":  1
+                                                                        },
+                                                  "nodeElectron":  {
+                                                                       "util":  1
+                                                                   },
+                                                  "usesWorker":  false
+                                              },
+                    "obsidian-excalidraw-plugin":  {
+                                                       "mainJsKB":  4931,
+                                                       "obsidianSymbols":  {
+                                                                               "Plugin":  22,
+                                                                               "PluginSettingTab":  1,
+                                                                               "Setting":  167,
+                                                                               "Modal":  28,
+                                                                               "Notice":  212,
+                                                                               "ItemView":  1,
+                                                                               "View":  15,
+                                                                               "MarkdownView":  29,
+                                                                               "FileView":  2,
+                                                                               "TFile":  96,
+                                                                               "TFolder":  6,
+                                                                               "Menu":  5,
+                                                                               "Component":  7,
+                                                                               "Scope":  1,
+                                                                               "MarkdownRenderer":  3,
+                                                                               "MarkdownRenderChild":  1,
+                                                                               "WorkspaceLeaf":  8,
+                                                                               "Workspace":  3,
+                                                                               "Vault":  33,
+                                                                               "FuzzySuggestModal":  10,
+                                                                               "AbstractInputSuggest":  1,
+                                                                               "EditorSuggest":  1,
+                                                                               "ButtonComponent":  14,
+                                                                               "TextComponent":  2,
+                                                                               "parseYaml":  3,
+                                                                               "stringifyYaml":  3,
+                                                                               "parseFrontMatterEntry":  1,
+                                                                               "getFrontMatterInfo":  1,
+                                                                               "normalizePath":  52,
+                                                                               "setIcon":  67,
+                                                                               "addIcon":  4,
+                                                                               "getIcon":  5,
+                                                                               "requestUrl":  8,
+                                                                               "request":  83,
+                                                                               "Platform":  2,
+                                                                               "moment":  4,
+                                                                               "prepareFuzzySearch":  3,
+                                                                               "resolveSubpath":  2,
+                                                                               "loadPdfJs":  1,
+                                                                               "loadMermaid":  2,
+                                                                               "sanitizeHTMLToDom":  2,
+                                                                               "htmlToMarkdown":  3,
+                                                                               "editorLivePreviewField":  2,
+                                                                               "Editor":  6,
+                                                                               "FileManager":  3,
+                                                                               "Hotkey":  1,
+                                                                               "Command":  7,
+                                                                               "BaseComponent":  1
+                                                                           },
+                                                       "registrations":  {
+                                                                             "registerView":  2,
+                                                                             "registerEditorExtension":  1,
+                                                                             "registerMarkdownPostProcessor":  1,
+                                                                             "registerEvent":  32,
+                                                                             "registerDomEvent":  17,
+                                                                             "registerExtensions":  1,
+                                                                             "registerEditorSuggest":  1,
+                                                                             "addCommand":  79,
+                                                                             "addRibbonIcon":  1,
+                                                                             "addSettingTab":  1,
+                                                                             "loadData":  12,
+                                                                             "saveData":  3,
+                                                                             "onLayoutReady":  7,
+                                                                             "onunload":  5,
+                                                                             "registerCliHandler":  4
+                                                                         },
+                                                       "events":  {
+                                                                      "modify":  5,
+                                                                      "file-menu":  5,
+                                                                      "active-leaf-change":  4,
+                                                                      "rename":  4,
+                                                                      "delete":  4,
+                                                                      "layout-change":  2,
+                                                                      "css-change":  2,
+                                                                      "changed":  2,
+                                                                      "create":  2,
+                                                                      "editor-menu":  1,
+                                                                      "editor-paste":  1,
+                                                                      "hover-link":  1,
+                                                                      "window-close":  1,
+                                                                      "click":  1,
+                                                                      "editor-change":  1,
+                                                                      "mousemove":  1,
+                                                                      "window-open":  1,
+                                                                      "mousedown":  1
+                                                                  },
+                                                       "appPaths":  {
+                                                                        "app.workspace.getActiveViewOfType":  97,
+                                                                        "app.vault.getFileByPath":  54,
+                                                                        "app.metadataCache.getFileCache":  29,
+                                                                        "app.metadataCache.getFirstLinkpathDest":  28,
+                                                                        "app.metadataCache.fileToLinktext":  24,
+                                                                        "app.vault.read":  22,
+                                                                        "app.vault.getAbstractFileByPath":  20,
+                                                                        "app.workspace.on":  19,
+                                                                        "app.vault":  17,
+                                                                        "app.vault.getFiles":  17,
+                                                                        "app.workspace.getMostRecentLeaf":  15,
+                                                                        "app.vault.getFolderByPath":  11,
+                                                                        "app.vault.on":  11,
+                                                                        "app.workspace.getLeaf":  10,
+                                                                        "app.workspace.getLeavesOfType":  9,
+                                                                        "app.workspace.revealLeaf":  9,
+                                                                        "app.fileManager.renameFile":  9,
+                                                                        "app.dragManager.draggable":  7,
+                                                                        "app.workspace.createLeafBySplit":  7,
+                                                                        "app.fileManager.trashFile":  6,
+                                                                        "app.workspace.onLayoutReady":  6,
+                                                                        "app.vault.getName":  6,
+                                                                        "app.metadataCache.blockCache":  5,
+                                                                        "app.vault.modify":  5,
+                                                                        "app.workspace.activeEditor":  5,
+                                                                        "app.workspace.iterateAllLeaves":  5,
+                                                                        "app.vault.cachedRead":  5,
+                                                                        "app.workspace.setActiveLeaf":  5,
+                                                                        "app.workspace.getLeafById":  4,
+                                                                        "app.plugins.plugins":  4,
+                                                                        "app.workspace.offref":  4,
+                                                                        "app.keymap.popScope":  4,
+                                                                        "app.workspace.rootSplit":  4,
+                                                                        "app.metadataCache":  3,
+                                                                        "app.vault.createFolder":  3,
+                                                                        "app.workspace.getActiveFile":  3,
+                                                                        "app.vault.adapter":  3,
+                                                                        "app.workspace.containerEl":  2,
+                                                                        "app.vault.getConfig":  2,
+                                                                        "app.workspace.layoutReady":  2
+                                                                    },
+                                                       "codemirrorModules":  {
+                                                                                 "@lezer/highlight":  1,
+                                                                                 "@lezer/common":  1,
+                                                                                 "@codemirror/state":  1,
+                                                                                 "@codemirror/language":  1,
+                                                                                 "@codemirror/view":  1,
+                                                                                 "@codemirror/commands":  1,
+                                                                                 "@lezer/lr":  1
+                                                                             },
+                                                       "nodeElectron":  {
+
+                                                                        },
+                                                       "usesWorker":  true
+                                                   },
+                    "editing-toolbar":  {
+                                            "mainJsKB":  866,
+                                            "obsidianSymbols":  {
+                                                                    "Plugin":  9,
+                                                                    "PluginSettingTab":  1,
+                                                                    "Setting":  103,
+                                                                    "Modal":  20,
+                                                                    "Notice":  157,
+                                                                    "ItemView":  25,
+                                                                    "View":  16,
+                                                                    "MarkdownView":  7,
+                                                                    "TFile":  1,
+                                                                    "Menu":  48,
+                                                                    "MarkdownRenderer":  1,
+                                                                    "Vault":  5,
+                                                                    "FuzzySuggestModal":  2,
+                                                                    "ButtonComponent":  19,
+                                                                    "TextComponent":  1,
+                                                                    "ToggleComponent":  5,
+                                                                    "SliderComponent":  3,
+                                                                    "setIcon":  70,
+                                                                    "addIcon":  1,
+                                                                    "requestUrl":  8,
+                                                                    "request":  43,
+                                                                    "Platform":  18,
+                                                                    "debounce":  6,
+                                                                    "moment":  8,
+                                                                    "htmlToMarkdown":  1,
+                                                                    "Editor":  30,
+                                                                    "Hotkey":  5,
+                                                                    "Command":  175,
+                                                                    "Tasks":  5
+                                                                },
+                                            "registrations":  {
+                                                                  "registerEditorExtension":  2,
+                                                                  "registerEvent":  12,
+                                                                  "registerDomEvent":  9,
+                                                                  "registerObsidianProtocolHandler":  1,
+                                                                  "addCommand":  55,
+                                                                  "addStatusBarItem":  1,
+                                                                  "addSettingTab":  1,
+                                                                  "loadData":  1,
+                                                                  "saveData":  1,
+                                                                  "onLayoutReady":  2,
+                                                                  "onunload":  5
+                                                              },
+                                            "events":  {
+                                                           "layout-change":  1,
+                                                           "active-leaf-change":  1,
+                                                           "thino-editor-created":  1,
+                                                           "url-menu":  1,
+                                                           "editor-menu":  1,
+                                                           "resize":  1,
+                                                           "window-open":  1,
+                                                           "changed":  1,
+                                                           "save":  1,
+                                                           "cancel":  1,
+                                                           "rename":  1,
+                                                           "delete":  1,
+                                                           "create":  1
+                                                       },
+                                            "appPaths":  {
+                                                             "app.workspace.getActiveViewOfType":  16,
+                                                             "app.workspace.getActiveFile":  8,
+                                                             "app.workspace.on":  8,
+                                                             "app.commands.executeCommandById":  6,
+                                                             "app.setting.open":  5,
+                                                             "app.setting.openTabById":  5,
+                                                             "app.commands.commands":  5,
+                                                             "app.workspace.off":  3,
+                                                             "app.vault.modify":  3,
+                                                             "app.vault.on":  3,
+                                                             "app.vault.cachedRead":  3,
+                                                             "app.vault.getMarkdownFiles":  3,
+                                                             "app.vault.getAbstractFileByPath":  2,
+                                                             "app.vault.create":  2,
+                                                             "app.workspace.onLayoutReady":  2,
+                                                             "app.metadataCache.getFirstLinkpathDest":  2,
+                                                             "app.metadataCache.getFileCache":  1,
+                                                             "app.workspace.getLeaf":  1,
+                                                             "app.vault.getName":  1,
+                                                             "app.plugins.enabledPlugins":  1,
+                                                             "app.plugins":  1,
+                                                             "app.workspace.getLeavesOfType":  1,
+                                                             "app.commands.listCommands":  1,
+                                                             "app.workspace.rootSplit":  1,
+                                                             "app.classList.contains":  1,
+                                                             "app.classList.add":  1,
+                                                             "app.metadataCache.fileToLinktext":  1,
+                                                             "app.visible":  1,
+                                                             "app.workspace":  1,
+                                                             "app.secretStorage":  1,
+                                                             "app.metadataCache.on":  1,
+                                                             "app.classList.remove":  1,
+                                                             "app.workspace.floatingSplit":  1
+                                                         },
+                                            "codemirrorModules":  {
+                                                                      "@codemirror/view":  1,
+                                                                      "@codemirror/state":  1,
+                                                                      "@codemirror/language":  1
+                                                                  },
+                                            "nodeElectron":  {
+                                                                 "http":  1,
+                                                                 "window.require":  1
+                                                             },
+                                            "usesWorker":  false
+                                        },
+                    "obsidian-outliner":  {
+                                              "mainJsKB":  120,
+                                              "obsidianSymbols":  {
+                                                                      "Plugin":  1,
+                                                                      "PluginSettingTab":  1,
+                                                                      "Setting":  10,
+                                                                      "Modal":  1,
+                                                                      "Notice":  3,
+                                                                      "MarkdownView":  1,
+                                                                      "Platform":  2,
+                                                                      "editorInfoField":  1,
+                                                                      "Command":  1
+                                                                  },
+                                              "registrations":  {
+                                                                    "registerEditorExtension":  11,
+                                                                    "addCommand":  7,
+                                                                    "addSettingTab":  1,
+                                                                    "loadData":  1,
+                                                                    "saveData":  1,
+                                                                    "onunload":  1
+                                                                },
+                                              "events":  {
+
+                                                         },
+                                              "appPaths":  {
+                                                               "app.plugins.manifests":  2,
+                                                               "app.vault.config":  2,
+                                                               "app.workspace.getActiveViewOfType":  1,
+                                                               "app.internalPlugins.config":  1,
+                                                               "app.isMobile":  1,
+                                                               "app.plugins.enabledPlugins":  1
+                                                           },
+                                              "codemirrorModules":  {
+
+                                                                    },
+                                              "nodeElectron":  {
+
+                                                               },
+                                              "usesWorker":  false
+                                          },
+                    "obsidian-file-color":  {
+                                                "mainJsKB":  976,
+                                                "obsidianSymbols":  {
+                                                                        "Plugin":  1,
+                                                                        "PluginSettingTab":  1,
+                                                                        "Setting":  2,
+                                                                        "Modal":  1,
+                                                                        "Menu":  1,
+                                                                        "Component":  160,
+                                                                        "Events":  1,
+                                                                        "Scope":  1,
+                                                                        "setIcon":  1,
+                                                                        "debounce":  2
+                                                                    },
+                                                "registrations":  {
+                                                                      "registerEvent":  4,
+                                                                      "addSettingTab":  1,
+                                                                      "loadData":  1,
+                                                                      "saveData":  1,
+                                                                      "onLayoutReady":  1,
+                                                                      "onunload":  1
+                                                                  },
+                                                "events":  {
+                                                               "rename":  1,
+                                                               "delete":  1,
+                                                               "file-menu":  1,
+                                                               "layout-change":  1
+                                                           },
+                                                "appPaths":  {
+                                                                 "app.vault.on":  2,
+                                                                 "app.workspace.on":  2,
+                                                                 "app.workspace.getLeavesOfType":  1,
+                                                                 "app.workspace.containerEl":  1,
+                                                                 "app.workspace.onLayoutReady":  1
+                                                             },
+                                                "codemirrorModules":  {
+
+                                                                      },
+                                                "nodeElectron":  {
+
+                                                                 },
+                                                "usesWorker":  false
+                                            },
+                    "file-explorer-note-count":  {
+                                                     "mainJsKB":  33,
+                                                     "obsidianSymbols":  {
+                                                                             "Plugin":  1,
+                                                                             "PluginSettingTab":  1,
+                                                                             "Setting":  5,
+                                                                             "TFile":  1,
+                                                                             "TFolder":  3,
+                                                                             "TAbstractFile":  1,
+                                                                             "debounce":  2
+                                                                         },
+                                                     "registrations":  {
+                                                                           "registerEvent":  4,
+                                                                           "addSettingTab":  1,
+                                                                           "loadData":  1,
+                                                                           "saveData":  1,
+                                                                           "onLayoutReady":  1,
+                                                                           "onunload":  1
+                                                                       },
+                                                     "events":  {
+
+                                                                },
+                                                     "appPaths":  {
+                                                                      "app.workspace.on":  1,
+                                                                      "app.vault.getName":  1,
+                                                                      "app.workspace.onLayoutReady":  1,
+                                                                      "app.workspace.getLeavesOfType":  1,
+                                                                      "app.vault.getAbstractFileByPath":  1,
+                                                                      "app.vault":  1
+                                                                  },
+                                                     "codemirrorModules":  {
+
+                                                                           },
+                                                     "nodeElectron":  {
+
+                                                                      },
+                                                     "usesWorker":  false
+                                                 },
+                    "note-refactor-obsidian":  {
+                                                   "mainJsKB":  833,
+                                                   "obsidianSymbols":  {
+                                                                           "Plugin":  1,
+                                                                           "PluginSettingTab":  1,
+                                                                           "Setting":  12,
+                                                                           "Vault":  1,
+                                                                           "FuzzySuggestModal":  1,
+                                                                           "normalizePath":  3,
+                                                                           "moment":  52,
+                                                                           "getLinkpath":  4
+                                                                       },
+                                                   "registrations":  {
+                                                                         "addCommand":  8,
+                                                                         "addSettingTab":  1,
+                                                                         "loadData":  1,
+                                                                         "saveData":  11,
+                                                                         "onunload":  1
+                                                                     },
+                                                   "events":  {
+
+                                                              },
+                                                   "appPaths":  {
+                                                                    "app.workspace.activeLeaf":  7,
+                                                                    "app.workspace.openLinkText":  4,
+                                                                    "app.vault":  2,
+                                                                    "app.fileManager.generateMarkdownLink":  2,
+                                                                    "app.fileManager":  1,
+                                                                    "app.vault.adapter":  1,
+                                                                    "app.vault.modify":  1,
+                                                                    "app.vault.getMarkdownFiles":  1,
+                                                                    "app.vault.read":  1
+                                                                },
+                                                   "codemirrorModules":  {
+
+                                                                         },
+                                                   "nodeElectron":  {
+
+                                                                    },
+                                                   "usesWorker":  false
+                                               },
+                    "templater-obsidian":  {
+                                               "mainJsKB":  444,
+                                               "obsidianSymbols":  {
+                                                                       "Plugin":  1,
+                                                                       "PluginSettingTab":  1,
+                                                                       "Setting":  17,
+                                                                       "Modal":  8,
+                                                                       "Notice":  2,
+                                                                       "MarkdownView":  5,
+                                                                       "TFile":  20,
+                                                                       "TFolder":  10,
+                                                                       "Vault":  2,
+                                                                       "FuzzySuggestModal":  2,
+                                                                       "AbstractInputSuggest":  3,
+                                                                       "EditorSuggest":  1,
+                                                                       "ButtonComponent":  7,
+                                                                       "TextComponent":  2,
+                                                                       "getAllTags":  1,
+                                                                       "parseYaml":  1,
+                                                                       "stringifyYaml":  1,
+                                                                       "getFrontMatterInfo":  2,
+                                                                       "normalizePath":  15,
+                                                                       "setIcon":  3,
+                                                                       "addIcon":  1,
+                                                                       "requestUrl":  1,
+                                                                       "request":  11,
+                                                                       "Platform":  8,
+                                                                       "debounce":  1,
+                                                                       "moment":  14,
+                                                                       "prepareFuzzySearch":  1,
+                                                                       "resolveSubpath":  1,
+                                                                       "FileSystemAdapter":  3,
+                                                                       "Command":  1
+                                                                   },
+                                               "registrations":  {
+                                                                     "registerEditorExtension":  1,
+                                                                     "registerMarkdownPostProcessor":  1,
+                                                                     "registerEvent":  5,
+                                                                     "registerEditorSuggest":  1,
+                                                                     "addCommand":  6,
+                                                                     "addRibbonIcon":  1,
+                                                                     "addSettingTab":  1,
+                                                                     "loadData":  1,
+                                                                     "saveData":  2,
+                                                                     "onLayoutReady":  2,
+                                                                     "onunload":  1,
+                                                                     "registerCliHandler":  1
+                                                                 },
+                                               "events":  {
+                                                              "create":  2,
+                                                              "file-menu":  1,
+                                                              "rename":  1,
+                                                              "delete":  1
+                                                          },
+                                               "appPaths":  {
+                                                                "app.workspace.activeEditor":  7,
+                                                                "app.vault.adapter":  6,
+                                                                "app.vault.read":  5,
+                                                                "app.workspace.trigger":  5,
+                                                                "app.vault.on":  4,
+                                                                "app.metadataCache.getFileCache":  3,
+                                                                "app.vault.getAbstractFileByPath":  3,
+                                                                "app.vault.getConfig":  3,
+                                                                "app.vault.getMarkdownFiles":  3,
+                                                                "app.metadataCache.getFirstLinkpathDest":  3,
+                                                                "app.workspace.updateOptions":  2,
+                                                                "app.metadataCache.getTags":  2,
+                                                                "app.workspace.onLayoutReady":  2,
+                                                                "app.workspace.getActiveViewOfType":  2,
+                                                                "app.vault.modify":  2,
+                                                                "app.fileManager.renameFile":  2,
+                                                                "app.vault.createFolder":  2,
+                                                                "app.workspace.on":  2,
+                                                                "app.vault.exists":  1,
+                                                                "app.vault.process":  1,
+                                                                "app.vault.getAllFolders":  1,
+                                                                "app.vault.cachedRead":  1,
+                                                                "app.openWithDefaultApp":  1,
+                                                                "app.internalPlugins.getEnabledPluginById":  1,
+                                                                "app.workspace.getLeaf":  1,
+                                                                "app.vault.getAvailablePath":  1,
+                                                                "app.vault.getRoot":  1,
+                                                                "app.fileManager.getNewFileParent":  1,
+                                                                "app.vault.getAbstractFileByPathInsensitive":  1,
+                                                                "app.vault":  1,
+                                                                "app.vault.delete":  1,
+                                                                "app.vault.create":  1
+                                                            },
+                                               "codemirrorModules":  {
+                                                                         "@codemirror/state":  1,
+                                                                         "@codemirror/language":  1
+                                                                     },
+                                               "nodeElectron":  {
+                                                                    "child_process":  1,
+                                                                    "util":  1,
+                                                                    "window.require":  2
+                                                                },
+                                               "usesWorker":  false
+                                           },
+                    "copy-document-as-html":  {
+                                                  "mainJsKB":  35,
+                                                  "obsidianSymbols":  {
+                                                                          "Plugin":  1,
+                                                                          "PluginSettingTab":  1,
+                                                                          "Setting":  15,
+                                                                          "Modal":  1,
+                                                                          "Notice":  2,
+                                                                          "MarkdownView":  1,
+                                                                          "TFile":  1,
+                                                                          "Component":  1,
+                                                                          "MarkdownRenderer":  1,
+                                                                          "setIcon":  1
+                                                                      },
+                                                  "registrations":  {
+                                                                        "registerMarkdownPostProcessor":  2,
+                                                                        "registerEvent":  1,
+                                                                        "addCommand":  3,
+                                                                        "addSettingTab":  1,
+                                                                        "loadData":  1,
+                                                                        "saveData":  1
+                                                                    },
+                                                  "events":  {
+                                                                 "file-menu":  1
+                                                             },
+                                                  "appPaths":  {
+                                                                   "app.vault.getName":  2,
+                                                                   "app.workspace.getActiveViewOfType":  1,
+                                                                   "app.workspace.on":  1,
+                                                                   "app.vault.readBinary":  1,
+                                                                   "app.vault.getRoot":  1,
+                                                                   "app.vault.getAbstractFileByPath":  1
+                                                               },
+                                                  "codemirrorModules":  {
+
+                                                                        },
+                                                  "nodeElectron":  {
+
+                                                                   },
+                                                  "usesWorker":  false
+                                              },
+                    "oz-clear-unused-images":  {
+                                                   "mainJsKB":  22,
+                                                   "obsidianSymbols":  {
+                                                                           "Plugin":  1,
+                                                                           "PluginSettingTab":  1,
+                                                                           "Setting":  5,
+                                                                           "Modal":  2,
+                                                                           "Notice":  1
+                                                                       },
+                                                   "registrations":  {
+                                                                         "addCommand":  2,
+                                                                         "addRibbonIcon":  1,
+                                                                         "addSettingTab":  1,
+                                                                         "loadData":  1,
+                                                                         "saveData":  1,
+                                                                         "onunload":  1
+                                                                     },
+                                                   "events":  {
+
+                                                              },
+                                                   "appPaths":  {
+
+                                                                },
+                                                   "codemirrorModules":  {
+
+                                                                         },
+                                                   "nodeElectron":  {
+
+                                                                    },
+                                                   "usesWorker":  false
+                                               },
+                    "obsidian-paste-image-rename":  {
+                                                        "mainJsKB":  247,
+                                                        "obsidianSymbols":  {
+                                                                                "Plugin":  2,
+                                                                                "PluginSettingTab":  1,
+                                                                                "Setting":  22,
+                                                                                "Modal":  4,
+                                                                                "Notice":  23,
+                                                                                "MarkdownView":  12,
+                                                                                "TFile":  7,
+                                                                                "Vault":  5,
+                                                                                "parseYaml":  5,
+                                                                                "moment":  2,
+                                                                                "Editor":  2
+                                                                            },
+                                                        "registrations":  {
+                                                                              "registerEvent":  8,
+                                                                              "addCommand":  3,
+                                                                              "addRibbonIcon":  2,
+                                                                              "addSettingTab":  1,
+                                                                              "loadData":  1,
+                                                                              "saveData":  1,
+                                                                              "onLayoutReady":  1,
+                                                                              "onunload":  1
+                                                                          },
+                                                        "events":  {
+                                                                       "modify":  1,
+                                                                       "delete":  1,
+                                                                       "changed":  1,
+                                                                       "rename":  1,
+                                                                       "editor-drop":  1,
+                                                                       "editor-paste":  1,
+                                                                       "create":  1,
+                                                                       "editor-change":  1
+                                                                   },
+                                                        "appPaths":  {
+                                                                         "app.vault.getAbstractFileByPath":  22,
+                                                                         "app.workspace.getLeavesOfType":  13,
+                                                                         "app.vault.adapter":  12,
+                                                                         "app.workspace.getActiveViewOfType":  10,
+                                                                         "app.metadataCache.getFirstLinkpathDest":  9,
+                                                                         "app.metadataCache.getFileCache":  6,
+                                                                         "app.vault.readBinary":  5,
+                                                                         "app.vault.on":  4,
+                                                                         "app.workspace.on":  4,
+                                                                         "app.vault.getFiles":  4,
+                                                                         "app.vault.read":  3,
+                                                                         "app.fileManager.renameFile":  1,
+                                                                         "app.fileManager.generateMarkdownLink":  1,
+                                                                         "app.vault.getResourcePath":  1,
+                                                                         "app.metadataCache.on":  1,
+                                                                         "app.vault.trash":  1,
+                                                                         "app.workspace.onLayoutReady":  1,
+                                                                         "app.vault":  1
+                                                                     },
+                                                        "codemirrorModules":  {
+
+                                                                              },
+                                                        "nodeElectron":  {
+
+                                                                         },
+                                                        "usesWorker":  false
+                                                    },
+                    "obsidian-tagfolder":  {
+                                               "mainJsKB":  380,
+                                               "obsidianSymbols":  {
+                                                                       "Plugin":  3,
+                                                                       "PluginSettingTab":  1,
+                                                                       "Setting":  49,
+                                                                       "Modal":  3,
+                                                                       "Notice":  6,
+                                                                       "ItemView":  2,
+                                                                       "TFile":  10,
+                                                                       "Menu":  5,
+                                                                       "Component":  1,
+                                                                       "MarkdownRenderer":  3,
+                                                                       "Vault":  5,
+                                                                       "FuzzySuggestModal":  1,
+                                                                       "SuggestModal":  1,
+                                                                       "AbstractInputSuggest":  1,
+                                                                       "getAllTags":  4,
+                                                                       "parseYaml":  1,
+                                                                       "normalizePath":  9,
+                                                                       "setIcon":  32,
+                                                                       "getIcon":  3,
+                                                                       "request":  30,
+                                                                       "Platform":  6,
+                                                                       "debounce":  1
+                                                                   },
+                                               "registrations":  {
+                                                                     "registerView":  4,
+                                                                     "registerEvent":  7,
+                                                                     "addCommand":  6,
+                                                                     "addSettingTab":  1,
+                                                                     "loadData":  1,
+                                                                     "saveData":  1,
+                                                                     "onLayoutReady":  1,
+                                                                     "onunload":  1
+                                                                 },
+                                               "events":  {
+                                                              "delete":  1,
+                                                              "modify":  1,
+                                                              "file-open":  1,
+                                                              "rename":  1,
+                                                              "changed":  1,
+                                                              "resolve":  1,
+                                                              "resolved":  1
+                                                          },
+                                               "appPaths":  {
+                                                                "app.workspace.getLeavesOfType":  10,
+                                                                "app.workspace.revealLeaf":  8,
+                                                                "app.vault.getAbstractFileByPath":  7,
+                                                                "app.workspace.openLinkText":  6,
+                                                                "app.metadataCache.getFileCache":  4,
+                                                                "app.vault.getMarkdownFiles":  3,
+                                                                "app.workspace.getActiveFile":  3,
+                                                                "app.workspace.getLeftLeaf":  3,
+                                                                "app.workspace.getLeaf":  3,
+                                                                "app.workspace.trigger":  3,
+                                                                "app.vault.on":  3,
+                                                                "app.metadataCache.on":  3,
+                                                                "app.vault.read":  2,
+                                                                "app.vault.getAllLoadedFiles":  1,
+                                                                "app.metadataCache.resolvedLinks":  1,
+                                                                "app.workspace.createLeafBySplit":  1,
+                                                                "app.fileManager":  1,
+                                                                "app.workspace.setActiveLeaf":  1,
+                                                                "app.vault.create":  1,
+                                                                "app.fileManager.processFrontMatter":  1,
+                                                                "app.vault.getName":  1,
+                                                                "app.internalPlugins":  1,
+                                                                "app.plugins":  1,
+                                                                "app.commands.executeCommandById":  1,
+                                                                "app.vault.getFiles":  1,
+                                                                "app.workspace.onLayoutReady":  1,
+                                                                "app.workspace.on":  1,
+                                                                "app.metadataCache.getCache":  1,
+                                                                "app.vault":  1
+                                                            },
+                                               "codemirrorModules":  {
+
+                                                                     },
+                                               "nodeElectron":  {
+
+                                                                },
+                                               "usesWorker":  false
+                                           },
+                    "multi-column-markdown":  {
+                                                  "mainJsKB":  1026,
+                                                  "obsidianSymbols":  {
+                                                                          "Plugin":  2,
+                                                                          "PluginSettingTab":  1,
+                                                                          "Setting":  8,
+                                                                          "Modal":  1,
+                                                                          "Notice":  10,
+                                                                          "TFile":  1,
+                                                                          "MarkdownRenderer":  2,
+                                                                          "MarkdownRenderChild":  7,
+                                                                          "ButtonComponent":  2,
+                                                                          "parseFrontMatterEntry":  2,
+                                                                          "Platform":  4,
+                                                                          "moment":  1,
+                                                                          "editorInfoField":  1,
+                                                                          "editorLivePreviewField":  1,
+                                                                          "Command":  2,
+                                                                          "Tasks":  2
+                                                                      },
+                                                  "registrations":  {
+                                                                        "registerEditorExtension":  2,
+                                                                        "registerMarkdownPostProcessor":  1,
+                                                                        "registerMarkdownCodeBlockProcessor":  1,
+                                                                        "registerInterval":  1,
+                                                                        "addCommand":  6,
+                                                                        "addSettingTab":  1,
+                                                                        "loadData":  1,
+                                                                        "saveData":  1,
+                                                                        "onunload":  3
+                                                                    },
+                                                  "events":  {
+
+                                                             },
+                                                  "appPaths":  {
+                                                                   "app.workspace":  6,
+                                                                   "app.metadataCache.getFirstLinkpathDest":  3,
+                                                                   "app.workspace.getLeavesOfType":  3,
+                                                                   "app.vault.modify":  2,
+                                                                   "app.workspace.containerEl":  2,
+                                                                   "app.vault.read":  2,
+                                                                   "app.vault.getMarkdownFiles":  2,
+                                                                   "app.vault.getAbstractFileByPath":  1,
+                                                                   "app.vault.cachedRead":  1,
+                                                                   "app.fileManager.processFrontMatter":  1,
+                                                                   "app.vault.getResourcePath":  1
+                                                               },
+                                                  "codemirrorModules":  {
+
+                                                                        },
+                                                  "nodeElectron":  {
+
+                                                                   },
+                                                  "usesWorker":  false
+                                              },
+                    "tag-wrangler":  {
+                                         "mainJsKB":  130,
+                                         "obsidianSymbols":  {
+                                                                 "Plugin":  6,
+                                                                 "Modal":  1,
+                                                                 "Notice":  6,
+                                                                 "View":  1,
+                                                                 "Menu":  6,
+                                                                 "Component":  2,
+                                                                 "Keymap":  3,
+                                                                 "parseFrontMatterTags":  1,
+                                                                 "setIcon":  1
+                                                             },
+                                         "registrations":  {
+                                                               "registerEvent":  3,
+                                                               "registerDomEvent":  1,
+                                                               "registerHoverLinkSource":  1,
+                                                               "onLayoutReady":  1,
+                                                               "onunload":  1
+                                                           },
+                                         "events":  {
+                                                        "delete":  1,
+                                                        "changed":  1,
+                                                        "editor-menu":  1
+                                                    },
+                                         "appPaths":  {
+                                                          "app.vault.getAbstractFileByPath":  3,
+                                                          "app.workspace.trigger":  2,
+                                                          "app.vault.on":  1,
+                                                          "app.workspace.onLayoutReady":  1,
+                                                          "app.metadataCache":  1,
+                                                          "app.workspace.iterateAllLeaves":  1,
+                                                          "app.plugins.plugins":  1,
+                                                          "app.internalPlugins.getPluginById":  1,
+                                                          "app.workspace.registerHoverLinkSource":  1,
+                                                          "app.workspace.getLeaf":  1,
+                                                          "app.vault.modify":  1,
+                                                          "app.vault.read":  1,
+                                                          "app.fileManager.getNewFileParent":  1,
+                                                          "app.vault.create":  1,
+                                                          "app.vault.getAvailablePath":  1,
+                                                          "app.workspace.getActiveFile":  1
+                                                      },
+                                         "codemirrorModules":  {
+
+                                                               },
+                                         "nodeElectron":  {
+
+                                                          },
+                                         "usesWorker":  false
+                                     },
+                    "obsidian-image-toolkit":  {
+                                                   "mainJsKB":  148,
+                                                   "obsidianSymbols":  {
+                                                                           "Plugin":  1,
+                                                                           "PluginSettingTab":  1,
+                                                                           "Setting":  35,
+                                                                           "Notice":  5,
+                                                                           "View":  8,
+                                                                           "MarkdownView":  1,
+                                                                           "Menu":  1,
+                                                                           "setIcon":  7,
+                                                                           "addIcon":  1,
+                                                                           "moment":  2,
+                                                                           "sanitizeHTMLToDom":  2,
+                                                                           "Editor":  3,
+                                                                           "Hotkey":  3
+                                                                       },
+                                                   "registrations":  {
+                                                                         "addCommand":  1,
+                                                                         "addSettingTab":  1,
+                                                                         "loadData":  1,
+                                                                         "saveData":  1,
+                                                                         "onunload":  1
+                                                                     },
+                                                   "events":  {
+
+                                                              },
+                                                   "appPaths":  {
+                                                                    "app.workspace.on":  1,
+                                                                    "app.workspace.iterateAllLeaves":  1,
+                                                                    "app.workspace.getActiveViewOfType":  1,
+                                                                    "app.metadataCache.getFirstLinkpathDest":  1,
+                                                                    "app.vault.getResourcePath":  1
+                                                                },
+                                                   "codemirrorModules":  {
+
+                                                                         },
+                                                   "nodeElectron":  {
+
+                                                                    },
+                                                   "usesWorker":  false
+                                               },
+                    "custom-sidebar-icons":  {
+                                                 "mainJsKB":  1311,
+                                                 "obsidianSymbols":  {
+                                                                         "Plugin":  2,
+                                                                         "PluginSettingTab":  1,
+                                                                         "Setting":  2,
+                                                                         "Modal":  1,
+                                                                         "Notice":  34,
+                                                                         "ItemView":  1,
+                                                                         "View":  2,
+                                                                         "TFolder":  3,
+                                                                         "Menu":  6,
+                                                                         "Component":  5,
+                                                                         "Events":  1,
+                                                                         "Scope":  1,
+                                                                         "Vault":  2,
+                                                                         "ToggleComponent":  2,
+                                                                         "DropdownComponent":  1,
+                                                                         "setIcon":  38,
+                                                                         "addIcon":  3,
+                                                                         "getIcon":  4,
+                                                                         "requestUrl":  2,
+                                                                         "request":  12,
+                                                                         "Platform":  1,
+                                                                         "Command":  2
+                                                                     },
+                                                 "registrations":  {
+                                                                       "registerView":  1,
+                                                                       "addCommand":  2,
+                                                                       "addRibbonIcon":  1,
+                                                                       "addSettingTab":  1,
+                                                                       "loadData":  1,
+                                                                       "saveData":  1,
+                                                                       "onLayoutReady":  6,
+                                                                       "onunload":  1
+                                                                   },
+                                                 "events":  {
+                                                                "layout-change":  3,
+                                                                "rename":  2,
+                                                                "leaf-menu":  1,
+                                                                "delete":  1,
+                                                                "file-menu":  1
+                                                            },
+                                                 "appPaths":  {
+                                                                  "app.setting":  10,
+                                                                  "app.workspace.offref":  6,
+                                                                  "app.workspace.onLayoutReady":  6,
+                                                                  "app.workspace.on":  6,
+                                                                  "app.workspace.containerEl":  4,
+                                                                  "app.vault.offref":  3,
+                                                                  "app.vault.on":  3,
+                                                                  "app.workspace.iterateAllLeaves":  3,
+                                                                  "app.vault.adapter":  3,
+                                                                  "app.plugins.manifests":  3,
+                                                                  "app.workspace.getLeavesOfType":  3,
+                                                                  "app.vault.getFiles":  1,
+                                                                  "app.workspace.trigger":  1,
+                                                                  "app.vault":  1,
+                                                                  "app.internalPlugins":  1,
+                                                                  "app.vault.configDir":  1,
+                                                                  "app.setting.communityPluginTabContainer":  1
+                                                              },
+                                                 "codemirrorModules":  {
+
+                                                                       },
+                                                 "nodeElectron":  {
+
+                                                                  },
+                                                 "usesWorker":  false
+                                             },
+                    "advanced-canvas":  {
+                                            "mainJsKB":  376,
+                                            "obsidianSymbols":  {
+                                                                    "Plugin":  1,
+                                                                    "PluginSettingTab":  1,
+                                                                    "Setting":  8,
+                                                                    "Modal":  1,
+                                                                    "Notice":  12,
+                                                                    "TFile":  9,
+                                                                    "Menu":  1,
+                                                                    "Component":  2,
+                                                                    "MarkdownRenderer":  1,
+                                                                    "FuzzySuggestModal":  2,
+                                                                    "SuggestModal":  2,
+                                                                    "parseYaml":  1,
+                                                                    "setIcon":  25,
+                                                                    "addIcon":  1,
+                                                                    "request":  2,
+                                                                    "debounce":  1,
+                                                                    "loadPdfJs":  2,
+                                                                    "editorInfoField":  1
+                                                                },
+                                            "registrations":  {
+                                                                  "registerEditorExtension":  1,
+                                                                  "registerEvent":  93,
+                                                                  "addCommand":  36,
+                                                                  "addSettingTab":  1,
+                                                                  "loadData":  1,
+                                                                  "saveData":  1,
+                                                                  "onunload":  2
+                                                              },
+                                            "events":  {
+                                                           "modify":  2,
+                                                           "window-open":  2,
+                                                           "css-change":  2,
+                                                           "changed":  1,
+                                                           "window-close":  1,
+                                                           "layout-change":  1
+                                                       },
+                                            "appPaths":  {
+                                                             "app.workspace.on":  92,
+                                                             "app.workspace.trigger":  56,
+                                                             "app.metadataCache.getFirstLinkpathDest":  5,
+                                                             "app.vault.getAbstractFileByPath":  4,
+                                                             "app.metadataCache.getFileCache":  4,
+                                                             "app.workspace.offref":  3,
+                                                             "app.internalPlugins.plugins":  3,
+                                                             "app.workspace.getLeavesOfType":  3,
+                                                             "app.viewRegistry.viewByType":  3,
+                                                             "app.vault.readBinary":  2,
+                                                             "app.vault.process":  2,
+                                                             "app.metadataCache.getBacklinksForFile":  2,
+                                                             "app.vault.create":  2,
+                                                             "app.vault.cachedRead":  2,
+                                                             "app.embedRegistry.embedByExtension":  2,
+                                                             "app.vault.on":  2,
+                                                             "app.plugins.plugins":  1,
+                                                             "app.workspace.getRightLeaf":  1,
+                                                             "app.workspace.getActiveViewOfType":  1,
+                                                             "app.workspace.getActiveFileView":  1,
+                                                             "app.internalPlugins.getEnabledPluginById":  1,
+                                                             "app.workspace.revealLeaf":  1,
+                                                             "app.metadataCache.on":  1,
+                                                             "app.vault.getFileByPath":  1,
+                                                             "app.metadataCache":  1,
+                                                             "app.fileManager":  1,
+                                                             "app.workspace.editorSuggest":  1,
+                                                             "app.vault.off":  1,
+                                                             "app.metadataCache.getCache":  1,
+                                                             "app.vault.getFiles":  1,
+                                                             "app.vault.getRoot":  1,
+                                                             "app.commands.commands":  1,
+                                                             "app.workspace.activeEditor":  1
+                                                         },
+                                            "codemirrorModules":  {
+                                                                      "@codemirror/view":  1
+                                                                  },
+                                            "nodeElectron":  {
+
+                                                             },
+                                            "usesWorker":  false
+                                        },
+                    "obsidian-style-settings":  {
+                                                    "mainJsKB":  151,
+                                                    "obsidianSymbols":  {
+                                                                            "Plugin":  1,
+                                                                            "PluginSettingTab":  1,
+                                                                            "Setting":  14,
+                                                                            "Modal":  2,
+                                                                            "ItemView":  1,
+                                                                            "Component":  2,
+                                                                            "MarkdownRenderer":  1,
+                                                                            "ButtonComponent":  3,
+                                                                            "setIcon":  12,
+                                                                            "getIcon":  1,
+                                                                            "debounce":  4
+                                                                        },
+                                                    "registrations":  {
+                                                                          "registerView":  1,
+                                                                          "registerEvent":  2,
+                                                                          "addCommand":  3,
+                                                                          "addSettingTab":  1,
+                                                                          "loadData":  1,
+                                                                          "saveData":  1,
+                                                                          "onLayoutReady":  1,
+                                                                          "onunload":  4
+                                                                      },
+                                                    "events":  {
+                                                                   "cancel":  3,
+                                                                   "show":  3,
+                                                                   "save":  3,
+                                                                   "settings-search-loaded":  1,
+                                                                   "parse-style-settings":  1,
+                                                                   "css-change":  1
+                                                               },
+                                                    "appPaths":  {
+                                                                     "app.workspace.on":  3,
+                                                                     "app.workspace.getLeavesOfType":  3,
+                                                                     "app.plugins.plugins":  2,
+                                                                     "app.workspace.getLeaf":  1,
+                                                                     "app.workspace.detachLeavesOfType":  1,
+                                                                     "app.commands.removeCommand":  1,
+                                                                     "app.classList.add":  1,
+                                                                     "app.classList.remove":  1,
+                                                                     "app.classList.contains":  1,
+                                                                     "app.workspace.onLayoutReady":  1,
+                                                                     "app.workspace.trigger":  1
+                                                                 },
+                                                    "codemirrorModules":  {
+
+                                                                          },
+                                                    "nodeElectron":  {
+
+                                                                     },
+                                                    "usesWorker":  false
+                                                },
+                    "file-cleaner-redux":  {
+                                               "mainJsKB":  282,
+                                               "obsidianSymbols":  {
+                                                                       "Plugin":  1,
+                                                                       "PluginSettingTab":  1,
+                                                                       "Setting":  29,
+                                                                       "Modal":  2,
+                                                                       "Notice":  1,
+                                                                       "Component":  3,
+                                                                       "ButtonComponent":  2,
+                                                                       "Platform":  2,
+                                                                       "moment":  1
+                                                                   },
+                                               "registrations":  {
+                                                                     "registerEvent":  1,
+                                                                     "addCommand":  1,
+                                                                     "addRibbonIcon":  1,
+                                                                     "addSettingTab":  1,
+                                                                     "loadData":  1,
+                                                                     "saveData":  1,
+                                                                     "onunload":  1
+                                                                 },
+                                               "events":  {
+                                                              "layout-change":  1
+                                                          },
+                                               "appPaths":  {
+                                                                "app.vault.adapter":  7,
+                                                                "app.vault.cachedRead":  5,
+                                                                "app.metadataCache.getFileCache":  4,
+                                                                "app.vault.getFiles":  3,
+                                                                "app.plugins.plugins":  2,
+                                                                "app.metadataCache":  2,
+                                                                "app.metadataCache.getFirstLinkpathDest":  2,
+                                                                "app.vault.trash":  2,
+                                                                "app.workspace.getLeavesOfType":  1,
+                                                                "app.vault.getFolderByPath":  1,
+                                                                "app.workspace.on":  1,
+                                                                "app.workspace.detachLeavesOfType":  1,
+                                                                "app.workspace.getLeaf":  1,
+                                                                "app.vault.read":  1,
+                                                                "app.vault.delete":  1,
+                                                                "app.fileManager.trashFile":  1,
+                                                                "app.metadataCache.resolvedLinks":  1,
+                                                                "app.vault.getConfig":  1,
+                                                                "app.vault.getAllLoadedFiles":  1
+                                                            },
+                                               "codemirrorModules":  {
+
+                                                                     },
+                                               "nodeElectron":  {
+
+                                                                },
+                                               "usesWorker":  false
+                                           },
+                    "find-orphaned-images":  {
+                                                 "mainJsKB":  18,
+                                                 "obsidianSymbols":  {
+                                                                         "Plugin":  1,
+                                                                         "PluginSettingTab":  1,
+                                                                         "Setting":  17,
+                                                                         "Modal":  2,
+                                                                         "Notice":  10,
+                                                                         "ItemView":  1,
+                                                                         "TFile":  1,
+                                                                         "TFolder":  1,
+                                                                         "normalizePath":  1,
+                                                                         "setIcon":  1,
+                                                                         "getIcon":  1
+                                                                     },
+                                                 "registrations":  {
+                                                                       "registerView":  1,
+                                                                       "addCommand":  2,
+                                                                       "addRibbonIcon":  1,
+                                                                       "addSettingTab":  1,
+                                                                       "loadData":  1,
+                                                                       "saveData":  1
+                                                                   },
+                                                 "events":  {
+
+                                                            },
+                                                 "appPaths":  {
+                                                                  "app.workspace.getLeaf":  2,
+                                                                  "app.fileManager.trashFile":  1,
+                                                                  "app.workspace.openLinkText":  1,
+                                                                  "app.vault.delete":  1,
+                                                                  "app.workspace.getLeavesOfType":  1,
+                                                                  "app.vault.getMarkdownFiles":  1,
+                                                                  "app.metadataCache.getFirstLinkpathDest":  1,
+                                                                  "app.vault.getResourcePath":  1
+                                                              },
+                                                 "codemirrorModules":  {
+
+                                                                       },
+                                                 "nodeElectron":  {
+
+                                                                  },
+                                                 "usesWorker":  false
+                                             },
+                    "occura-word-highlighter":  {
+                                                    "mainJsKB":  59,
+                                                    "obsidianSymbols":  {
+                                                                            "Plugin":  1,
+                                                                            "PluginSettingTab":  1,
+                                                                            "Setting":  15,
+                                                                            "Modal":  1,
+                                                                            "Notice":  20,
+                                                                            "View":  2,
+                                                                            "MarkdownView":  9,
+                                                                            "SuggestModal":  1,
+                                                                            "TextComponent":  1,
+                                                                            "setIcon":  4
+                                                                        },
+                                                    "registrations":  {
+                                                                          "registerEditorExtension":  1,
+                                                                          "registerMarkdownPostProcessor":  1,
+                                                                          "registerEvent":  3,
+                                                                          "registerDomEvent":  4,
+                                                                          "addCommand":  8,
+                                                                          "addStatusBarItem":  1,
+                                                                          "addSettingTab":  1,
+                                                                          "loadData":  1,
+                                                                          "saveData":  2,
+                                                                          "onunload":  1
+                                                                      },
+                                                    "events":  {
+                                                                   "active-leaf-change":  1,
+                                                                   "layout-change":  1,
+                                                                   "editor-menu":  1
+                                                               },
+                                                    "appPaths":  {
+                                                                     "app.workspace.getActiveViewOfType":  3,
+                                                                     "app.workspace.on":  3,
+                                                                     "app.workspace.getLeavesOfType":  3,
+                                                                     "app.workspace":  3,
+                                                                     "app.workspace.containerEl":  2,
+                                                                     "app.workspace.iterateAllLeaves":  2
+                                                                 },
+                                                    "codemirrorModules":  {
+                                                                              "@codemirror/state":  2,
+                                                                              "@codemirror/view":  1
+                                                                          },
+                                                    "nodeElectron":  {
+
+                                                                     },
+                                                    "usesWorker":  false
+                                                },
+                    "obsidian-heading-shifter":  {
+                                                     "mainJsKB":  78,
+                                                     "obsidianSymbols":  {
+                                                                             "Plugin":  1,
+                                                                             "PluginSettingTab":  1,
+                                                                             "Notice":  3,
+                                                                             "Menu":  1,
+                                                                             "setIcon":  1,
+                                                                             "addIcon":  1,
+                                                                             "Platform":  1,
+                                                                             "editorInfoField":  1,
+                                                                             "Editor":  1
+                                                                         },
+                                                     "registrations":  {
+                                                                           "registerEditorExtension":  2,
+                                                                           "addCommand":  2,
+                                                                           "addSettingTab":  1,
+                                                                           "loadData":  1,
+                                                                           "saveData":  1,
+                                                                           "onunload":  1
+                                                                       },
+                                                     "events":  {
+
+                                                                },
+                                                     "appPaths":  {
+
+                                                                  },
+                                                     "codemirrorModules":  {
+                                                                               "@codemirror/view":  1,
+                                                                               "@codemirror/state":  1
+                                                                           },
+                                                     "nodeElectron":  {
+
+                                                                      },
+                                                     "usesWorker":  false
+                                                 },
+                    "dynamic-wide-content":  {
+                                                 "mainJsKB":  13,
+                                                 "obsidianSymbols":  {
+                                                                         "Plugin":  1,
+                                                                         "PluginSettingTab":  1,
+                                                                         "Setting":  4,
+                                                                         "MarkdownView":  1
+                                                                     },
+                                                 "registrations":  {
+                                                                       "registerMarkdownPostProcessor":  1,
+                                                                       "registerEvent":  5,
+                                                                       "addCommand":  1,
+                                                                       "addSettingTab":  1,
+                                                                       "loadData":  1,
+                                                                       "saveData":  3,
+                                                                       "onLayoutReady":  1
+                                                                   },
+                                                 "events":  {
+                                                                "window-open":  1,
+                                                                "window-close":  1,
+                                                                "file-open":  1,
+                                                                "layout-change":  1,
+                                                                "active-leaf-change":  1
+                                                            },
+                                                 "appPaths":  {
+                                                                  "app.workspace.on":  5,
+                                                                  "app.workspace.iterateAllLeaves":  1,
+                                                                  "app.workspace.getLeavesOfType":  1,
+                                                                  "app.workspace.onLayoutReady":  1
+                                                              },
+                                                 "codemirrorModules":  {
+
+                                                                       },
+                                                 "nodeElectron":  {
+
+                                                                  },
+                                                 "usesWorker":  false
+                                             },
+                    "quadtasks":  {
+                                      "mainJsKB":  16,
+                                      "obsidianSymbols":  {
+                                                              "Plugin":  1,
+                                                              "Modal":  1,
+                                                              "TFile":  1,
+                                                              "MarkdownRenderer":  1,
+                                                              "MarkdownRenderChild":  1,
+                                                              "setIcon":  5,
+                                                              "addIcon":  2,
+                                                              "debounce":  1
+                                                          },
+                                      "registrations":  {
+                                                            "registerMarkdownCodeBlockProcessor":  1,
+                                                            "onunload":  1
+                                                        },
+                                      "events":  {
+
+                                                 },
+                                      "appPaths":  {
+                                                       "app.vault.modify":  1,
+                                                       "app.vault.read":  1,
+                                                       "app.vault.getAbstractFileByPath":  1
+                                                   },
+                                      "codemirrorModules":  {
+
+                                                            },
+                                      "nodeElectron":  {
+
+                                                       },
+                                      "usesWorker":  false
+                                  },
+                    "wispr-flow-sync":  {
+                                            "mainJsKB":  810,
+                                            "obsidianSymbols":  {
+                                                                    "Plugin":  1,
+                                                                    "PluginSettingTab":  1,
+                                                                    "Notice":  16,
+                                                                    "TFile":  1,
+                                                                    "ButtonComponent":  3,
+                                                                    "normalizePath":  1,
+                                                                    "Platform":  1
+                                                                },
+                                            "registrations":  {
+                                                                  "registerInterval":  1,
+                                                                  "addCommand":  2,
+                                                                  "addSettingTab":  1,
+                                                                  "loadData":  1,
+                                                                  "saveData":  1,
+                                                                  "onunload":  1
+                                                              },
+                                            "events":  {
+
+                                                       },
+                                            "appPaths":  {
+                                                             "app.vault.getAbstractFileByPath":  2,
+                                                             "app.metadataCache.getFileCache":  2,
+                                                             "app.vault.adapter":  2,
+                                                             "app.vault.create":  1,
+                                                             "app.vault.getMarkdownFiles":  1,
+                                                             "app.vault.createFolder":  1,
+                                                             "app.vault.modify":  1
+                                                         },
+                                            "codemirrorModules":  {
+
+                                                                  },
+                                            "nodeElectron":  {
+                                                                 "fs":  1,
+                                                                 "path":  1,
+                                                                 "os":  1
+                                                             },
+                                            "usesWorker":  false
+                                        }
+                }
+}
