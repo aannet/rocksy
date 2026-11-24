@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generateur de vault Obsidian synthetique, calque sur les KPIs de out/data/vault-kpis.json.
+Generateur de vault Obsidian synthetique, calque sur les KPIs de data/vault-kpis.json.
 
 Banc de test pour le core Rust : demarrage, arbre, index, reconciliation, a 1x, 2x, 5x, 10x, 20x
 le volume actuel (488 notes, 465 pieces jointes, 94 dossiers par "bloc").
@@ -39,10 +39,10 @@ Historique
   * v1 : version initiale.
 
 Exemples
-  python3 out/tools/gen-vault.py --out /data/vaults/x1  --scale 1
-  python3 out/tools/gen-vault.py --out /data/vaults/x20 --scale 20
-  python3 out/tools/gen-vault.py --out /data/vaults/x20 --scale 20 --attach-factor 1.0   # tailles reelles (~2,3 Go)
-  python3 out/tools/gen-vault.py --out /data/vaults/x5  --stats-only
+  python3 tools/gen-vault.py --out /data/vaults/x1  --scale 1
+  python3 tools/gen-vault.py --out /data/vaults/x20 --scale 20
+  python3 tools/gen-vault.py --out /data/vaults/x20 --scale 20 --attach-factor 1.0   # tailles reelles (~2,3 Go)
+  python3 tools/gen-vault.py --out /data/vaults/x5  --stats-only
 """
 import argparse
 import base64

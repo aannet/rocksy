@@ -20,7 +20,7 @@
   .\measure-coldstart.ps1 -Case Restreint -Runs 3
   .\measure-coldstart.ps1 -Case Normal -Runs 1 -Label "apres reboot (Drive a froid)"
   # Un spike (resultats ranges dans le dossier du spike) :
-  .\measure-coldstart.ps1 -Case Vault-reel -Runs 3 -ObsidianExe ..\spikes\a-tauri-cm6\bin\rocksy-spike-a.exe -ProcessName rocksy-spike-a -RunsRoot ..\spikes\a-tauri-cm6\runs
+  .\measure-coldstart.ps1 -Case Vault-reel -Runs 3 -ObsidianExe <chemin>\rocksy.exe -ProcessName rocksy -RunsRoot ..\runs
 
   Rangement : chaque session ecrit dans <RunsRoot>\AAAA-MM-JJ_HHMM_<cas>\ (coldstart.csv, meta.json).
 #>
@@ -30,7 +30,7 @@ param(
   [string]$Label = "",
   [string]$ObsidianExe = "$env:LOCALAPPDATA\Programs\Obsidian\Obsidian.exe",
   [string]$ProcessName = "Obsidian",   # nom du processus a surveiller (ex. le nom d'un spike)
-  [string]$RunsRoot = "$PSScriptRoot\..\runs",   # racine des runs : out\runs (Obsidian) ou out\spikes\<spike>\runs
+  [string]$RunsRoot = "$PSScriptRoot\..\runs",   # racine des runs : runs\ a la racine du depot
   [string]$OutCsv = "",                            # vide = dossier date automatique dans $RunsRoot
   [int]$TimeoutSec = 60
 )

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Compile Rocksy pour Windows depuis WSL (compilation croisee, sans rien installer sous Windows).
 # Prerequis (espace utilisateur) : rustup avec la cible x86_64-pc-windows-gnullvm, llvm-mingw dans ~/rocksy-toolchain/llvm-mingw, Node.
-# Usage : out/tools/build-win.sh [--skip-ui] [--dest /mnt/c/Users/<toi>/rocksy-test/bin]
+# Usage : tools/build-win.sh [--skip-ui] [--dest /mnt/c/Users/<toi>/rocksy-test/bin]
 set -euo pipefail
-ROOT="$(cd "$(dirname "$0")/../spikes/a-tauri-cm6/src" && pwd)"
+ROOT="$(cd "$(dirname "$0")/../app" && pwd)"
 DEST="/mnt/c/Users/aleca/rocksy-test/bin"
 SKIP_UI=0
 while [ $# -gt 0 ]; do

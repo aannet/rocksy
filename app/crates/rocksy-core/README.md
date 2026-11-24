@@ -159,7 +159,7 @@ Par rapport à la version 1 : après les occurrences de chaque fichier, ses lien
 
 ```bash
 export PATH=$HOME/.cargo/bin:$PATH CARGO_TARGET_DIR=~/.cache/rocksy-target/core
-cd out/spikes/a-tauri-cm6/src
+cd app
 cargo test -p rocksy-core
 cargo clippy -p rocksy-core --all-targets
 cargo check -p rocksy-core --target x86_64-pc-windows-msvc --all-targets
@@ -172,7 +172,7 @@ cargo check -p rocksy-core --target x86_64-pc-windows-msvc --all-targets
 ```bash
 cargo build -p rocksy-core --release
 BIN=~/.cache/rocksy-target/core/release/rocksy-cli
-python3 out/tools/gen-vault.py --out ~/rocksy-vaults/x20 --scale 20
+python3 <racine-du-depot>/tools/gen-vault.py --out ~/rocksy-vaults/x20 --scale 20
 
 $BIN tree ~/rocksy-vaults/x20 [--data-dir D]        # listing, écriture et relecture du snapshot, réconciliation
 $BIN tags ~/rocksy-vaults/x20 [--threads N] [--reps N]   # construction de l'index, latence de tags_list et tag_fragments

@@ -1,0 +1,31 @@
+# Spec: saving
+
+Status: normative
+Last verified at: release 0.2.1 (branch kb-restructure; invariants taken from the contract and the tests as they stand, the test suite passed at 244 core and 124 UI tests)
+
+## Scope
+
+`save_file`: atomic write, conflict detection, retries, extension rule, and the UI's handling of line endings, failed saves, reloads and deletions. Rationale: `docs/decisions/0012-markdown-only-saves-and-line-endings.md`.
+
+## Invariants
+
+| # | Invariant | Enforced by |
+|---|---|---|
+| SV-1 | `save_file` accepts only `.md` and `.markdown`; the extension rule applies to the resolved name (a link or a Windows short name cannot get around it) | `save_accepts_only_markdown_extensions` (`app/crates/rocksy-core/tests/files_integrity.rs`), `savable_names_are_markdown_outside_obsidian`, `extension_rule_and_short_names`, `save_checks_the_resolved_name_of_a_link` |
+| SV-2 | A save into `.obsidian/` or of a `.canvas` is refused, including through a symlink | `save_refuses_obsidian_and_canvas`, `save_follows_symlinks_and_blocks_links_into_obsidian` |
+| SV-3 | The write is atomic: a temporary file in the same folder (name starts with `.`, ends with `.rocksy-tmp`), then rename; the exact bytes are written; no temporary file remains, also after a failure | `save_writes_exact_bytes_and_leaves_no_temporary`, `failed_save_removes_its_temporary_file` |
+| SV-4 | A save creates a new file but not missing directories; a relative path or a directory target is refused | `save_creates_new_file_but_not_directories`, `save_rejects_relative_path_and_directory_target` |
+| SV-5 | With `expectedMtimeMs`, a file changed on disk gives `conflict` and the disk content is kept; a file gone gives `conflict` with code `gone` | `save_detects_conflict_and_keeps_disk_content`; UI: `a save that finds the file gone says deleted, not changed` (`app/ui/tests/sync.test.ts`) |
+| SV-6 | A locked file is retried for about 2 s (data files about 225 ms), the conflict check is redone before every attempt, an external write during a retry pause is a conflict, a permanent error is not retried; on non-Windows nothing is transient | `retry_window_is_about_two_seconds_for_notes_and_short_for_data_files`, `check_runs_before_every_attempt_and_retry_succeeds`, `external_write_during_a_retry_pause_is_a_conflict`, `permanent_error_is_not_retried`, `sharing_and_lock_violations_are_transient_on_windows`, `nothing_is_transient_outside_windows` (`app/crates/rocksy-core/src/atomic.rs`) |
+| SV-7 | After a `save_file`, tags and links are updated before the command returns; search within 2 s; the disk is not re-read | `save_does_not_wait_for_a_running_pass`, `a_kill_before_the_deferred_commit_costs_one_read_per_saved_note` (`app/crates/rocksy-core/tests/index_engine.rs`) |
+| SV-8 | The only write in a vault is the saved file; no other file changes, none is created | `save_changes_only_the_saved_file`, `a_file_outside_any_vault_gets_nothing_created_next_to_it` (`app/crates/rocksy-core/tests/no_unwanted_writes.rs`) |
+| SV-9 | The backend never changes line endings; the UI rewrites a homogeneous file with its own ending (LF, CRLF, lone CR; LF if no line break), keeps the BOM, and in a mixed file keeps the endings of unchanged head and tail lines while changed or added lines take the majority ending (tie: LF, then CRLF). A mixed file saved unchanged is byte-identical | `read_returns_exact_text_with_bom_and_crlf` (core), `keeps homogeneous files as before (LF, CRLF, lone CR, BOM, no final newline)`, `a mixed file saved without change is identical byte for byte`, `a line changed in the middle changes that line only`, `through a save: the written endings become the reference of the next save` (`app/ui/tests/sync.test.ts`) |
+| SV-10 | A failed `io` save is retried from the UI with a growing delay (2 s, 5 s, 15 s, then 30 s) while the document stays modified; `invalid` and `conflict` are not retried | `retries io failures with a growing delay while the document stays modified`, `does not retry invalid nor conflict` |
+| SV-11 | A read-only document is never saved, by autosave or on request, and its editor state refuses every change except content coming from the disk | `a read-only document is never saved, by autosave or on request`, `the editor state of a read-only document refuses every change, except the content coming from the disk` |
+| SV-12 | A reload after an external change does not overwrite what was typed meanwhile; a clean document is replaced and the user is told | `does not overwrite what was typed while the disk was being read`, `replaces a clean document and says so` |
+| SV-13 | A file that disappears while open is flagged and never recreated silently; a deletion reported during a save is not lost | `is flagged and never recreated silently`, `a deletion reported during a save is not lost` |
+| SV-14 | Autosave runs 2 s after the last keystroke and can be turned off in the status bar (stated in `release/README.md`) | not covered by a test (browser scenario `edit` in `app/ui/tools/scenarios/edit.json` plays autosave off) |
+
+## Code
+
+`app/crates/rocksy-core/src/files.rs`, `app/crates/rocksy-core/src/atomic.rs`, `app/ui/src/docsync.ts`, `app/ui/src/eol.ts`, `app/ui/src/app.ts`.

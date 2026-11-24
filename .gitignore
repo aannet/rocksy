@@ -16,9 +16,12 @@ vaults/
 *.log
 
 # Captures volumineuses des runs : versionner seulement ce qui est cité dans un rapport
-out/**/runs/**/*.mp4
-out/**/runs/**/*.mkv
+runs/**/*.mp4
+runs/**/*.mkv
 
 # Captures du run d'integration (18 Mo de PNG sur donnees synthetiques) : conservees sur disque, non versionnees
-out/spikes/a-tauri-cm6/runs/*_integration/captures/
-out/spikes/a-tauri-cm6/runs/*_integration-audits/captures/
+runs/*_integration/captures/
+runs/*_integration-audits/captures/
+
+# Terms that must never appear in a tracked file (read by tools/check-consistency.py); the owner creates this file
+.private-terms
