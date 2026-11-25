@@ -395,7 +395,7 @@ export function createMock(params: URLSearchParams): { backend: Backend; control
         vaults,
         session,
         dataDir: "C:\\Users\\demo\\AppData\\Roaming\\Rocksy",
-        version: "0.2.1-mock",
+        version: "0.2.2-mock",
         processStartMs: t0,
         firstFile,
       };

@@ -1,0 +1,292 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-fix-activetab-2",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\v2"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\vault-src",
+   "dst": "{IT}\\v2"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('v2'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "sleep": 1500
+  },
+  {
+   "eval": "(()=>{window.G={long:T.vault('Long.md'),daily:T.vault('01_WORK','__DAILY NOTES SYNTH.md'),canvas:T.vault('01_WORK','Canvas simple.canvas'),\nrel:p=>p&&p.slice(rocksy.vaultRoot.length+1).replace(/\\\\/g,'/'),\nst(){const p=rocksy.focused,v=p.view,d=p.active,t=v?v.state.doc.toString():'',m={};for(const k of ['SSS','PPP','HHH','TTT','LLL'])m[k]=t.includes(k);const top=v?v.scrollDOM.scrollTop:0;return {pane:rocksy.panes.indexOf(p),panes:rocksy.panes.map(q=>q.active&&q.active.name),active:G.rel(d&&d.path),markers:m,lines:v?v.state.doc.lines:0,dirty:d&&d.dirty,scroll:Math.round(top),firstLine:v?v.state.doc.lineAt(v.lineBlockAtHeight(top).from).number:0,cursorLine:v?v.state.doc.lineAt(v.state.selection.main.head).number:0}},\nasync disk(p){const t=(await T.inv('read_file',{path:p})).text;const m={};for(const k of ['SSS','PPP','HHH','TTT','LLL'])m[k]=t.includes(k);return JSON.stringify({markers:m,lines:t.split('\\n').length,quartz:t.includes('The quartzline marker is here.'),section6:t.includes('\\n## Section 6\\n')})},\ntab(paneIdx,name){document.querySelectorAll('#g-tab').forEach(e=>e.removeAttribute('id'));const p=rocksy.panes[paneIdx];const i=p.tabs.findIndex(d=>d.name===name);const e=p.tabbar.querySelector('.tab[data-i=\"'+i+'\"] .tab-name');if(!e)return -1;e.id='g-tab';return i}};return 1})()"
+  },
+  {
+   "eval": "(async()=>{const a=await T.open(G.daily);const b=await T.open(G.long);return JSON.stringify({daily:a,long:b})})()",
+   "save": "opened"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "eval": "T.lineEnd(301)"
+  },
+  {
+   "type": " SSS",
+   "delay": 40
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "S1_typed_line301"
+  },
+  {
+   "eval": "G.tab(0,'Long')"
+  },
+  {
+   "click": "#g-tab"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "S2_own_tab_clicked"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "G.disk(G.long)",
+   "save": "S3_disk"
+  },
+  {
+   "eval": "T.open(G.daily).then(r=>JSON.stringify(r))"
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "G.tab(0,'Long')"
+  },
+  {
+   "click": "#g-tab"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "S4_back_from_other_note"
+  },
+  {
+   "eval": "T.open(G.canvas).then(r=>JSON.stringify(r))"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify({active:rocksy.focused.active.name,editorHidden:rocksy.focused.editorHost.hidden})",
+   "save": "S5a_canvas_shown"
+  },
+  {
+   "eval": "G.tab(0,'Long')"
+  },
+  {
+   "click": "#g-tab"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "S5_back_from_canvas"
+  },
+  {
+   "eval": "T.lineEnd(201)"
+  },
+  {
+   "type": " PPP",
+   "delay": 40
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "P1_typed_line201"
+  },
+  {
+   "eval": "(async()=>{await rocksy.showSidebar('search');const i=document.querySelector('.search-panel input');i.focus();i.value='quartzline';i.dispatchEvent(new Event('input',{bubbles:true}));const ms=await T.wait(()=>document.querySelector('.search-panel .sr-match'),8000);return JSON.stringify({ms,rows:[...document.querySelectorAll('.search-panel .sr-file')].map(e=>e.textContent.slice(0,40))})})()",
+   "save": "P_search_rows"
+  },
+  {
+   "click": ".search-panel .sr-match"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "P2_search_result_same_note"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "G.disk(G.long)",
+   "save": "P3_disk"
+  },
+  {
+   "eval": "T.lineEnd(10)"
+  },
+  {
+   "type": " HHH",
+   "delay": 40
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify({st:G.st(),links:[...T.view().contentDOM.querySelectorAll('[data-wikilink]')].map(e=>e.dataset.wikilink)})",
+   "save": "H1_typed_line10"
+  },
+  {
+   "click": "[data-wikilink=\"Long#Section 6\"]",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "H2_heading_link_same_note"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "G.disk(G.long)",
+   "save": "H3_disk"
+  },
+  {
+   "key": "\\",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 1000
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "T0_after_split"
+  },
+  {
+   "eval": "T.lineEnd(20)"
+  },
+  {
+   "type": " TTT",
+   "delay": 40
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "T1_typed_right"
+  },
+  {
+   "eval": "G.tab(1,'Long')"
+  },
+  {
+   "click": "#g-tab"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "T2_right_own_tab_clicked"
+  },
+  {
+   "eval": "G.tab(0,'__DAILY NOTES SYNTH')"
+  },
+  {
+   "click": "#g-tab"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "T.lineEnd(3)"
+  },
+  {
+   "type": " LLL",
+   "delay": 40
+  },
+  {
+   "sleep": 400
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "L1_typed_left"
+  },
+  {
+   "eval": "G.tab(0,'__DAILY NOTES SYNTH')"
+  },
+  {
+   "click": "#g-tab"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "L2_left_own_tab_clicked"
+  },
+  {
+   "eval": "G.tab(1,'Long')"
+  },
+  {
+   "click": "#g-tab"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(G.st())",
+   "save": "T3_right_again"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "G.disk(G.long)",
+   "save": "T4_disk_long"
+  },
+  {
+   "eval": "G.disk(G.daily)",
+   "save": "L3_disk_daily"
+  },
+  {
+   "py": "close",
+   "save": "closed"
+  }
+ ]
+}

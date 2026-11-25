@@ -1,0 +1,32 @@
+{
+ "scenario": "upgrade-a-021",
+ "saved": {
+  "attachMs": 595,
+  "treeEntries": 1051,
+  "A_state_021": "{\"version\":\"0.2.1\",\"vault\":\"uv\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"active\":\"Self\",\"loaded\":true,\"line5\":\"Line to type after. UUU\",\"dirty\":false,\"status\":\"Self.mdIndex ✓13 mots · 72 car.EnregistréAuto ✓Live Previewuv\",\"index\":[{\"fromCache\":false,\"searchReady\":true,\"files\":490}]}",
+  "A_disk_021": "# Self\n\nA note that links to itself: [[Self]].\n\nLine to type after. UUU\n",
+  "A_datadir": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ],
+  "closed": "True True",
+  "A_datadir_after_close": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ]
+ },
+ "errors": [],
+ "exe": "<work>\\base-021\\rocksy.exe",
+ "csp": null,
+ "ourPidsStillAlive": []
+}

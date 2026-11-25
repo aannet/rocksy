@@ -1,0 +1,25 @@
+{
+ "scenario": "upgrade-b-022",
+ "saved": {
+  "attachMs": 610,
+  "B_index_wait_ms": 1,
+  "B_state_022": "{\"version\":\"0.2.2\",\"vault\":\"uv\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"active\":\"Self\",\"loaded\":true,\"line5\":\"Line to type after. UUU\",\"dirty\":false,\"status\":\"Self.mdIndex ✓13 mots · 72 car.EnregistréAuto ✓Live Previewuv\",\"index\":[{\"fromCache\":true,\"searchReady\":false,\"files\":490},{\"fromCache\":true,\"searchReady\":true,\"files\":490},{\"fromCache\":false,\"searchReady\":true,\"files\":490}]}",
+  "B_search": "{\"ms\":112,\"rows\":[\"Long1\"]}",
+  "B_state_after_edit": "{\"version\":\"0.2.2\",\"vault\":\"uv\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"active\":\"Self\",\"loaded\":true,\"line5\":\"Line to type after. UUU VVV\",\"dirty\":false,\"status\":\"Self.mdIndex ✓14 mots · 76 car.EnregistréAuto ✓Live Previewuv\",\"index\":[{\"fromCache\":true,\"searchReady\":false,\"files\":490},{\"fromCache\":true,\"searchReady\":true,\"files\":490},{\"fromCache\":false,\"searchReady\":true,\"files\":490}]}",
+  "B_disk_022": "# Self\n\nA note that links to itself: [[Self]].\n\nLine to type after. UUU VVV\n",
+  "B_datadir": [
+   "search",
+   "session.json",
+   "tags",
+   "timings.jsonl",
+   "trees",
+   "vaults.json",
+   "webview"
+  ],
+  "closed": "True True"
+ },
+ "errors": [],
+ "exe": "<work>\\pre-022\\rocksy.exe",
+ "csp": null,
+ "ourPidsStillAlive": []
+}

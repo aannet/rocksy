@@ -24,6 +24,8 @@ Conditions of every measurement so far: synthetic vaults on a local disk (`C:`),
 
 From the "remaining defects" section of `runs/2026-11-23_2240_integration-audits/notes.md` and from `release/README.md` ("Limits"):
 
+- Text loss fixed in 0.2.2 (SV-18 of `docs/specs/saving.md`): in 0.1.0 to 0.2.1, activating the note that was already active (its own tab, the tree, the quick switcher, a link, a heading link or a search result in the same note, in either pane) put back in the editor the state the note had when it was last shown, and the next save wrote that older text. Verified in the real app on synthetic vaults, loss reproduced on a 0.2.1-behaviour build and gone in 0.2.2 for all these paths, scroll position of a long note included: see `runs/2026-11-25_1500_release-022/notes.md`. Unit tests only: keys typed while the next tab is still being read now go to the note still shown, and keys typed after closing a tab are dropped instead of being saved into the closed file. Unverified: backlinks in the same note, files opened from outside the window, a reload or a conflict while another tab loads, the preview refresh of a hidden editor, the Drive volume and the owner's real profile.
+
 - `asset:` and network paths: a request to `http://asset.localhost/` followed by a network path is refused, but only after about 1.3 s (2 ms for other refusals), which indicates Tauri touches the path before testing its scope. The UI never makes this request; injected content could (the CSP allows `asset:` for images). Not fixed.
 - CodeMirror logs "Viewport failed to stabilize" during tab switches chained by scripts (seen twice). No observed effect.
 - Typing at the end of a single 216,000-character line: median 76 ms. Known extreme case, out of scope of the audit batch.

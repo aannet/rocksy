@@ -7,7 +7,7 @@ Entry point for any LLM working on this repository. Read this file first; it poi
 
 ## What Rocksy is
 
-A fast Obsidian replacement for Windows 11: Rust core (`app/crates/rocksy-core`), Tauri 2 shell (`app/src-tauri`), CodeMirror 6 UI (`app/ui`, UI strings in French). Personal project of the owner, public repository. Current version: 0.2.1.
+A fast Obsidian replacement for Windows 11: Rust core (`app/crates/rocksy-core`), Tauri 2 shell (`app/src-tauri`), CodeMirror 6 UI (`app/ui`, UI strings in French). Personal project of the owner, public repository. Current version: 0.2.2.
 
 Targets (measured on synthetic vaults with a warm cache; the real vault on Google Drive, cold start and the manual timers were never measured, see `docs/status.md`):
 - last note editable in 2 s or less, file tree navigable in 3 s or less, cold start;

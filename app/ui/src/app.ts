@@ -32,6 +32,7 @@ import { iconSvg } from "./icons";
 import type { Sidebar, SidebarTab } from "./sidebar";
 import { setTermsEffect, termsField } from "./editor/termhl";
 import type { PickerItem } from "./picker";
+import { EditorHolder } from "./editorholder";
 
 export type DocKind = "md" | "canvas" | "image";
 
@@ -89,6 +90,8 @@ class Pane {
   readonly viewer = document.createElement("div");
   readonly empty = document.createElement("div");
   view: EditorView | null = null;
+  /** The document whose live state is in `view` (docs/specs/saving.md, SV-18); not always `active`. */
+  readonly held: EditorHolder<Pane, Doc, EditorView> = new EditorHolder<Pane, Doc, EditorView>(this, syncEffects, (d) => this.tabs.includes(d));
   tabs: Doc[] = [];
   active: Doc | null = null;
   private viewerDispose: (() => void) | null = null;
@@ -195,13 +198,9 @@ class Pane {
     }
   }
 
-  /** Stores the live editor state back into the active document before switching away. */
+  /** Stores the live editor state back into the document the editor holds (the scroll position only while shown). */
   stash(): void {
-    const d = this.active;
-    if (d && d.kind === "md" && this.view && d.loaded && d.state) {
-      d.state = this.view.state;
-      d.scrollTop = this.view.scrollDOM.scrollTop;
-    }
+    this.held.stash(this.view, !this.editorHost.hidden);
   }
 
   private showOnly(which: HTMLElement): void {
@@ -221,6 +220,7 @@ class Pane {
     this.viewer.textContent = "";
     this.view?.destroy();
     this.view = null;
+    this.held.release();
   }
 
   showEmpty(html: string, error = false): void {
@@ -246,13 +246,13 @@ class Pane {
       return;
     }
     if (d.kind === "md" && d.state) {
-      const fx = syncEffects(d.state);
-      if (fx.length) d.state = d.state.update({ effects: fx }).state;
-      if (!this.view) this.view = createEditorView(this.editorHost, d.state);
-      else if (this.view.state !== d.state) this.view.setState(d.state);
+      // The note the editor already holds keeps its live state (text, history, scroll): never its older snapshot.
+      const wasHidden = this.editorHost.hidden;
+      const given = this.held.give(this.view, d, !wasHidden, (state) => createEditorView(this.editorHost, state));
+      this.view = given.view;
       this.showOnly(this.editorHost);
       const view = this.view;
-      if (d.scrollTop > 0) {
+      if ((given.replaced || wasHidden) && d.scrollTop > 0) {
         view.scrollDOM.scrollTop = d.scrollTop;
         requestAnimationFrame(() => {
           if (this.active === d && view.scrollDOM.scrollTop !== d.scrollTop) view.scrollDOM.scrollTop = d.scrollTop;
@@ -433,15 +433,14 @@ export class App implements EditorHost {
     return this.focused.active;
   }
 
+  /** The current state of a note: its editor's when the editor of its pane holds it, its snapshot otherwise (SV-18). */
   stateOf(doc: Doc): EditorState | null {
-    const p = doc.pane;
-    if (p.active === doc && p.view && doc.loaded && doc.kind === "md" && doc.state) return p.view.state;
-    return doc.state;
+    return doc.pane.held.stateOf(doc.pane.view, doc);
   }
 
+  /** The editor to dispatch to for a note, or null when its state is the snapshot (SV-18). */
   viewOf(doc: Doc): EditorView | null {
-    const p = doc.pane;
-    return p.active === doc && doc.loaded && doc.kind === "md" ? p.view : null;
+    return doc.pane.held.viewOf(doc.pane.view, doc);
   }
 
   private isOutside(path: string): boolean {
@@ -646,6 +645,7 @@ export class App implements EditorHost {
         if (pane.view) {
           pane.view.destroy();
           pane.view = null;
+          pane.held.release();
         }
         pane.renderTabs();
         pane.show();
@@ -679,6 +679,7 @@ export class App implements EditorHost {
     const pane = this.addPane();
     if (doc && from.tabs.length > 1) {
       from.stash();
+      from.held.release();
       const i = from.tabs.indexOf(doc);
       from.tabs.splice(i, 1);
       from.active = null;
@@ -792,7 +793,8 @@ export class App implements EditorHost {
   onUpdate(u: ViewUpdate): void {
     let pane: Pane | null = null;
     for (const p of this.panes) if (p.view === u.view) pane = p;
-    const doc = pane?.active;
+    // The note the editor holds, which is not the active tab while that one is still being read (SV-18).
+    const doc = pane?.held.holder();
     if (!pane || !doc) return;
     if (u.docChanged) {
       let external = false;
@@ -1127,7 +1129,8 @@ export class App implements EditorHost {
   }
 
   private refreshPreviews(): void {
-    for (const p of this.panes) if (p.view && p.active?.kind === "md") refreshPreview(p.view);
+    // Also a hidden editor (a canvas or an image is shown): the note it holds is shown again without a new state (SV-18).
+    for (const p of this.panes) if (p.view && p.held.holder()) refreshPreview(p.view);
   }
 
   private refreshOutside(): void {

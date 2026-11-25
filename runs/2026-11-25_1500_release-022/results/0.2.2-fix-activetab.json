@@ -1,0 +1,32 @@
+{
+ "scenario": "fix-activetab",
+ "saved": {
+  "attachMs": 1082,
+  "treeEntries": 1051,
+  "opened": "{\"other\":{\"loaded\":true,\"error\":null,\"ms\":110,\"name\":\"__DAILY NOTES SYNTH\"},\"self\":{\"loaded\":true,\"error\":null,\"ms\":42,\"name\":\"Self\"}}",
+  "A1_typed": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. AAA\",\"AAA\":true,\"BBB\":false,\"CCC\":false,\"DDD\":false,\"dirty\":true,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"}",
+  "A2_active_tab_clicked": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. AAA\",\"AAA\":true,\"BBB\":false,\"CCC\":false,\"DDD\":false,\"dirty\":true,\"scroll\":0,\"focus\":\"BODY.\",\"picker\":false,\"toast\":\"\"}",
+  "A3_disk_after_autosave": "{\"has\":true,\"tail\":\"te that links to itself: [[Self]].\\n\\nLine to type after. AAA\\n\",\"dirty\":false}",
+  "A4_after_ctrl_z": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after.\",\"AAA\":false,\"BBB\":false,\"CCC\":false,\"DDD\":false,\"dirty\":true,\"scroll\":0,\"focus\":\"BODY.\",\"picker\":false,\"toast\":\"\"}",
+  "A5_disk_after_undo": "{\"has\":false,\"tail\":\"A note that links to itself: [[Self]].\\n\\nLine to type after.\\n\",\"dirty\":false}",
+  "B1_typed": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. BBB\",\"AAA\":false,\"BBB\":true,\"CCC\":false,\"DDD\":false,\"dirty\":true,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"}",
+  "B_row": 23,
+  "B2_tree_row_clicked": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. BBB\",\"AAA\":false,\"BBB\":true,\"CCC\":false,\"DDD\":false,\"dirty\":true,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"}",
+  "B3_disk_after_autosave": "{\"has\":true,\"tail\":\"te that links to itself: [[Self]].\\n\\nLine to type after. BBB\\n\",\"dirty\":false}",
+  "C1_typed": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. BBB CCC\",\"AAA\":false,\"BBB\":true,\"CCC\":true,\"DDD\":false,\"dirty\":true,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"}",
+  "C_picker_items": "[\"Self.md\"]",
+  "C2_quick_switcher_chosen": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. BBB CCC\",\"AAA\":false,\"BBB\":true,\"CCC\":true,\"DDD\":false,\"dirty\":false,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"}",
+  "C3_disk_after_autosave": "{\"has\":true,\"tail\":\"hat links to itself: [[Self]].\\n\\nLine to type after. BBB CCC\\n\",\"dirty\":false}",
+  "D1_typed": "{\"st\":{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. BBB CCC DDD\",\"AAA\":false,\"BBB\":true,\"CCC\":true,\"DDD\":true,\"dirty\":true,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"},\"links\":[\"Self\"]}",
+  "D2_link_to_same_note_clicked": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. BBB CCC DDD\",\"AAA\":false,\"BBB\":true,\"CCC\":true,\"DDD\":true,\"dirty\":true,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"}",
+  "D3_disk_after_autosave": "{\"has\":true,\"tail\":\"links to itself: [[Self]].\\n\\nLine to type after. BBB CCC DDD\\n\",\"dirty\":false}",
+  "D4_after_ctrl_z": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. BBB CCC\",\"AAA\":false,\"BBB\":true,\"CCC\":true,\"DDD\":false,\"dirty\":true,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"}",
+  "E_switch_away_and_back": "{\"active\":\"Self.md\",\"tabs\":[\"__DAILY NOTES SYNTH\",\"Self\"],\"line5\":\"Line to type after. BBB CCC\",\"AAA\":false,\"BBB\":true,\"CCC\":true,\"DDD\":false,\"dirty\":true,\"scroll\":0,\"focus\":\"editor\",\"picker\":false,\"toast\":\"\"}",
+  "F_final_disk_text": "# Self\n\nA note that links to itself: [[Self]].\n\nLine to type after. BBB CCC\n",
+  "closed": "True True"
+ },
+ "errors": [],
+ "exe": "<work>\\pre-022\\rocksy.exe",
+ "csp": null,
+ "ourPidsStillAlive": []
+}

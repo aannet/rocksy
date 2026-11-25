@@ -1,0 +1,238 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-fix-activetab",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\v"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\vault-src",
+   "dst": "{IT}\\v"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('v'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "sleep": 2000
+  },
+  {
+   "eval": "(()=>{window.F={p:T.vault('Self.md'),\nrel:p=>p&&p.slice(rocksy.vaultRoot.length+1).replace(/\\\\/g,'/'),\nst(){const v=T.view(),d=rocksy.activeDoc(),t=v.state.doc.toString(),a=document.activeElement;return {active:F.rel(d&&d.path),tabs:rocksy.focused.tabs.map(x=>x.name),line5:v.state.doc.line(5).text,AAA:t.includes('AAA'),BBB:t.includes('BBB'),CCC:t.includes('CCC'),DDD:t.includes('DDD'),dirty:d&&d.dirty,scroll:Math.round(v.scrollDOM.scrollTop),focus:a===v.contentDOM?'editor':a.tagName+'.'+a.className,picker:!!document.querySelector('.picker'),toast:document.querySelector('.st-toast').textContent}},\nrow(rel){const s=rocksy.sidebar;const i=s.rows.findIndex(r=>r.path===rel);if(i<0)return -1;const y=i*26,t=s.treeEl;if(y<t.scrollTop||y+26>t.scrollTop+t.clientHeight)t.scrollTop=Math.max(0,y-100);s.renderedFrom=-1;s.renderRows();document.querySelectorAll('#t-row').forEach(e=>e.removeAttribute('id'));const e=s.sizer.querySelector('.tree-row[data-i=\"'+i+'\"]');if(!e)return -1;e.id='t-row';return i}};return 1})()"
+  },
+  {
+   "eval": "(async()=>{const r=await T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));const s=await T.open(F.p);return JSON.stringify({other:r,self:s})})()",
+   "save": "opened"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "eval": "T.lineEnd(5)"
+  },
+  {
+   "type": " AAA",
+   "delay": 40
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "A1_typed"
+  },
+  {
+   "click": ".tab.is-active .tab-name"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "A2_active_tab_clicked"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "(async()=>{const t=(await T.inv('read_file',{path:F.p})).text;return JSON.stringify({has:t.includes('AAA'),tail:t.slice(-60),dirty:rocksy.activeDoc().dirty})})()",
+   "save": "A3_disk_after_autosave"
+  },
+  {
+   "key": "z",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "A4_after_ctrl_z"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "(async()=>{const t=(await T.inv('read_file',{path:F.p})).text;return JSON.stringify({has:t.includes('AAA'),tail:t.slice(-60),dirty:rocksy.activeDoc().dirty})})()",
+   "save": "A5_disk_after_undo"
+  },
+  {
+   "eval": "T.lineEnd(5)"
+  },
+  {
+   "type": " BBB",
+   "delay": 40
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "B1_typed"
+  },
+  {
+   "eval": "F.row('Self.md')",
+   "save": "B_row"
+  },
+  {
+   "click": "#t-row"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "B2_tree_row_clicked"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "(async()=>{const t=(await T.inv('read_file',{path:F.p})).text;return JSON.stringify({has:t.includes('BBB'),tail:t.slice(-60),dirty:rocksy.activeDoc().dirty})})()",
+   "save": "B3_disk_after_autosave"
+  },
+  {
+   "eval": "T.lineEnd(5)"
+  },
+  {
+   "type": " CCC",
+   "delay": 40
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "C1_typed"
+  },
+  {
+   "key": "o",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "type": "Self",
+   "delay": 40
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify([...document.querySelectorAll('.picker .picker-item, .picker li, .picker [role=option]')].slice(0,3).map(e=>e.textContent.slice(0,60)))",
+   "save": "C_picker_items"
+  },
+  {
+   "key": "Enter"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "C2_quick_switcher_chosen"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "(async()=>{const t=(await T.inv('read_file',{path:F.p})).text;return JSON.stringify({has:t.includes('CCC'),tail:t.slice(-60),dirty:rocksy.activeDoc().dirty})})()",
+   "save": "C3_disk_after_autosave"
+  },
+  {
+   "eval": "T.lineEnd(5)"
+  },
+  {
+   "type": " DDD",
+   "delay": 40
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify({st:F.st(),links:[...T.view().contentDOM.querySelectorAll('[data-wikilink]')].map(e=>e.dataset.wikilink)})",
+   "save": "D1_typed"
+  },
+  {
+   "click": "[data-wikilink=\"Self\"]",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 600
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "D2_link_to_same_note_clicked"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "(async()=>{const t=(await T.inv('read_file',{path:F.p})).text;return JSON.stringify({has:t.includes('DDD'),tail:t.slice(-60),dirty:rocksy.activeDoc().dirty})})()",
+   "save": "D3_disk_after_autosave"
+  },
+  {
+   "key": "z",
+   "mods": "ctrl"
+  },
+  {
+   "sleep": 300
+  },
+  {
+   "eval": "JSON.stringify(F.st())",
+   "save": "D4_after_ctrl_z"
+  },
+  {
+   "eval": "(async()=>{const r=await T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));await new Promise(r=>setTimeout(r,400));await T.open(F.p);await new Promise(r=>setTimeout(r,400));return JSON.stringify(F.st())})()",
+   "save": "E_switch_away_and_back"
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "(async()=>(await T.inv('read_file',{path:F.p})).text)()",
+   "save": "F_final_disk_text"
+  },
+  {
+   "py": "close",
+   "save": "closed"
+  }
+ ]
+}

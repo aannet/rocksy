@@ -1,7 +1,7 @@
 # Spec: saving
 
 Status: normative
-Last verified at: release 0.2.1 (branch kb-restructure; invariants taken from the contract and the tests as they stand, the test suite passed at 244 core and 124 UI tests)
+Last verified at: release 0.2.1 (branch kb-restructure; invariants taken from the contract and the tests as they stand, the test suite passed at 244 core and 124 UI tests); SV-18 added for 0.2.2, 2026-11-25 (UI tests, `runs/2026-11-25_1500_release-022/`)
 
 ## Scope
 
@@ -25,7 +25,12 @@ Last verified at: release 0.2.1 (branch kb-restructure; invariants taken from th
 | SV-12 | A reload after an external change does not overwrite what was typed meanwhile; a clean document is replaced and the user is told | `does not overwrite what was typed while the disk was being read`, `replaces a clean document and says so` |
 | SV-13 | A file that disappears while open is flagged and never recreated silently; a deletion reported during a save is not lost | `is flagged and never recreated silently`, `a deletion reported during a save is not lost` |
 | SV-14 | Autosave runs 2 s after the last keystroke and can be turned off in the status bar (stated in `release/README.md`) | not covered by a test (browser scenario `edit` in `app/ui/tools/scenarios/edit.json` plays autosave off) |
+| SV-18 | The editor of a pane holds the live state of one document at a time, the one it was last given (not necessarily the active tab: a tab being loaded leaves the previous note in the editor). Showing that document again (its own tab clicked, reopened from the tree, the quick switcher, a link, a search result) keeps the editor as it is: text, undo history and scroll (a search result or a heading link then moves the selection to its line and scrolls to it, nothing else); giving the editor another document first copies its live state back into the document it held. Edits, saves and reloads reach the document whose state the editor holds, so a stale state is never put back in the editor nor saved. A closed note is no longer held: keys typed in its editor before the next tab is read are dropped, never saved into the closed file. A hidden editor (a canvas or an image is shown) gets the preview refreshes too, since the note it holds is shown again without a new state | the tests of `app/ui/tests/editorholder.test.ts` (`showing the note it holds again keeps the text, the undo history and the scroll position`, `while the next tab loads, the keys typed in the editor belong to the note it still holds`, `a closed note is no longer held: keys typed before the next tab is read are neither its edits nor its saves`, and the others); the preview refresh of a hidden editor is not covered by a test; the use of `EditorHolder` by `Pane` and `App` in `app/ui/src/app.ts` is not covered by a unit test (no DOM in the UI tests): real-app scenarios `fix-activetab` (`app/ui/tools/app/fix-activetab.json`: own tab, tree, quick switcher, link) and `fix-activetab-2` (`app/ui/tools/app/fix-activetab-2.json`: scroll position of a long note, search result and heading link in the same note, a canvas and back, two panes), played in `runs/2026-11-25_1500_release-022/` |
+
+## Editor state
+
+Each pane has one CodeMirror view. A document that is not in a view keeps its state in `doc.state` (snapshot taken when the view is given another document); the document whose state the view holds is tracked by `EditorHolder` (`app/ui/src/editorholder.ts`), not deduced from the active tab. Before this rule (0.1.0 to 0.2.1), activating the already active note put its last snapshot back in the editor and the next save wrote it (`docs/status.md`).
 
 ## Code
 
-`app/crates/rocksy-core/src/files.rs`, `app/crates/rocksy-core/src/atomic.rs`, `app/ui/src/docsync.ts`, `app/ui/src/eol.ts`, `app/ui/src/app.ts`.
+`app/crates/rocksy-core/src/files.rs`, `app/crates/rocksy-core/src/atomic.rs`, `app/ui/src/docsync.ts`, `app/ui/src/eol.ts`, `app/ui/src/app.ts`, `app/ui/src/editorholder.ts`.

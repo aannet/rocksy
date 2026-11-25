@@ -1,9 +1,9 @@
-# Rocksy 0.2.1 — installation and getting started
+# Rocksy 0.2.2 — installation and getting started
 
 Status: living
-Last verified at: release 0.2.1 (branch kb-restructure)
+Last verified at: release 0.2.1 (branch kb-restructure); version and 0.2.2 notes updated on branch fix/0.2.2
 
-Rocksy 0.2.1 is a fast Markdown editor for Windows 11. It opens any `.md` (with or without a vault) and reads an Obsidian vault without converting it. It is not yet a replacement for Obsidian: see "Limits".
+Rocksy 0.2.2 is a fast Markdown editor for Windows 11. It opens any `.md` (with or without a vault) and reads an Obsidian vault without converting it. It is not yet a replacement for Obsidian: see "Limits".
 
 ## Contents
 
@@ -57,6 +57,12 @@ The script has still never been run on a machine (0.2.1 included): only its synt
 | Tags | Tag panel: filter, click a tag to see its fragments, click a fragment to open the note at the exact spot |
 | Canvas, `.txt` and other non-Markdown files | Read-only (padlock on the tab) |
 | Close | The close button first saves everything that is modified. If a save is impossible, or if autosave is turned off, Rocksy asks: save, quit without saving, or cancel |
+
+## What's new in 0.2.2
+
+Fix release. No new feature.
+
+- **No more text lost when showing the open note again.** In 0.1.0 to 0.2.1, activating the note already on screen (a click on its tab, in the tree, in the quick switcher, on a link or a search result leading to it) could bring back an older text, which autosave then wrote to the file.
 
 ## What's new in 0.2.1
 

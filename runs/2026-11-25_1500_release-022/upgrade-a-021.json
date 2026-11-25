@@ -1,0 +1,75 @@
+{
+ "app": {
+  "dataDir": "{IT}\\data-upgrade",
+  "args": []
+ },
+ "before": [
+  {
+   "py": "rmtree",
+   "path": "{IT}\\uv"
+  },
+  {
+   "py": "copytree",
+   "src": "{VAULTS}\\vault-src",
+   "dst": "{IT}\\uv"
+  }
+ ],
+ "steps": [
+  {
+   "wait": "window.rocksyReady",
+   "timeout": 20000
+  },
+  {
+   "evalfile": "helpers.js"
+  },
+  {
+   "eval": "T.addVault(T.it('uv'))",
+   "save": "treeEntries"
+  },
+  {
+   "wait": "rocksy.indexEvents.some(e=>!e.fromCache&&e.searchReady)",
+   "timeout": 60000
+  },
+  {
+   "eval": "(async()=>{await T.open(T.vault('01_WORK','__DAILY NOTES SYNTH.md'));await T.open(T.vault('Self.md'));return 1})()"
+  },
+  {
+   "sleep": 800
+  },
+  {
+   "eval": "T.lineEnd(5)"
+  },
+  {
+   "type": " UUU",
+   "delay": 40
+  },
+  {
+   "sleep": 3200
+  },
+  {
+   "eval": "JSON.stringify((()=>{const d=rocksy.activeDoc(),v=rocksy.focused.view;return {version:rocksy.info.version,vault:rocksy.vaultRoot&&rocksy.vaultRoot.split('\\\\').pop(),tabs:rocksy.focused.tabs.map(x=>x.name),active:d&&d.name,loaded:d&&d.loaded,line5:v&&v.state.doc.lines>=5?v.state.doc.line(5).text:null,dirty:d&&d.dirty,status:document.getElementById('statusbar').textContent.slice(0,200),index:rocksy.indexEvents.map(e=>({fromCache:!!e.fromCache,searchReady:!!e.searchReady,files:e.files}))}})())",
+   "save": "A_state_021"
+  },
+  {
+   "eval": "(async()=>(await T.inv('read_file',{path:T.vault('Self.md')})).text)()",
+   "save": "A_disk_021"
+  },
+  {
+   "sleep": 500
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-upgrade",
+   "save": "A_datadir"
+  },
+  {
+   "py": "close",
+   "save": "closed"
+  },
+  {
+   "py": "listdir",
+   "path": "{IT}\\data-upgrade",
+   "save": "A_datadir_after_close"
+  }
+ ]
+}
